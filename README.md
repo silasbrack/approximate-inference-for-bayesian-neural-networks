@@ -1,7 +1,13 @@
 special_course
 ==============================
 
-chine Learning with Michael Riis Andersen.
+Research project in Bayesian Machine Learning, supervised by Michael Riis Andersen.
+
+```
+python src/models/train_model ++params.batch_size=64
+./src/experiments/run_experiments.sh
+tensorboard --logdir outputs/
+```
 
 Project Organization
 ------------
