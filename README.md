@@ -3,8 +3,8 @@ special_course
 
 Research project in Bayesian Machine Learning, supervised by Michael Riis Andersen.
 
-You can train a model by running, for example, `python src/models/train_model ++params.batch_size=64`, where we are overloading the default configuration (as defined in `src/conf/mnist.yml`) with a batch size of 64.
-Alternatively, you can collect these commands into a shell script file and run that, allowing you to submit this script to a HPC cluster, e.g., `./src/experiments/run_experiments.sh`.
+You can train a model by running, for example, `python src/models/train_model.py ++params.batch_size=64`, where we are overloading the default configuration (as defined in `src/conf/mnist.yml`) with a batch size of 64.
+Alternatively, you can collect these commands into a shell script file and run that, allowing you to submit this script to a HPC cluster, e.g., `bsub < src/experiments/run_experiments.sh`.
 Then, to see the training results (which are by default saved to the `outputs/` folder), run `tensorboard --logdir outputs/`.
 
 To then make a prediction using a trained model, run...
