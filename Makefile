@@ -18,6 +18,14 @@ PYTHON_INTERPRETER = python3
 # COMMANDS                                                                      #
 #################################################################################
 
+## Run the necessary steps to run the project in a venv.
+setup_all:
+	ifeq (, $(shell which module))
+		module load python3/3.9.6
+	create_environment
+	source venv/bin/activate
+	requirements
+
 ## Install Python Dependencies
 requirements: test_environment
 	$(PYTHON_INTERPRETER) -m pip install -U pip setuptools wheel
