@@ -19,3 +19,4 @@ pytest
 setuptools
 hydra-core
 tensorboard
+torchvision
