@@ -1,24 +1,17 @@
-import os
 import torch
 from pytorch_lightning import LightningModule
-import hydra
-from omegaconf import DictConfig
+from omegaconf import DictConfig, OmegaConf
 
 from src.models import MNISTModel
 
 
-def load_model(cfg: DictConfig, experiment_location: str) -> LightningModule:
-    model = MNISTModel(
-        cfg.paths.data,
-        cfg.params.lr,
-        cfg.params.batch_size,
-    )
-    state_dict_path = experiment_location + cfg.paths.model + cfg.files.state_dict
+def predict_model(
+    path: str,  # Path to log folder, e.g., outputs/2022-01-15/14-36/59
+    model_input,
+):
+    cfg: DictConfig = OmegaConf.load(f"{path}/models/logs/hparams.yaml")
+    model: LightningModule = MNISTModel(**cfg)
+    state_dict_path = f"{path}/models/state_dict.pt"
     model.load_state_dict(torch.load(state_dict_path))
-    return model
 
-
-@hydra.main(config_path="../conf", config_name="mnist")
-def predict_model(model_input: torch.Tensor, model: LightningModule):
-    model = load_model()
     return model(model_input)

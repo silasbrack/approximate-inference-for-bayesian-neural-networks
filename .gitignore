@@ -91,6 +91,3 @@ target/
 
 # Hydra logs
 outputs/
-
-# Wandb logs
-wandb/
