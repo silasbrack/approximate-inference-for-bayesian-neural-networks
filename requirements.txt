@@ -16,7 +16,8 @@ matplotlib
 numpy
 tqdm
 pytest
-setuptools
+setuptools==59.5.0
 hydra-core
 tensorboard
 torchvision
+pyro-ppl

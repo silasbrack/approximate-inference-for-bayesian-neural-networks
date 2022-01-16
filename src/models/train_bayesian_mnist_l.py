@@ -1,21 +1,19 @@
-import os
 import hydra
 from omegaconf import DictConfig
 
-import torch
 import pytorch_lightning as pl
 from pytorch_lightning.callbacks import ModelCheckpoint
 from pytorch_lightning.callbacks.early_stopping import EarlyStopping
 from pytorch_lightning.loggers import TensorBoardLogger
-from src.data.mnist import MNISTData
 
-from src.models import MNISTModel
+from src.data import MNISTData
+from src.models.bayesian_mnist_l import BayesianMnistModelLightning
 
 
 @hydra.main(config_path="../conf", config_name="mnist")
 def train_model(cfg: DictConfig):
 
-    model = MNISTModel(cfg.params.lr)
+    model = BayesianMnistModelLightning(cfg.params.lr)
     data = MNISTData(
         cfg.paths.data, cfg.params.batch_size, cfg.hardware.num_workers
     )
@@ -50,11 +48,6 @@ def train_model(cfg: DictConfig):
     )
 
     trainer.test(dataloaders=data.test_dataloader())
-
-    torch.save(
-        model.state_dict(),
-        os.path.join(cfg.paths.model, cfg.files.state_dict),
-    )
 
 
 if __name__ == "__main__":
