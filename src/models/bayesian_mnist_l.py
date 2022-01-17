@@ -97,7 +97,7 @@ class BayesianMnistModelLightning(PyroModule, pl.LightningModule):
 
     def test_step(self, batch, batch_idx):
         x, y = batch
-        loss = self.optimizers().svi.loss(self, self.guide, *batch)
+        loss = self.optimizers().svi.loss(self, self.guide, *batch) / x.shape[0]
 
         prediction = Predictive(self, guide=self.guide, num_samples=512)(x)
         preds = prediction["obs"].mode(dim=0).values  # MAP prediction

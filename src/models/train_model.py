@@ -25,6 +25,7 @@ def train_model(cfg: DictConfig):
         gpus=cfg.hardware.gpus,
         max_epochs=cfg.params.epochs,
         log_every_n_steps=10,
+        stochastic_weight_avg=True,
         logger=TensorBoardLogger(save_dir=cfg.paths.logs, name="mnist_model"),
         callbacks=[
             EarlyStopping(
@@ -49,7 +50,7 @@ def train_model(cfg: DictConfig):
         val_dataloaders=data.val_dataloader(),
     )
 
-    trainer.test(dataloaders=data.test_dataloader())
+    trainer.test(dataloaders=data.test_dataloader(), ckpt_path="best")
 
     torch.save(
         model.state_dict(),

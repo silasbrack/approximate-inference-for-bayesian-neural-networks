@@ -17,6 +17,7 @@ def train_model(cfg: DictConfig):
     data = MNISTData(
         cfg.paths.data, cfg.params.batch_size, cfg.hardware.num_workers
     )
+    data.prepare_data()
     data.setup()
 
     trainer = pl.Trainer(
@@ -47,7 +48,7 @@ def train_model(cfg: DictConfig):
         val_dataloaders=data.val_dataloader(),
     )
 
-    trainer.test(dataloaders=data.test_dataloader())
+    trainer.test(dataloaders=data.test_dataloader(), ckpt_path="best")
 
 
 if __name__ == "__main__":
