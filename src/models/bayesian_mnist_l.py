@@ -83,21 +83,21 @@ class BayesianMnistModelLightning(PyroModule, pl.LightningModule):
     def training_step(self, batch, batch_idx):
         x, y = batch
         # loss = self.optimizers().step(*batch)
-        loss = torch.tensor(self.optimizers().svi.step(*batch)) / x.shape[0]
+        loss = torch.tensor(self.optimizers().svi.step(*batch))/x.shape[0]
         self.log("train_loss", loss, prog_bar=True)
         return loss
 
     def validation_step(self, batch, batch_idx):
         x, y = batch
         loss = (
-            self.optimizers().svi.loss(self, self.guide, *batch) / x.shape[0]
+            self.optimizers().svi.loss(self, self.guide, *batch)/x.shape[0]
         )
 
         self.log("val_loss", loss, prog_bar=True)
 
     def test_step(self, batch, batch_idx):
         x, y = batch
-        loss = self.optimizers().svi.loss(self, self.guide, *batch) / x.shape[0]
+        loss = self.optimizers().svi.loss(self, self.guide, *batch)/x.shape[0]
 
         prediction = Predictive(self, guide=self.guide, num_samples=512)(x)
         preds = prediction["obs"].mode(dim=0).values  # MAP prediction

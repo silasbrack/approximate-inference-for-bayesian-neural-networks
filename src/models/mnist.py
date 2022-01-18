@@ -60,8 +60,15 @@ class MNISTModel(LightningModule):
         return loss
 
     def test_step(self, batch, batch_idx):
-        # Here we just reuse the validation_step for testing
-        return self.validation_step(batch, batch_idx)
+        x, y = batch
+        logits = self(x)
+        loss = F.nll_loss(logits, y)
+        preds = torch.argmax(logits, dim=1)
+        self.accuracy(preds, y)
+
+        self.log("test_loss", loss, prog_bar=True)
+        self.log("test_acc", self.accuracy, prog_bar=True)
+        return loss
 
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(self.parameters(), lr=self.learning_rate)
