@@ -94,3 +94,14 @@ outputs/
 
 # bsub logs
 *.out
+
+# Latex
+*.aux
+*.log
+*.bcf
+*.run.xml
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.synctex.gz
