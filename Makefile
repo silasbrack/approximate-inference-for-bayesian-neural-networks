@@ -44,6 +44,10 @@ create_environment:
 test_environment:
 	$(PYTHON_INTERPRETER) test_environment.py
 
+## Run unit tests
+run_tests:
+	pytest -v tests/
+
 #################################################################################
 # PROJECT RULES                                                                 #
 #################################################################################
