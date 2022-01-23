@@ -25,7 +25,7 @@ jobs:
     - name: Test with pytest
       run: |
         pip install pytest
-	      pytest -v tests/
+        pytest -v tests/
     - name: Sort imports with isort
       run: |
         pip install isort
