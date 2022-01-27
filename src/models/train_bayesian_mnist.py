@@ -2,7 +2,7 @@ import hydra
 from omegaconf import DictConfig
 
 import pyro
-from pyro.infer.autoguide import AutoDiagonalNormal
+from src.guides.radial import AutoRadial
 from pyro.infer import SVI, Trace_ELBO, Predictive
 from pyro import poutine
 from tqdm.auto import tqdm
@@ -21,7 +21,8 @@ def train_model(cfg: DictConfig):
     )
     data.setup()
 
-    guide = AutoDiagonalNormal(poutine.block(model, hide=["obs"]))
+    # guide = AutoDiagonalNormal(poutine.block(model, hide=["obs"]))
+    guide = AutoRadial(model, poutine.block(model, hide=["obs"]))
     # guide = AutoDiagonalNormal(model)  # Mean-field
     adam = pyro.optim.Adam({"lr": cfg.params.lr})
     svi = SVI(model, guide, adam, loss=Trace_ELBO())
