@@ -1,5 +1,5 @@
 from pyro.infer.autoguide import AutoLowRankMultivariateNormal
 
 
-def low_rank(model, rank):
-    return AutoLowRankMultivariateNormal(model, rank=rank)
+def low_rank(*args, **kwargs):
+    return AutoLowRankMultivariateNormal(*args, **kwargs)

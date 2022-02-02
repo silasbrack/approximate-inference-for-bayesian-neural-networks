@@ -1,5 +1,5 @@
 from pyro.infer.autoguide import AutoLaplaceApproximation
 
 
-def laplace(model):
-    return AutoLaplaceApproximation(model)
+def laplace(*args, **kwargs):
+    return AutoLaplaceApproximation(*args, **kwargs)

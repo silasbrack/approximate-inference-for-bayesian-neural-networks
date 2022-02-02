@@ -1,4 +1,3 @@
-import torch
 import pytorch_lightning as pl
 from omegaconf import DictConfig, OmegaConf
 import fire
@@ -9,8 +8,8 @@ from src import data as d
 
 
 def mnist(
-    path: str,  # Path to log folder, e.g., outputs/2022-01-15/14-36/59
-    checkpoint_file: str,
+    path: str,  # Path to log folder, e.g., outputs/2022-02-02/15-15-26/
+    checkpoint_file: str,  # epoch=14-step=6449.ckpt
 ):
     # hparams: DictConfig = DictConfig(
     #     OmegaConf.load(f"{path}/logs/mnist_model/version_0/hparams.yaml")
@@ -34,4 +33,3 @@ def mnist(
 
 if __name__ == "__main__":
     fire.Fire()
-#  python src/models/predict.py mnist outputs/2022-02-02/15-15-26/ epoch=14-step=6449.ckpt

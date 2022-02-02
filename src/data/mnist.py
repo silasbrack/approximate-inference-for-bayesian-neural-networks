@@ -52,7 +52,7 @@ class MNISTData(LightningDataModule):
         return DataLoader(
             self.mnist_val,
             num_workers=self.num_workers,
-            batch_size=self.batch_size,
+            batch_size=5000,
         )
 
     def test_dataloader(self):
