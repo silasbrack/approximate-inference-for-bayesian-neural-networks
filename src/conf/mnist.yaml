@@ -7,7 +7,7 @@ hardware:
   num_workers: 6
 paths:
   project: ${hydra:runtime.cwd}
-  data: ${hydra:runtime.cwd}/data/processed/
+  data: ${hydra:runtime.cwd}/data/
   checkpoints: models/checkpoints/weights/
   model: models/
   logs: logs/

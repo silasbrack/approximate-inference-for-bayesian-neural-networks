@@ -12,6 +12,7 @@ clean:
 	rm -rf `biber --cache`
 	rm -rf _minted-$(root)
 	latexmk -bibtex -CA
+	rm $(root).run.xml
 
 watch: clean
 	latexmk $(latexmkopts) -pvc $(root)

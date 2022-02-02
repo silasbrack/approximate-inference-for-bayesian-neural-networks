@@ -90,6 +90,9 @@ target/
 # Mypy cache
 .mypy_cache/
 
+# Lightning logs
+lightning_logs/
+
 # Hydra logs
 outputs/
 

@@ -11,7 +11,6 @@ from src.data.mnist import MNISTData
 from src.models.bayesian_mnist import BayesianMnistModel
 
 
-# TODO: currently, the results seem to get worse as you train past 1 epoch
 @hydra.main(config_path="../conf", config_name="bayesian_mnist")
 def train_model(cfg: DictConfig):
 

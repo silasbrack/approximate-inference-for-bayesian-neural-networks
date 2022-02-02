@@ -4,11 +4,9 @@ from omegaconf import DictConfig
 
 import torch
 import pytorch_lightning as pl
-from pytorch_lightning.callbacks import ModelCheckpoint
-from pytorch_lightning.callbacks.early_stopping import EarlyStopping
+from pytorch_lightning import callbacks
 from pytorch_lightning.loggers import TensorBoardLogger
-from src.data.mnist import MNISTData
-
+from src import data as d
 from src.models import MNISTModel
 
 
@@ -16,7 +14,7 @@ from src.models import MNISTModel
 def train_model(cfg: DictConfig):
 
     model = MNISTModel(cfg.params.lr)
-    data = MNISTData(
+    data = d.FashionMNISTData(
         cfg.paths.data, cfg.params.batch_size, cfg.hardware.num_workers
     )
     data.setup()
@@ -25,22 +23,22 @@ def train_model(cfg: DictConfig):
         gpus=cfg.hardware.gpus,
         max_epochs=cfg.params.epochs,
         log_every_n_steps=10,
-        stochastic_weight_avg=True,
         logger=TensorBoardLogger(save_dir=cfg.paths.logs, name="mnist_model"),
         callbacks=[
-            EarlyStopping(
+            callbacks.EarlyStopping(
                 monitor="val_loss",
                 min_delta=0.00,
                 patience=5,
                 verbose=False,
                 mode="min",
             ),
-            ModelCheckpoint(
+            callbacks.ModelCheckpoint(
                 dirpath=cfg.paths.checkpoints,
                 verbose=True,
                 monitor="val_loss",
                 mode="min",
             ),
+            callbacks.StochasticWeightAveraging(),
         ],
     )
 

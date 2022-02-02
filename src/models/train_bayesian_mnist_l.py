@@ -17,7 +17,6 @@ def train_model(cfg: DictConfig):
     data = MNISTData(
         cfg.paths.data, cfg.params.batch_size, cfg.hardware.num_workers
     )
-    data.prepare_data()
     data.setup()
 
     trainer = pl.Trainer(
