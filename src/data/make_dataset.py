@@ -3,7 +3,7 @@ import click
 import logging
 from pathlib import Path
 from dotenv import find_dotenv, load_dotenv
-from src.data import MNISTData
+from src.data import MNISTData, FashionMNISTData
 
 
 @click.command()
@@ -17,6 +17,7 @@ def main(input_filepath, output_filepath):
     logger.info("making final data set from raw data")
 
     MNISTData("data/", 0, 0).prepare_data()
+    FashionMNISTData("data/", 0, 0).prepare_data()
 
 
 if __name__ == "__main__":

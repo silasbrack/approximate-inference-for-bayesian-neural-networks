@@ -1,19 +1,13 @@
 import torch
 from pyro.nn import PyroParam
-from torch.distributions import constraints
-import pyro
 from pyro import distributions as dist, nn
-from pyro.distributions import TransformedDistribution
 from pyro.distributions.transforms import Normalize
 from pyro.infer.autoguide import AutoContinuous, init_to_median
-from pyro.contrib.easyguide import EasyGuide
 from pyro.distributions.constraints import softplus_positive
 
 # https://github.com/SebFar/radial_bnn/blob/master/radial_layers/distributions.py
 # https://docs.pyro.ai/en/stable/infer.autoguide.html
 # https://docs.pyro.ai/en/stable/contrib.bnn.html?highlight=pyro.distributions.Transfor
-# https://docs.pyro.ai/en/1.7.0/distributions.html?highlight=radial#pyro.distributions.transforms.Radial
-# https://docs.pyro.ai/en/1.7.0/_modules/pyro/distributions/transforms/radial.html#Radial
 
 
 # class AutoRadial(EasyGuide):
@@ -71,7 +65,7 @@ class AutoRadial(AutoContinuous):
 
 #     def get_posterior(self, *args, **kwargs):
 #         loc = pyro.param(
-#             "{}_loc".format(self.prefix), lambda: torch.zeros(self.latent_dim)
+#         "{}_loc".format(self.prefix), lambda: torch.zeros(self.latent_dim)
 #         )
 #         scale = pyro.param(
 #             "{}_scale".format(self.prefix),
