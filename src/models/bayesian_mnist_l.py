@@ -9,7 +9,7 @@ from torchmetrics import Accuracy
 import pytorch_lightning as pl
 
 from pyro.infer import SVI, Trace_ELBO, Predictive
-from pyro.infer.autoguide import AutoDiagonalNormal
+from pyro.infer import autoguide
 import torch
 
 
@@ -21,7 +21,7 @@ class CustomSVIWrapper(torch.optim.Optimizer):
 
 
 class BayesianMnistModelLightning(PyroModule, pl.LightningModule):
-    def __init__(self, lr: float):
+    def __init__(self, lr: float, num_particles: int):
         super().__init__()
         self.save_hyperparameters()
         self.automatic_optimization = False
@@ -31,6 +31,7 @@ class BayesianMnistModelLightning(PyroModule, pl.LightningModule):
         # Set our init args as class attributes
         self.hidden_size = hidden_size
         self.lr = lr
+        self.loss = Trace_ELBO(num_particles=num_particles)
 
         # Hardcode some dataset specific attributes
         self.num_classes = 10
@@ -65,7 +66,8 @@ class BayesianMnistModelLightning(PyroModule, pl.LightningModule):
             dist.Normal(0.0, 1.0).expand([self.num_classes]).to_event(1)
         )
 
-        self.guide = AutoDiagonalNormal(self)
+        # self.guide = autoguide.AutoDiagonalNormal(self)
+        self.guide = autoguide.AutoLaplaceApproximation(self)
 
         self.accuracy = Accuracy()
 
@@ -82,24 +84,25 @@ class BayesianMnistModelLightning(PyroModule, pl.LightningModule):
 
     def training_step(self, batch, batch_idx):
         x, y = batch
-        # loss = self.optimizers().step(*batch)
-        loss = torch.tensor(self.optimizers().svi.step(*batch))/x.shape[0]
+        loss = torch.tensor(self.optimizers().svi.step(*batch)) / x.shape[0]
         self.log("train_loss", loss, prog_bar=True)
         return loss
 
     def validation_step(self, batch, batch_idx):
         x, y = batch
         loss = (
-            self.optimizers().svi.loss(self, self.guide, *batch)/x.shape[0]
+            self.optimizers().svi.loss(self, self.guide, *batch) / x.shape[0]
         )
 
         self.log("val_loss", loss, prog_bar=True)
 
     def test_step(self, batch, batch_idx):
         x, y = batch
-        loss = self.optimizers().svi.loss(self, self.guide, *batch)/x.shape[0]
+        loss = (
+            self.optimizers().svi.loss(self, self.guide, *batch) / x.shape[0]
+        )
 
-        prediction = Predictive(self, guide=self.guide, num_samples=512)(x)
+        prediction = Predictive(self, guide=self.guide, num_samples=128)(x)
         preds = prediction["obs"].mode(dim=0).values  # MAP prediction
         acc = self.accuracy(preds, y)
 
@@ -109,6 +112,6 @@ class BayesianMnistModelLightning(PyroModule, pl.LightningModule):
 
     def configure_optimizers(self):
         adam = pyro.optim.Adam({"lr": self.lr})
-        svi = SVI(self, self.guide, adam, loss=Trace_ELBO())
+        svi = SVI(self, self.guide, adam, loss=self.loss)
         optimizer = CustomSVIWrapper(None, None, svi=svi)
         return optimizer

@@ -38,7 +38,7 @@ def train_model(cfg: DictConfig):
                 monitor="val_loss",
                 mode="min",
             ),
-            callbacks.StochasticWeightAveraging(),
+            callbacks.StochasticWeightAveraging(swa_epoch_start=0.9),
         ],
     )
 

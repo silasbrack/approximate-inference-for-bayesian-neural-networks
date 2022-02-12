@@ -10,10 +10,12 @@ from src.data import MNISTData
 from src.models.bayesian_mnist_l import BayesianMnistModelLightning
 
 
-@hydra.main(config_path="../conf", config_name="mnist")
+@hydra.main(config_path="../conf", config_name="bayesian_mnist")
 def train_model(cfg: DictConfig):
 
-    model = BayesianMnistModelLightning(cfg.params.lr)
+    model = BayesianMnistModelLightning(
+        cfg.params.lr, cfg.params.num_particles
+    )
     data = MNISTData(
         cfg.paths.data, cfg.params.batch_size, cfg.hardware.num_workers
     )

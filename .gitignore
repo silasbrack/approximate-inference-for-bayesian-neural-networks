@@ -109,3 +109,5 @@ outputs/
 *.fdb_latexmk
 *.fls
 *.synctex.gz
+
+tyxe/

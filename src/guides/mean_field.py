@@ -1,5 +1,5 @@
-from pyro.infer.autoguide import AutoDiagonalNormal
+from pyro.infer.autoguide import AutoNormal
 
 
 def mean_field(*args, **kwargs):
-    return AutoDiagonalNormal(*args, **kwargs)
+    return AutoNormal(*args, **kwargs)
