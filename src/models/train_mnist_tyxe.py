@@ -37,6 +37,7 @@ def train_model(cfg: DictConfig):
 
     optim = pyro.optim.Adam({"lr": cfg.params.lr})
     t0 = time.perf_counter()
+    # with tyxe.poutine.local_reparameterization():
     bnn.fit(
         data.train_dataloader(),
         optim,
