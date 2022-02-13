@@ -3,6 +3,8 @@ channels:
   - pytorch
   - dglteam
   - defaults
+  - anaconda
+  - conda-forge
 dependencies:
   - python=3.8.2
   - pytorch=1.7.0
@@ -15,6 +17,9 @@ dependencies:
   - pytest=6.1.2
   - dgl-cuda11.0
   - requests=2.25.1
+  - pytorch-lightning=1.5.10
+  - hydra-core=1.1.1
+  - flake8=3.8.4
   - pip
   - pip:
     - pyro-ppl==1.4.0
