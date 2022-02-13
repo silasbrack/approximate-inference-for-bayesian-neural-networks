@@ -20,13 +20,19 @@ class RadialDistribution(dist.Normal):
         eps = _standard_normal(
             shape, dtype=self.loc.dtype, device=self.loc.device
         )
-        return self.loc + eps * self.scale
+        distance = torch.randn((shape[0]), device=self.loc.device)
+        normalizing_factor = torch.norm(
+            eps.view(shape[0], -1), p=2, dim=1
+        ).unsqueeze(1)
+        direction = eps / normalizing_factor
+        eps_radial = direction * distance
+        return self.loc + eps_radial * self.scale
 
     def log_prob(self, value):
         if self._validate_args:
             self._validate_sample(value)
-        # compute the variance
-        var = self.scale**2
+
+        var = self.scale ** 2
         log_scale = (
             math.log(self.scale)
             if isinstance(self.scale, Real)
@@ -42,13 +48,11 @@ class RadialDistribution(dist.Normal):
 class AutoRadial(autoguide.AutoNormal):
     def forward(self, *args, **kwargs):
         """
-        An automatic guide with the same ``*args, **kwargs`` as the base ``model``.
-        .. note:: This method is used internally by :class:`~torch.nn.Module`.
-            Users should instead use :meth:`~torch.nn.Module.__call__`.
         :return: A dict mapping sample site name to sampled value.
         :rtype: dict
         """
-        # if we've never run the model before, do so now so we can inspect the model structure
+        # if we've never run the model before, do so now so
+        # we can inspect the model structure
         if self.prototype_trace is None:
             self._setup_prototype(*args, **kwargs)
 
@@ -65,10 +69,9 @@ class AutoRadial(autoguide.AutoNormal):
                 site_loc, site_scale = self._get_loc_and_scale(name)
                 unconstrained_latent = pyro.sample(
                     name + "_unconstrained",
-                    RadialDistribution(
-                        site_loc,
-                        site_scale,
-                    ).to_event(self._event_dims[name]),
+                    RadialDistribution(site_loc, site_scale,).to_event(
+                        self._event_dims[name]
+                    ),
                     infer={"is_auxiliary": True},
                 )
 
@@ -77,8 +80,7 @@ class AutoRadial(autoguide.AutoNormal):
                     log_density = 0.0
                 else:
                     log_density = transform.inv.log_abs_det_jacobian(
-                        value,
-                        unconstrained_latent,
+                        value, unconstrained_latent,
                     )
                     log_density = sum_rightmost(
                         log_density,
