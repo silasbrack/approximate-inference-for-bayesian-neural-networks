@@ -1,0 +1,48 @@
+Number of parameters: 26506
+Wall clock time: 402.9411983540049
+NLL: 0.1284240335226059
+Accuracy: 0.9632999897003174
+AUROC: 0.9988896250724792
+Average confidence: 0.9454755783081055
+Average confidence when wrong: 0.6456800699234009
+Average confidence when right: 0.9568972587585449
+Number of parameters: 26506
+Wall clock time: 449.54965945199365
+NLL: 0.26540157198905945
+Accuracy: 0.9322999715805054
+AUROC: 0.9953656196594238
+Average confidence: 0.8753968477249146
+Average confidence when wrong: 0.5597653985023499
+Average confidence when right: 0.8983168601989746
+Number of parameters: 26506
+Wall clock time: 458.10442248900654
+NLL: 0.24792388081550598
+Accuracy: 0.935699999332428
+AUROC: 0.9960664510726929
+Average confidence: 0.8785640597343445
+Average confidence when wrong: 0.5661376118659973
+Average confidence when right: 0.9000335931777954
+Number of parameters: 53012
+Wall clock time: 483.20087712001987
+NLL: 0.2883911728858948
+Accuracy: 0.9279999732971191
+AUROC: 0.9952651262283325
+Average confidence: 0.8481362462043762
+Average confidence when wrong: 0.5239871740341187
+Average confidence when right: 0.8732857704162598
+Number of parameters: 318072
+Wall clock time: 540.5989163040067
+NLL: 0.2789905369281769
+Accuracy: 0.9340999722480774
+AUROC: 0.9959135055541992
+Average confidence: 0.8485679626464844
+Average confidence when wrong: 0.5114927887916565
+Average confidence when right: 0.872348427772522
+Number of parameters: 53012
+Wall clock time: 515.7507529419963
+NLL: 0.11770476400852203
+Accuracy: 0.9666000008583069
+AUROC: 0.9988340139389038
+Average confidence: 0.951312780380249
+Average confidence when wrong: 0.6492599248886108
+Average confidence when right: 0.9617499709129333

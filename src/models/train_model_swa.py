@@ -1,11 +1,12 @@
 import os
-import hydra
-from omegaconf import DictConfig
 
-import torch
+import hydra
 import pytorch_lightning as pl
+import torch
+from omegaconf import DictConfig
 from pytorch_lightning import callbacks
 from pytorch_lightning.loggers import TensorBoardLogger
+
 from src import data as d
 from src.models import MNISTModel
 
@@ -14,7 +15,7 @@ from src.models import MNISTModel
 def train_model(cfg: DictConfig):
 
     model = MNISTModel(cfg.params.lr)
-    data = d.FashionMNISTData(
+    data = d.MNISTData(
         cfg.paths.data, cfg.params.batch_size, cfg.hardware.num_workers
     )
     data.setup()
@@ -38,7 +39,7 @@ def train_model(cfg: DictConfig):
                 monitor="val_loss",
                 mode="min",
             ),
-            callbacks.StochasticWeightAveraging(swa_epoch_start=0.9),
+            # callbacks.StochasticWeightAveraging(swa_epoch_start=0.9),
         ],
     )
 
@@ -51,8 +52,7 @@ def train_model(cfg: DictConfig):
     trainer.test(dataloaders=data.test_dataloader(), ckpt_path="best")
 
     torch.save(
-        model.state_dict(),
-        os.path.join(cfg.paths.model, cfg.files.state_dict),
+        model.state_dict(), os.path.join(cfg.paths.model, cfg.files.state_dict),
     )
 
 

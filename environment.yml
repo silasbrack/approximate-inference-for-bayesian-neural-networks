@@ -18,6 +18,7 @@ dependencies:
   - dgl-cuda11.0
   - requests=2.25.1
   - pytorch-lightning=1.5.10
+  - torchmetrics=0.7.2
   - hydra-core=1.1.1
   - flake8=3.8.4
   - pip

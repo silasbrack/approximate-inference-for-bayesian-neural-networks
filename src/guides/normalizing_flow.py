@@ -1,6 +1,7 @@
-from pyro.infer.autoguide import AutoNormalizingFlow
 from functools import partial
+
 from pyro.distributions.transforms import iterated
+from pyro.infer.autoguide import AutoNormalizingFlow
 
 
 def normalizing_flow(model, num_flows, flow_type):

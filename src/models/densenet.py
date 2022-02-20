@@ -1,45 +1,30 @@
-import torch
-from pytorch_lightning import LightningModule
-from torch import nn
+import torch.nn as nn
 from torch.nn import functional as F
-from torchmetrics import Accuracy
+from torchvision import models
+import torch
+import pytorch_lightning as pl
 
 
-class MNISTModel(LightningModule):
-    def __init__(self, lr: float, dims=(1, 28, 28)):
-
+class Densenet(nn.Module):
+    def __init__(self, num_class=1, pretrained=False):
         super().__init__()
-        self.save_hyperparameters()
-
-        hidden_size = 64
-
-        # Set our init args as class attributes
-        self.hidden_size = hidden_size
-        self.learning_rate = lr
-
-        # Hardcode some dataset specific attributes
-        self.num_classes = 10
-        # self.dims = (2, 224, 224)
-        self.dims = dims
-        channels, width, height = self.dims
-
-        # Define PyTorch model
-        self.model = nn.Sequential(
-            nn.Flatten(),
-            nn.Linear(channels * width * height, hidden_size),
-            nn.ReLU(),
-            nn.Dropout(0.1),
-            nn.Linear(hidden_size, hidden_size),
-            nn.ReLU(),
-            nn.Dropout(0.1),
-            nn.Linear(hidden_size, self.num_classes),
-        )
-
-        self.accuracy = Accuracy()
+        self.channels = 1664
+        densenet_169 = models.densenet169(pretrained=pretrained)
+        for params in densenet_169.parameters():
+            params.requires_grad_(False)
+        self.conv1 = nn.Conv2d(in_channels=2, out_channels=3, kernel_size=4)
+        self.features = nn.Sequential(*list(densenet_169.features.children()))
+        self.relu = nn.ReLU(inplace=True)
+        self.fc1 = nn.Linear(self.channels, num_class)
+        self.sigmoid = nn.Sigmoid()
 
     def forward(self, x):
-        x = self.model(x)
-        return F.log_softmax(x, dim=1)
+        x = self.conv1(x)
+        features = self.features(x)
+        out = self.relu(features)
+        out = F.adaptive_avg_pool2d(out, (1, 1))
+        out = out.view(-1, self.channels)
+        return self.sigmoid(self.fc1(out))
 
     def training_step(self, batch, batch_idx):
         x, y = batch

@@ -1,7 +1,7 @@
 from pytorch_lightning import LightningDataModule
-from torchvision.datasets import FashionMNIST
 from torch.utils.data import DataLoader, random_split
 from torchvision import transforms
+from torchvision.datasets import FashionMNIST
 
 
 class FashionMNISTData(LightningDataModule):
@@ -11,12 +11,10 @@ class FashionMNISTData(LightningDataModule):
         self.data_dir = data_dir
         self.batch_size = batch_size
         self.num_workers = num_workers
+        self.n_classes = 10
 
         self.transform = transforms.Compose(
-            [
-                transforms.ToTensor(),
-                transforms.Normalize((0.1307,), (0.3081,)),
-            ]
+            [transforms.ToTensor(), transforms.Normalize((0.1307,), (0.3081,)),]
         )
 
     def prepare_data(self):
@@ -31,9 +29,7 @@ class FashionMNISTData(LightningDataModule):
             mnist_full = FashionMNIST(
                 self.data_dir, train=True, transform=self.transform
             )
-            self.mnist_train, self.mnist_val = random_split(
-                mnist_full, [55000, 5000]
-            )
+            self.mnist_train, self.mnist_val = random_split(mnist_full, [55000, 5000])
 
         # Assign test dataset for use in dataloader(s)
         if stage == "test" or stage is None:
@@ -43,21 +39,15 @@ class FashionMNISTData(LightningDataModule):
 
     def train_dataloader(self):
         return DataLoader(
-            self.mnist_train,
-            num_workers=self.num_workers,
-            batch_size=self.batch_size,
+            self.mnist_train, num_workers=self.num_workers, batch_size=self.batch_size,
         )
 
     def val_dataloader(self):
         return DataLoader(
-            self.mnist_val,
-            num_workers=self.num_workers,
-            batch_size=self.batch_size,
+            self.mnist_val, num_workers=self.num_workers, batch_size=self.batch_size,
         )
 
     def test_dataloader(self):
         return DataLoader(
-            self.mnist_test,
-            num_workers=self.num_workers,
-            batch_size=self.batch_size,
+            self.mnist_test, num_workers=self.num_workers, batch_size=self.batch_size,
         )

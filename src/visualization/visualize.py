@@ -1,5 +1,6 @@
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
+
 import src.visualization.helper_functions as hf
 
 
@@ -16,9 +17,7 @@ def main():
     hf.hide_right_top_axis(ax)
 
     ax.set(
-        title="Sine and cosine plots",
-        xlabel="Angle [rad]",
-        ylabel="Value",
+        title="Sine and cosine plots", xlabel="Angle [rad]", ylabel="Value",
     )
 
     fig.tight_layout()
