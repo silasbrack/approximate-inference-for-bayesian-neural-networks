@@ -77,7 +77,8 @@ def train_model(cfg: DictConfig):
     val_err = np.zeros((cfg.params.epochs,1))
     val_ll = np.zeros((cfg.params.epochs,1))
     pbar = tqdm(total=cfg.params.epochs, unit="Epochs")
-    def callback(b, i, e):
+
+    def callback(b: tyxe.VariationalBNN, i: int, e: float):
         avg_err, avg_ll = 0.0, 0.0
         for x, y in iter(val_dataloader):
             err, ll = b.evaluate(
@@ -85,9 +86,9 @@ def train_model(cfg: DictConfig):
             )
             avg_err += err / len(val_dataloader.sampler)
             avg_ll += ll / len(val_dataloader.sampler)
-        elbos.append(e)
-        val_err.append(1 - avg_err)
-        val_ll.append(avg_ll)
+        elbos[i] = e
+        val_err[i] = avg_err
+        val_ll[i] = avg_ll
         pbar.update()
 
     t0 = time.perf_counter()
@@ -116,7 +117,7 @@ def train_model(cfg: DictConfig):
         "Wall clock time": elapsed,
         "Number of parameters": guide_params,
         "Training ELBO": elbos,
-        "Validation accuracy": val_err,
+        "Validation accuracy": 1-val_err,
         "Validation log-likelihood": val_ll,
         "eval_mnist": eval_model(
             bnn, mnist_data.test_dataloader(), cfg.params.posterior_samples
