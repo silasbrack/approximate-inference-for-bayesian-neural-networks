@@ -17,7 +17,10 @@ class MNISTData(LightningDataModule):
         self.channels = 1
 
         self.transform = transforms.Compose(
-            [transforms.ToTensor(), transforms.Normalize((0.1307,), (0.3081,)),]
+            [
+                transforms.ToTensor(),
+                transforms.Normalize((0.1307,), (0.3081,)),
+            ]
         )
 
     def prepare_data(self):
@@ -40,7 +43,9 @@ class MNISTData(LightningDataModule):
 
     def train_dataloader(self):
         return DataLoader(
-            self.mnist_train, num_workers=self.num_workers, batch_size=self.batch_size,
+            self.mnist_train,
+            num_workers=self.num_workers,
+            batch_size=self.batch_size,
         )
 
     def val_dataloader(self):
@@ -56,3 +61,11 @@ class MNISTData(LightningDataModule):
             num_workers=self.num_workers,
             batch_size=self.eval_batch_size,
         )
+
+
+if __name__ == "__main__":
+    data = MNISTData("data/", 128, 12)
+    data.setup()
+    loader = data.train_dataloader()
+    X, y = next(iter(loader))
+    print(X.shape, y.shape)

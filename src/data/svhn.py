@@ -4,7 +4,7 @@ from torch.utils.data import DataLoader, random_split
 from torchvision import transforms
 
 
-class CIFARData(LightningDataModule):
+class SVHNData(LightningDataModule):
     def __init__(self, data_dir, batch_size, num_workers):
         super().__init__()
 
@@ -17,8 +17,10 @@ class CIFARData(LightningDataModule):
         self.transform = transforms.Compose(
             [
                 transforms.ToTensor(),
-                transforms.Normalize((0.49139968, 0.48215841, 0.44653091),
-                                     (0.24703223, 0.24348513, 0.26158784),),
+                transforms.Normalize(
+                    (0.4376821, 0.4437697, 0.47280442),
+                    (0.19803012, 0.20101562, 0.19703614)
+                ),
                 transforms.Grayscale(num_output_channels=1),
                 transforms.Resize(28),
             ]
@@ -30,20 +32,21 @@ class CIFARData(LightningDataModule):
 
     def prepare_data(self):
         # download
-        d.CIFAR10(self.data_dir, train=True, download=True)
-        d.CIFAR10(self.data_dir, train=False, download=True)
+        d.SVHN(self.data_dir, split="train", download=True)
+        d.SVHN(self.data_dir, split="test", download=True)
 
     def setup(self, stage=None):
-
         # Assign train/val datasets for use in dataloaders
         if stage == "fit" or stage is None:
-            mnist_full = d.CIFAR10(self.data_dir, train=True, transform=self.transform)
-            self.df_train, self.df_val = random_split(mnist_full, [45000, 5000])
+            train = d.SVHN(self.data_dir,
+                                split="train",
+                                transform=self.transform)
+            self.df_train, self.df_val = random_split(train, [70000, 3257])
 
         # Assign test dataset for use in dataloader(s)
         if stage == "test" or stage is None:
-            self.df_test = d.CIFAR10(
-                self.data_dir, train=False, transform=self.transform
+            self.df_test = d.SVHN(
+                self.data_dir, split="test", transform=self.transform
             )
 
     def train_dataloader(self):
@@ -69,8 +72,8 @@ class CIFARData(LightningDataModule):
 
 
 if __name__ == "__main__":
-    data = CIFARData("data/", 128, 12)
+    data = SVHNData("data/", 128, 12)
     data.setup()
     loader = data.train_dataloader()
     X, y = next(iter(loader))
-    print(X.shape)
+    print(X.shape, y.shape)

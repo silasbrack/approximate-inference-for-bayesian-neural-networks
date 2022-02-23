@@ -4,7 +4,7 @@ from pathlib import Path
 
 from dotenv import find_dotenv, load_dotenv
 
-from src.data import FashionMNISTData, MNISTData
+from src.data import CIFARData, FashionMNISTData, MNISTData, SVHNData
 
 
 def main():
@@ -16,6 +16,8 @@ def main():
 
     MNISTData("data/", 0, 0).prepare_data()
     FashionMNISTData("data/", 0, 0).prepare_data()
+    CIFARData("data/", 0, 0).prepare_data()
+    SVHNData("data/", 0, 0).prepare_data()
 
 
 if __name__ == "__main__":
