@@ -1,29 +1,27 @@
-import fire
 from functools import partial
 
+import fire
 import pyro
 import pytorch_lightning as pl
 import torch
+import torchmetrics as tm
 from omegaconf import DictConfig, OmegaConf
-
 from pyro import distributions as dist
 from pyro.infer.autoguide import (
+    AutoDelta,
     AutoLaplaceApproximation,
     AutoLowRankMultivariateNormal,
-    AutoDelta,
 )
 from torch import nn
 from torch.nn.functional import softmax
-import torchmetrics as tm
 
 import tyxe
-from tyxe.guides import AutoNormal
-
 from src import data as d
 from src.data.fashion_mnist import FashionMNISTData
-from src.models import MNISTModel
 from src.guides import AutoRadial
+from src.models import MNISTModel
 from src.models.train_mnist_tyxe import eval_model
+from tyxe.guides import AutoNormal
 
 
 def mnist(
@@ -50,7 +48,9 @@ def mnist(
     trainer.test(model, data.test_dataloader())
 
 
-def tyxe_model(path: str,):  # Path to log folder, e.g., outputs/2022-02-02/15-15-26/
+def tyxe_model(
+    path: str,
+):  # Path to log folder, e.g., outputs/2022-02-02/15-15-26/
     cfg: DictConfig = DictConfig(OmegaConf.load(f"{path}/.hydra/config.yaml"))
 
     data = d.FashionMNISTData("data/", cfg.params.batch_size, cfg.hardware.num_workers)

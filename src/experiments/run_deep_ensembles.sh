@@ -8,10 +8,10 @@
 #module load python3/3.9.6
 #source venv/bin/activate
 
-EPOCHS=200
+EPOCHS=10
 
-GUIDES="radial meanfield laplace map ml lowrank"
-for GUIDE in $GUIDES
+ENSEMBLES="5 10 20"
+for NUM_ENSEMBLES in $ENSEMBLES
 do
-  python src/models/train_mnist_tyxe.py ++params.epochs=$EPOCHS ++params.guide="$GUIDE"
+  python src/models/train_mnist_tyxe.py ++params.epochs=$EPOCHS ++params.num_ensembles="$NUM_ENSEMBLES"
 done

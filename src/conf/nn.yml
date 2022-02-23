@@ -1,13 +1,11 @@
 params:
-  epochs: 1
-  lr: 1e-2
-  batch_size: 8192
-  num_particles: 32
-  posterior_samples: 128
-  guide: meanfield
+  epochs: 3
+  lr: 1e-3
+  batch_size: 128
+  data: mnist
 hardware:
   gpus: 0
-  num_workers: 16
+  num_workers: 6
 paths:
   project: ${hydra:runtime.cwd}
   data: ${hydra:runtime.cwd}/data/
@@ -18,4 +16,3 @@ files:
   train: train.csv
   test: test.csv
   state_dict: state_dict.pt
-  pretrained_weights: null

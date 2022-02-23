@@ -17,7 +17,9 @@ def main():
     hf.hide_right_top_axis(ax)
 
     ax.set(
-        title="Sine and cosine plots", xlabel="Angle [rad]", ylabel="Value",
+        title="Sine and cosine plots",
+        xlabel="Angle [rad]",
+        ylabel="Value",
     )
 
     fig.tight_layout()

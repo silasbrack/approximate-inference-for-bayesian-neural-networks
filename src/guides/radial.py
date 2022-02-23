@@ -60,9 +60,10 @@ class AutoRadial(autoguide.AutoNormal):
                 site_loc, site_scale = self._get_loc_and_scale(name)
                 unconstrained_latent = pyro.sample(
                     name + "_unconstrained",
-                    RadialNormal(site_loc, site_scale,).to_event(
-                        self._event_dims[name]
-                    ),
+                    RadialNormal(
+                        site_loc,
+                        site_scale,
+                    ).to_event(self._event_dims[name]),
                     infer={"is_auxiliary": True},
                 )
 
@@ -71,10 +72,13 @@ class AutoRadial(autoguide.AutoNormal):
                     value, unconstrained_latent
                 )
                 log_density = sum_rightmost(
-                    log_density, log_density.dim() - value.dim() + site["fn"].event_dim,
+                    log_density,
+                    log_density.dim() - value.dim() + site["fn"].event_dim,
                 )
                 delta_dist = dist.Delta(
-                    value, log_density=log_density, event_dim=site["fn"].event_dim,
+                    value,
+                    log_density=log_density,
+                    event_dim=site["fn"].event_dim,
                 )
 
                 result[name] = pyro.sample(name, delta_dist)

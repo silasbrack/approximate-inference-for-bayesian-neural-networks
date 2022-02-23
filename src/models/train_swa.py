@@ -11,14 +11,21 @@ from src import data as d
 from src.models import MNISTModel
 
 
-@hydra.main(config_path="../conf", config_name="mnist")
+@hydra.main(config_path="../conf", config_name="swa")
 def train_model(cfg: DictConfig):
 
-    model = MNISTModel(cfg.params.lr)
-    data = d.MNISTData(
+    data_dict = {
+        "mnist": d.MNISTData,
+        "fashionmnist": d.FashionMNISTData,
+        "cifar": d.CIFARData,
+        "svhn": d.SVHNData,
+    }
+    data = data_dict[cfg.params.data](
         cfg.paths.data, cfg.params.batch_size, cfg.hardware.num_workers
     )
     data.setup()
+
+    model = MNISTModel(cfg.params.lr)
 
     trainer = pl.Trainer(
         gpus=cfg.hardware.gpus,
@@ -39,7 +46,9 @@ def train_model(cfg: DictConfig):
                 monitor="val_loss",
                 mode="min",
             ),
-            # callbacks.StochasticWeightAveraging(swa_epoch_start=0.9),
+            callbacks.StochasticWeightAveraging(
+                swa_epoch_start=cfg.params.swa_start_thresh,
+            ),
         ],
     )
 
@@ -52,7 +61,8 @@ def train_model(cfg: DictConfig):
     trainer.test(dataloaders=data.test_dataloader(), ckpt_path="best")
 
     torch.save(
-        model.state_dict(), os.path.join(cfg.paths.model, cfg.files.state_dict),
+        model.state_dict(),
+        os.path.join(cfg.paths.model, cfg.files.state_dict),
     )
 
 

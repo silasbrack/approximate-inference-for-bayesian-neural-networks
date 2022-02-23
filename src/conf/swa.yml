@@ -1,0 +1,19 @@
+params:
+  epochs: 3
+  lr: 1e-3
+  batch_size: 128
+  swa_start_thresh: 0.9
+  data: mnist
+hardware:
+  gpus: 0
+  num_workers: 6
+paths:
+  project: ${hydra:runtime.cwd}
+  data: ${hydra:runtime.cwd}/data/
+  checkpoints: models/checkpoints/weights/
+  model: models/
+  logs: logs/
+files:
+  train: train.csv
+  test: test.csv
+  state_dict: state_dict.pt

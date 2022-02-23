@@ -1,39 +1,44 @@
+import pickle
 import time
 from functools import partial
 from typing import Dict
 
 import hydra
 import numpy as np
-from omegaconf import DictConfig
-import pickle
-from tqdm import tqdm
-
 import pyro
+import torch
+import torchmetrics as tm
+from omegaconf import DictConfig
 from pyro import distributions as dist
 from pyro.infer.autoguide import (
+    AutoDelta,
     AutoLaplaceApproximation,
     AutoLowRankMultivariateNormal,
-    AutoDelta,
 )
-import torch
 from torch import nn
 from torch.nn.functional import softmax
-import torchmetrics as tm
+from tqdm import tqdm
 
 import tyxe
-from tyxe.guides import AutoNormal
 from src import data as d
 from src.guides import AutoRadial
+from tyxe.guides import AutoNormal
 
 
-@hydra.main(config_path="../conf", config_name="bayesian_mnist")
+@hydra.main(config_path="../conf", config_name="tyxe")
 def train_model(cfg: DictConfig):
     pretrained_weights = f"{cfg.paths.project}/{cfg.files.pretrained_weights}"
 
-    mnist_data = d.MNISTData(
+    data_dict = {
+        "mnist": d.MNISTData,
+        "fashionmnist": d.FashionMNISTData,
+        "cifar": d.CIFARData,
+        "svhn": d.SVHNData,
+    }
+    data = data_dict[cfg.params.data](
         cfg.paths.data, cfg.params.batch_size, cfg.hardware.num_workers
     )
-    mnist_data.setup()
+    data.setup()
 
     hidden_size = 32
     channels, width, height = (1, 28, 28)
@@ -45,7 +50,7 @@ def train_model(cfg: DictConfig):
         nn.Linear(hidden_size, hidden_size),
         nn.ReLU(),
         nn.Dropout(0.1),
-        nn.Linear(hidden_size, mnist_data.n_classes),
+        nn.Linear(hidden_size, data.n_classes),
     )
     if cfg.files.pretrained_weights:
         sd = torch.load(pretrained_weights)
@@ -57,7 +62,7 @@ def train_model(cfg: DictConfig):
         "map": AutoDelta,
         "laplace": AutoLaplaceApproximation,
         "meanfield": partial(AutoNormal, init_scale=1e-2),
-        "lowrank": partial(AutoLowRankMultivariateNormal, rank=10),
+        "lowrank": AutoLowRankMultivariateNormal,  # partial(AutoLowRankMultivariateNormal, rank=10),
         "radial": AutoRadial,
     }
     inference = inference_dict[cfg.params.guide]
@@ -70,20 +75,18 @@ def train_model(cfg: DictConfig):
     bnn = tyxe.VariationalBNN(net, prior, likelihood, inference)
 
     optim = pyro.optim.Adam({"lr": cfg.params.lr})
-    train_dataloader = mnist_data.train_dataloader()
-    val_dataloader = mnist_data.val_dataloader()
+    train_dataloader = data.train_dataloader()
+    val_dataloader = data.val_dataloader()
 
-    elbos = np.zeros((cfg.params.epochs,1))
-    val_err = np.zeros((cfg.params.epochs,1))
-    val_ll = np.zeros((cfg.params.epochs,1))
+    elbos = np.zeros((cfg.params.epochs, 1))
+    val_err = np.zeros((cfg.params.epochs, 1))
+    val_ll = np.zeros((cfg.params.epochs, 1))
     pbar = tqdm(total=cfg.params.epochs, unit="Epochs")
 
     def callback(b: tyxe.VariationalBNN, i: int, e: float):
         avg_err, avg_ll = 0.0, 0.0
         for x, y in iter(val_dataloader):
-            err, ll = b.evaluate(
-                x, y, num_predictions=cfg.params.posterior_samples
-            )
+            err, ll = b.evaluate(x, y, num_predictions=cfg.params.posterior_samples)
             avg_err += err / len(val_dataloader.sampler)
             avg_ll += ll / len(val_dataloader.sampler)
         elbos[i] = e
@@ -101,38 +104,31 @@ def train_model(cfg: DictConfig):
         callback=callback,
     )
     elapsed = time.perf_counter() - t0
-    # [print(key, val) for key, val in pyro.get_param_store().items()]
+    # [print(key, val.shape) for key, val in pyro.get_param_store().items()]
 
-    # cifar_data = d.CIFARData(cfg.paths.data, cfg.params.batch_size, cfg.hardware.num_workers)
-    # cifar_data.setup()
-    fashion_mnist_data = d.FashionMNISTData(
-        cfg.paths.data, cfg.params.batch_size, cfg.hardware.num_workers
-    )
-    fashion_mnist_data.setup()
+    svhn_data = d.SVHNData(cfg.paths.data, cfg.params.batch_size, cfg.hardware.num_workers)
+    svhn_data.setup()
     guide_params = sum(val.shape.numel() for _, val in pyro.get_param_store().items())
 
     results = {
         "Inference": cfg.params.guide,
-        "Trained on": "MNIST",
+        "Trained on": cfg.params.data,
         "Wall clock time": elapsed,
         "Number of parameters": guide_params,
         "Training ELBO": elbos,
-        "Validation accuracy": 1-val_err,
+        "Validation accuracy": 1 - val_err,
         "Validation log-likelihood": val_ll,
         "eval_mnist": eval_model(
-            bnn, mnist_data.test_dataloader(), cfg.params.posterior_samples
+            bnn, data.test_dataloader(), cfg.params.posterior_samples
         ),
-        "eval_fashionmnist": eval_model(
-            bnn, fashion_mnist_data.test_dataloader(), cfg.params.posterior_samples
+        "eval_svhn": eval_model(
+            bnn, svhn_data.test_dataloader(), cfg.params.posterior_samples
         ),
-        # "eval_cifar": eval_model(
-        #     bnn, cifar_data.test_dataloader(), cfg.params.posterior_samples
-        # ),
     }
 
     for metric, value in results.items():
         print(f"{metric}: {value}")
-    with open("results.pkl", "wb") as f:
+    with open(f"{cfg.params.guide}.pkl", "wb") as f:
         pickle.dump(results, f)
 
     # torch.save(net.state_dict(), "state_dict.pt")
@@ -150,9 +146,10 @@ def eval_model(bnn, test_dataloader, posterior_samples: int) -> Dict:
     confidence = tm.MeanMetric()
     confidence_wrong = tm.MeanMetric()
     confidence_right = tm.MeanMetric()
-    nll_sum = 0
+    nll_sum = torch.tensor(0)
     n = 0
-    for x, y in test_dataloader:
+    for batch in test_dataloader:
+        x, y = batch
         _, log_likelihood = bnn.evaluate(
             x, y, num_predictions=posterior_samples, reduction="sum"
         )
