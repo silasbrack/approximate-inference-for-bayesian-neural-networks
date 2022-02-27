@@ -17,6 +17,7 @@ torchvision
 tensorboard
 numpy
 matplotlib
+pandas
 tqdm
 pytest
 hydra-core

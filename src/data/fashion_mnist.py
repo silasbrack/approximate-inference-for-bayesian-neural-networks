@@ -32,7 +32,9 @@ class FashionMNISTData(LightningDataModule):
             mnist_full = FashionMNIST(
                 self.data_dir, train=True, transform=self.transform
             )
-            self.mnist_train, self.mnist_val = random_split(mnist_full, [55000, 5000])
+            self.mnist_train, self.mnist_val = random_split(
+                mnist_full, [55000, 5000]
+            )
 
         # Assign test dataset for use in dataloader(s)
         if stage == "test" or stage is None:
