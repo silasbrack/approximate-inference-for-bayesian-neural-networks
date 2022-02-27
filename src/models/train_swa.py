@@ -65,6 +65,8 @@ def train_model(cfg: DictConfig):
         os.path.join(cfg.paths.model, cfg.files.state_dict),
     )
 
+    return model
+
 
 if __name__ == "__main__":
     train_model()
