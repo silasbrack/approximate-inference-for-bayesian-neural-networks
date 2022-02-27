@@ -13,5 +13,5 @@ EPOCHS=200
 GUIDES="radial meanfield laplace map ml lowrank"
 for GUIDE in $GUIDES
 do
-  python src/models/train_mnist_tyxe.py ++params.epochs=$EPOCHS ++params.guide="$GUIDE"
+  python src/models/train_tyxe.py ++params.epochs=$EPOCHS ++params.guide="$GUIDE"
 done

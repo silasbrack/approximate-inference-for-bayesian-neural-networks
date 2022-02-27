@@ -13,5 +13,5 @@ EPOCHS=10
 ENSEMBLES="5 10 20"
 for NUM_ENSEMBLES in $ENSEMBLES
 do
-  python src/models/train_mnist_tyxe.py ++params.epochs=$EPOCHS ++params.num_ensembles="$NUM_ENSEMBLES"
+  python src/models/train_deep_ensemble.py ++params.epochs=$EPOCHS ++params.num_ensembles="$NUM_ENSEMBLES"
 done

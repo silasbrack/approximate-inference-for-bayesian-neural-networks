@@ -146,7 +146,7 @@ def eval_model(bnn, test_dataloader, posterior_samples: int) -> Dict:
     confidence = tm.MeanMetric()
     confidence_wrong = tm.MeanMetric()
     confidence_right = tm.MeanMetric()
-    nll_sum = torch.tensor(0)
+    nll_sum = 0
     n = 0
     for batch in test_dataloader:
         x, y = batch
