@@ -1,17 +1,16 @@
-import os
+import copy
 
 import hydra
-import pytorch_lightning as pl
 import torch
 from omegaconf import DictConfig
-from pytorch_lightning import callbacks
-from pytorch_lightning.loggers import TensorBoardLogger
+from torch.nn.functional import nll_loss
+from torch.optim.swa_utils import AveragedModel
+from torchmetrics import Accuracy
 
 from src import data as d
 from src.models import MNISTModel
 
 
-@hydra.main(config_path="../conf", config_name="swa")
 def train_model(cfg: DictConfig):
 
     data_dict = {
@@ -26,47 +25,54 @@ def train_model(cfg: DictConfig):
     data.setup()
 
     model = MNISTModel(cfg.params.lr)
+    swa_model = AveragedModel(model)
+    optimizer = torch.optim.Adam(model.parameters(), lr=cfg.params.lr)
+    # scheduler = CosineAnnealingLR(optimizer, T_max=100)
+    loss_fn = nll_loss
+    swa_start = int(cfg.params.swa_start_thresh * cfg.params.epochs)
+    # swa_scheduler = SWALR(optimizer, swa_lr=0.05)
 
-    trainer = pl.Trainer(
-        gpus=cfg.hardware.gpus,
-        max_epochs=cfg.params.epochs,
-        log_every_n_steps=10,
-        logger=TensorBoardLogger(save_dir=cfg.paths.logs, name="mnist_model"),
-        callbacks=[
-            callbacks.EarlyStopping(
-                monitor="val_loss",
-                min_delta=0.00,
-                patience=5,
-                verbose=False,
-                mode="min",
-            ),
-            callbacks.ModelCheckpoint(
-                dirpath=cfg.paths.checkpoints,
-                verbose=True,
-                monitor="val_loss",
-                mode="min",
-            ),
-            callbacks.StochasticWeightAveraging(
-                swa_epoch_start=cfg.params.swa_start_thresh,
-            ),
-        ],
-    )
+    state_dicts = []
 
-    trainer.fit(
-        model,
-        train_dataloaders=data.train_dataloader(),
-        val_dataloaders=data.val_dataloader(),
-    )
+    for epoch in range(cfg.params.epochs):
+        for image, target in data.train_dataloader():
+            optimizer.zero_grad()
+            loss_fn(model(image), target).backward()
+            optimizer.step()
+        if epoch > swa_start:
+            swa_model.update_parameters(model)
+            state_dicts.append(copy.deepcopy(model.state_dict()))
+            # swa_scheduler.step()
+        # else:
+        #     scheduler.step()
 
-    trainer.test(dataloaders=data.test_dataloader(), ckpt_path="best")
+    accuracy_calculator = Accuracy()
+    for image, target in data.test_dataloader():
+        logits = model(image)
+        accuracy_calculator(logits, target)
+    accuracy = accuracy_calculator.compute()
+    print(f"Test accuracy for normal = {100*accuracy:.2f}")
 
-    torch.save(
-        model.state_dict(),
-        os.path.join(cfg.paths.model, cfg.files.state_dict),
-    )
+    accuracy_calculator = Accuracy()
+    for image, target in data.test_dataloader():
+        logits = swa_model(image)
+        accuracy_calculator(logits, target)
+    accuracy = accuracy_calculator.compute()
+    print(f"Test accuracy for SWA = {100*accuracy:.2f}")
 
-    return model
+    state_dicts = {k: torch.stack([sd[k] for sd in state_dicts]) for k in state_dicts[0]}
+
+    # # Update bn statistics for the swa_model at the end
+    # torch.optim.swa_utils.update_bn(loader, swa_model)
+    # # Use swa_model to make predictions on test data
+    # preds = swa_model(test_input)
+    return state_dicts
+
+
+@hydra.main(config_path="../conf", config_name="swa")
+def run(cfg: DictConfig):
+    train_model(cfg)
 
 
 if __name__ == "__main__":
-    train_model()
+    run()

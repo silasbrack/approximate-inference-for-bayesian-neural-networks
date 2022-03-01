@@ -1,8 +1,8 @@
 params:
-  epochs: 3
+  epochs: 10
   lr: 1e-3
   batch_size: 128
-  swa_start_thresh: 0.9
+  swa_start_thresh: 0
   data: mnist
 hardware:
   gpus: 0
