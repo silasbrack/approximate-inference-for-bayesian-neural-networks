@@ -10,10 +10,11 @@ from torch.nn import functional as F
 from torchmetrics import Accuracy
 
 from src import data as d
+from src.models.pyro_nn import BayesianNeuralNetwork
 from src.models.train_swa import train_swa
 
 
-class BayesianMnistModel(PyroModule):
+class SwagModel(PyroModule):
     def __init__(self, loc, scale):
         super().__init__()
         self.flatten = nn.Flatten()
@@ -80,8 +81,10 @@ def train_swag(cfg: DictConfig):
     weight_loc = {key: state_dicts[key].mean(dim=0) for key in state_dicts.keys()}
     weight_scale = {key: state_dicts[key].std(dim=0) + 0.0001 for key in state_dicts.keys()}
 
-    model = BayesianMnistModel(weight_loc, weight_scale)
-    posterior_predictive = Predictive(model, num_samples=128)
+    swag_model = SwagModel(weight_loc, weight_scale)
+    # posterior = dist.Normal
+    # multi_swag_model = BayesianNeuralNetwork(prior=posterior)
+    posterior_predictive = Predictive(swag_model, num_samples=128)
 
     accuracy_calculator = Accuracy()
     for image, target in data.test_dataloader():
