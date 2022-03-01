@@ -11,7 +11,7 @@ from src import data as d
 from src.models import MNISTModel
 
 
-def train_model(cfg: DictConfig):
+def train_swa(cfg: DictConfig):
 
     data_dict = {
         "mnist": d.MNISTData,
@@ -71,7 +71,7 @@ def train_model(cfg: DictConfig):
 
 @hydra.main(config_path="../conf", config_name="swa")
 def run(cfg: DictConfig):
-    train_model(cfg)
+    train_swa(cfg)
 
 
 if __name__ == "__main__":

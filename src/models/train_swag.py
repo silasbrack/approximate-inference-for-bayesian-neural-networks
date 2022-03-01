@@ -10,7 +10,7 @@ from torch.nn import functional as F
 from torchmetrics import Accuracy
 
 from src import data as d
-from src.models.train_swa import train_model
+from src.models.train_swa import train_swa
 
 
 class BayesianMnistModel(PyroModule):
@@ -64,8 +64,7 @@ class BayesianMnistModel(PyroModule):
         return logits
 
 
-@hydra.main(config_path="../conf", config_name="swa")
-def run(cfg: DictConfig):
+def train_swag(cfg: DictConfig):
     data_dict = {
         "mnist": d.MNISTData,
         "fashionmnist": d.FashionMNISTData,
@@ -77,7 +76,7 @@ def run(cfg: DictConfig):
     )
     data.setup()
 
-    state_dicts = train_model(cfg)
+    state_dicts = train_swa(cfg)
     weight_loc = {key: state_dicts[key].mean(dim=0) for key in state_dicts.keys()}
     weight_scale = {key: state_dicts[key].std(dim=0) + 0.0001 for key in state_dicts.keys()}
 
@@ -95,6 +94,11 @@ def run(cfg: DictConfig):
     print(f"Test accuracy for SWAG = {100*accuracy:.2f}")
 
     return weight_loc, weight_scale
+
+
+@hydra.main(config_path="../conf", config_name="swa")
+def run(cfg: DictConfig):
+    train_swag(cfg)
 
 
 if __name__ == "__main__":
