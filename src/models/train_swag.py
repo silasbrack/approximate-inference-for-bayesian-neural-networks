@@ -72,8 +72,8 @@ def train_swag(cfg: DictConfig):
         "cifar": d.CIFARData,
         "svhn": d.SVHNData,
     }
-    data = data_dict[cfg.params.data](
-        cfg.paths.data, cfg.params.batch_size, cfg.hardware.num_workers
+    data = data_dict[cfg.training.dataset](
+        cfg.paths.data, cfg.training.batch_size, cfg.hardware.num_workers
     )
     data.setup()
 

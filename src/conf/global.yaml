@@ -1,11 +1,16 @@
-- data: mnist
+training:
+  epochs: 10
+  lr: 1e-3
+  batch_size: 128
+  dataset: mnist
+eval:
+  datasets: [mnist, svhn]
 hardware:
   gpus: 0
   num_workers: 6
 paths:
   project: ${hydra:runtime.cwd}
   data: ${hydra:runtime.cwd}/data/
-  checkpoints: models/checkpoints/weights/
   model: models/
   logs: logs/
 files:

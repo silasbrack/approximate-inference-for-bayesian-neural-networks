@@ -1,5 +1,3 @@
-from functools import partial
-
 import hydra
 import pyro
 import pyro.distributions as dist
@@ -7,10 +5,8 @@ import torch
 import torch.nn as nn
 from omegaconf import DictConfig
 from pyro.nn import PyroModule, PyroSample
-from torch import distributions, Tensor
 from torch.nn import functional as F
 
-from src.models.pyro_nn import BayesianNeuralNetwork
 from src.models.train_swag import train_swag
 
 

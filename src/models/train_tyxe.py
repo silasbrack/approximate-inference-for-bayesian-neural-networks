@@ -1,3 +1,4 @@
+import logging
 import pickle
 import time
 from functools import partial
@@ -27,16 +28,14 @@ from tyxe.guides import AutoNormal
 
 @hydra.main(config_path="../conf", config_name="tyxe")
 def train_model(cfg: DictConfig):
-    pretrained_weights = f"{cfg.paths.project}/{cfg.files.pretrained_weights}"
-
     data_dict = {
         "mnist": d.MNISTData,
         "fashionmnist": d.FashionMNISTData,
         "cifar": d.CIFARData,
         "svhn": d.SVHNData,
     }
-    data = data_dict[cfg.params.data](
-        cfg.paths.data, cfg.params.batch_size, cfg.hardware.num_workers
+    data = data_dict[cfg.training.dataset](
+        cfg.paths.data, cfg.training.batch_size, cfg.hardware.num_workers
     )
     data.setup()
 
@@ -53,7 +52,9 @@ def train_model(cfg: DictConfig):
         nn.Linear(hidden_size, data.n_classes),
     )
     if cfg.files.pretrained_weights:
-        sd = torch.load(pretrained_weights)
+        pretrained_weights_path = f"{cfg.paths.project}/" \
+                                  f"{cfg.files.pretrained_weights}"
+        sd = torch.load(pretrained_weights_path)
         print(sd)
         net.load_state_dict(sd)
     likelihood = tyxe.likelihoods.Categorical(dataset_size=60000)
@@ -65,7 +66,7 @@ def train_model(cfg: DictConfig):
         "lowrank": partial(AutoLowRankMultivariateNormal, rank=10),
         "radial": AutoRadial,
     }
-    inference = inference_dict[cfg.params.guide]
+    inference = inference_dict[cfg.training.guide]
     if cfg.files.pretrained_weights and inference:
         inference = partial(
             inference,
@@ -77,20 +78,20 @@ def train_model(cfg: DictConfig):
     prior = tyxe.priors.IIDPrior(dist.Normal(0, 1), **prior_kwargs)
     bnn = tyxe.VariationalBNN(net, prior, likelihood, inference)
 
-    optim = pyro.optim.Adam({"lr": cfg.params.lr})
+    optim = pyro.optim.Adam({"lr": cfg.training.lr})
     train_dataloader = data.train_dataloader()
     val_dataloader = data.val_dataloader()
 
-    elbos = np.zeros((cfg.params.epochs, 1))
-    val_err = np.zeros((cfg.params.epochs, 1))
-    val_ll = np.zeros((cfg.params.epochs, 1))
-    pbar = tqdm(total=cfg.params.epochs, unit="Epochs")
+    elbos = np.zeros((cfg.training.epochs, 1))
+    val_err = np.zeros((cfg.training.epochs, 1))
+    val_ll = np.zeros((cfg.training.epochs, 1))
+    pbar = tqdm(total=cfg.training.epochs, unit="Epochs")
 
     def callback(b: tyxe.VariationalBNN, i: int, e: float):
         avg_err, avg_ll = 0.0, 0.0
         for x, y in iter(val_dataloader):
             err, ll = b.evaluate(
-                x, y, num_predictions=cfg.params.posterior_samples
+                x, y, num_predictions=cfg.training.posterior_samples
             )
             avg_err += err / len(val_dataloader.sampler)
             avg_ll += ll / len(val_dataloader.sampler)
@@ -104,40 +105,39 @@ def train_model(cfg: DictConfig):
     bnn.fit(
         train_dataloader,
         optim,
-        num_epochs=cfg.params.epochs,
-        num_particles=cfg.params.num_particles,
+        num_epochs=cfg.training.epochs,
+        num_particles=cfg.training.num_particles,
         callback=callback,
     )
     elapsed = time.perf_counter() - t0
     # [print(key, val.shape) for key, val in pyro.get_param_store().items()]
 
-    svhn_data = d.SVHNData(
-        cfg.paths.data, cfg.params.batch_size, cfg.hardware.num_workers
-    )
-    svhn_data.setup()
     guide_params = sum(
         val.shape.numel() for _, val in pyro.get_param_store().items()
     )
 
     results = {
-        "Inference": cfg.params.guide,
-        "Trained on": cfg.params.data,
+        "Inference": cfg.training.guide,
+        "Trained on": cfg.training.dataset,
         "Wall clock time": elapsed,
         "Number of parameters": guide_params,
         "Training ELBO": elbos,
         "Validation accuracy": 1 - val_err,
         "Validation log-likelihood": val_ll,
-        "eval_mnist": eval_model(
-            bnn, data.test_dataloader(), cfg.params.posterior_samples
-        ),
-        "eval_svhn": eval_model(
-            bnn, svhn_data.test_dataloader(), cfg.params.posterior_samples
-        ),
     }
+    for eval_dataset in cfg.eval.datasets:
+        eval_data = data_dict[eval_dataset](
+            cfg.paths.data, cfg.training.batch_size, cfg.hardware.num_workers
+        )
+        eval_data.setup()
+        results[f"eval_{eval_dataset}"] = eval_model(
+            bnn, eval_dataset, eval_data.test_dataloader(),
+            cfg.training.posterior_samples
+        )
 
     for metric, value in results.items():
         print(f"{metric}: {value}")
-    with open(f"{cfg.params.guide}.pkl", "wb") as f:
+    with open(f"{cfg.training.guide}.pkl", "wb") as f:
         pickle.dump(results, f)
 
     # torch.save(net.state_dict(), "state_dict.pt")
@@ -147,7 +147,8 @@ def train_model(cfg: DictConfig):
     # torch.save(bnn, "model.pt")
 
 
-def eval_model(bnn, test_dataloader, posterior_samples: int) -> Dict:
+def eval_model(bnn, dataset: str, test_dataloader, posterior_samples: int) \
+        -> Dict:
     test_targets = []
     test_probs = []
     accuracy = tm.Accuracy()
@@ -182,6 +183,7 @@ def eval_model(bnn, test_dataloader, posterior_samples: int) -> Dict:
     test_probs: np.array = torch.cat(test_probs).numpy()
 
     return {
+        "Evaluated on": dataset,
         "NLL": nll_sum.item() / n,
         "Accuracy": accuracy.compute().item(),
         "AUROC": auroc.compute().item(),
@@ -194,4 +196,8 @@ def eval_model(bnn, test_dataloader, posterior_samples: int) -> Dict:
 
 
 if __name__ == "__main__":
+    logging.captureWarnings(True)
+    logging.getLogger().setLevel(logging.INFO)
+    torch.manual_seed(1234)
+
     train_model()

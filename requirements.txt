@@ -12,8 +12,9 @@ python-dotenv>=0.5.1
 # project requirements
 pyro-ppl==1.4.0
 torch
-pytorch_lightning
 torchvision
+torchmetrics
+pytorch_lightning
 tensorboard
 numpy
 matplotlib
@@ -21,4 +22,5 @@ pandas
 tqdm
 pytest
 hydra-core
+omegaconf
 setuptools==59.5.0

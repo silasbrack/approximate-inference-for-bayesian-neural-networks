@@ -92,9 +92,11 @@ target/
 
 # Lightning logs
 lightning_logs/
+logs/
 
 # Hydra logs
 outputs/
+multirun/
 
 # bsub logs
 *.out
@@ -110,4 +112,5 @@ outputs/
 *.fls
 *.synctex.gz
 
+# Tyxe folder
 tyxe/
