@@ -60,7 +60,8 @@ def train_swa(cfg: DictConfig):
     accuracy = accuracy_calculator.compute()
     print(f"Test accuracy for SWA = {100*accuracy:.2f}")
 
-    state_dicts = {k: torch.stack([sd[k] for sd in state_dicts]) for k in state_dicts[0]}
+    state_dicts = {k: torch.stack([sd[k] for sd in state_dicts])
+                   for k in state_dicts[0]}
 
     # # Update bn statistics for the swa_model at the end
     # torch.optim.swa_utils.update_bn(loader, swa_model)

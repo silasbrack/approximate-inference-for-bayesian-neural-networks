@@ -1,6 +1,6 @@
 import pickle
 import time
-from typing import List, Dict
+from typing import List
 
 import hydra
 import numpy as np
@@ -78,7 +78,7 @@ def train_model(cfg: DictConfig):
         )
 
 
-def eval_model(models: List, dataset: str, test_dataloader: DataLoader) -> Dict:
+def eval_model(models: List, dataset: str, test_dataloader: DataLoader):
     test_targets = []
     test_probs = []
     accuracy = tm.Accuracy()

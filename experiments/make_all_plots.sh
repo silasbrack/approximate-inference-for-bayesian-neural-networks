@@ -1,8 +1,8 @@
 
-SCRIPT_DIR = src/visualization/experiments/
-SAVE_TO = reports/figures/
+SCRIPT_DIR=src/visualization/experiments/
+SAVE_TO=reports/figures/
 
-for SCRIPT in $SCRIPT_DIR/visualize*
+for SCRIPT in "$SCRIPT_DIR"/*
 do
-    python $SCRIPT $SAVE_TO
+    python "$SCRIPT" "$SAVE_TO"
 done

@@ -5,13 +5,8 @@
 #BSUB -W 04:00
 #BSUB -R "rusage[mem=16GB] span[hosts=1]"
 
-#module load python3/3.9.6
-#source venv/bin/activate
+module load python3/3.9.6
+module load cuda/11.3
+source venv/bin/activate
 
-EPOCHS=10
-
-ENSEMBLES="5 10 20"
-for NUM_ENSEMBLES in $ENSEMBLES
-do
-  python src/models/train_deep_ensemble.py ++params.epochs=$EPOCHS ++params.num_ensembles="$NUM_ENSEMBLES"
-done
+python src/models/train_deep_ensemble.py --multirun ++params.epochs=10 ++params.num_ensembles=5,10,20
