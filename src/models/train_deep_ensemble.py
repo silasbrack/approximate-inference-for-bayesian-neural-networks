@@ -86,8 +86,8 @@ def eval_model(models: List, test_dataloader: DataLoader) -> Dict:
     n = 0
     for x, y in test_dataloader:
         ensemble_logits = torch.stack([model(x) for model in models])
-        logits = torch.mean(ensemble_logits, dim=0)
-        probs = softmax(logits, dim=-1).detach()
+        ensemble_probs = softmax(ensemble_logits, dim=-1).detach()
+        probs = torch.mean(ensemble_probs, dim=0)
         conf, preds = torch.max(probs, dim=-1)
         preds = preds.detach()
         conf = conf.detach()
