@@ -50,7 +50,9 @@ def train_model(cfg: DictConfig):
         models.append(model)
     elapsed = time.perf_counter() - t0
 
-    svhn_data = d.SVHNData(cfg.paths.data, cfg.params.batch_size, cfg.hardware.num_workers)
+    svhn_data = d.SVHNData(
+        cfg.paths.data, cfg.params.batch_size, cfg.hardware.num_workers
+    )
     svhn_data.setup()
 
     results = {

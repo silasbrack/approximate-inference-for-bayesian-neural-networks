@@ -3,8 +3,7 @@ from functools import partial
 import fire
 import pyro
 import pytorch_lightning as pl
-import torch
-import torchmetrics as tm
+import tyxe
 from omegaconf import DictConfig, OmegaConf
 from pyro import distributions as dist
 from pyro.infer.autoguide import (
@@ -12,16 +11,14 @@ from pyro.infer.autoguide import (
     AutoLaplaceApproximation,
     AutoLowRankMultivariateNormal,
 )
+from src.models.train_mnist_tyxe import eval_model
 from torch import nn
-from torch.nn.functional import softmax
+from tyxe.guides import AutoNormal
 
-import tyxe
 from src import data as d
 from src.data.fashion_mnist import FashionMNISTData
 from src.guides import AutoRadial
 from src.models import MNISTModel
-from src.models.train_mnist_tyxe import eval_model
-from tyxe.guides import AutoNormal
 
 
 def mnist(
@@ -53,7 +50,9 @@ def tyxe_model(
 ):  # Path to log folder, e.g., outputs/2022-02-02/15-15-26/
     cfg: DictConfig = DictConfig(OmegaConf.load(f"{path}/.hydra/config.yaml"))
 
-    data = d.FashionMNISTData("data/", cfg.params.batch_size, cfg.hardware.num_workers)
+    data = d.FashionMNISTData(
+        "data/", cfg.params.batch_size, cfg.hardware.num_workers
+    )
     data.setup()
 
     hidden_size = 32
@@ -79,7 +78,9 @@ def tyxe_model(
         "radial": AutoRadial,
     }
     inference = inference_dict[cfg.params.guide]
-    prior_kwargs = {"expose_all": False, "hide_all": True} if inference is None else {}
+    prior_kwargs = (
+        {"expose_all": False, "hide_all": True} if inference is None else {}
+    )
     prior = tyxe.priors.IIDPrior(dist.Normal(0, 1), **prior_kwargs)
     bnn = tyxe.VariationalBNN(net, prior, likelihood, inference)
     bnn
@@ -100,7 +101,9 @@ def tyxe_model(
     # bnn.load_state_dict(torch.load(f"{path}/state_dict.pt"))
     # optim.load(f"{path}/optim.pt")
 
-    result = eval_model(bnn, data.test_dataloader(), cfg.params.posterior_samples)
+    result = eval_model(
+        bnn, data.test_dataloader(), cfg.params.posterior_samples
+    )
     print(result)
 
 

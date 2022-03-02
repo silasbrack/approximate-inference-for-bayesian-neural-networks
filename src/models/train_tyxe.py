@@ -62,15 +62,18 @@ def train_model(cfg: DictConfig):
         "map": AutoDelta,
         "laplace": AutoLaplaceApproximation,
         "meanfield": partial(AutoNormal, init_scale=1e-2),
-        "lowrank": AutoLowRankMultivariateNormal,  # partial(AutoLowRankMultivariateNormal, rank=10),
+        "lowrank": partial(AutoLowRankMultivariateNormal, rank=10),
         "radial": AutoRadial,
     }
     inference = inference_dict[cfg.params.guide]
     if cfg.files.pretrained_weights and inference:
         inference = partial(
-            inference, init_loc_fn=tyxe.guides.PretrainedInitializer.from_net(net)
+            inference,
+            init_loc_fn=tyxe.guides.PretrainedInitializer.from_net(net),
         )
-    prior_kwargs = {"expose_all": False, "hide_all": True} if inference is None else {}
+    prior_kwargs = (
+        {"expose_all": False, "hide_all": True} if inference is None else {}
+    )
     prior = tyxe.priors.IIDPrior(dist.Normal(0, 1), **prior_kwargs)
     bnn = tyxe.VariationalBNN(net, prior, likelihood, inference)
 
@@ -86,7 +89,9 @@ def train_model(cfg: DictConfig):
     def callback(b: tyxe.VariationalBNN, i: int, e: float):
         avg_err, avg_ll = 0.0, 0.0
         for x, y in iter(val_dataloader):
-            err, ll = b.evaluate(x, y, num_predictions=cfg.params.posterior_samples)
+            err, ll = b.evaluate(
+                x, y, num_predictions=cfg.params.posterior_samples
+            )
             avg_err += err / len(val_dataloader.sampler)
             avg_ll += ll / len(val_dataloader.sampler)
         elbos[i] = e
@@ -106,9 +111,13 @@ def train_model(cfg: DictConfig):
     elapsed = time.perf_counter() - t0
     # [print(key, val.shape) for key, val in pyro.get_param_store().items()]
 
-    svhn_data = d.SVHNData(cfg.paths.data, cfg.params.batch_size, cfg.hardware.num_workers)
+    svhn_data = d.SVHNData(
+        cfg.paths.data, cfg.params.batch_size, cfg.hardware.num_workers
+    )
     svhn_data.setup()
-    guide_params = sum(val.shape.numel() for _, val in pyro.get_param_store().items())
+    guide_params = sum(
+        val.shape.numel() for _, val in pyro.get_param_store().items()
+    )
 
     results = {
         "Inference": cfg.params.guide,

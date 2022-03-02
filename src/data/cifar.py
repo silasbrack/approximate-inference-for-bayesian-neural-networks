@@ -17,8 +17,10 @@ class CIFARData(LightningDataModule):
         self.transform = transforms.Compose(
             [
                 transforms.ToTensor(),
-                transforms.Normalize((0.49139968, 0.48215841, 0.44653091),
-                                     (0.24703223, 0.24348513, 0.26158784),),
+                transforms.Normalize(
+                    (0.49139968, 0.48215841, 0.44653091),
+                    (0.24703223, 0.24348513, 0.26158784),
+                ),
                 transforms.Grayscale(num_output_channels=1),
                 transforms.Resize(28),
             ]
@@ -37,8 +39,12 @@ class CIFARData(LightningDataModule):
 
         # Assign train/val datasets for use in dataloaders
         if stage == "fit" or stage is None:
-            mnist_full = d.CIFAR10(self.data_dir, train=True, transform=self.transform)
-            self.df_train, self.df_val = random_split(mnist_full, [45000, 5000])
+            mnist_full = d.CIFAR10(
+                self.data_dir, train=True, transform=self.transform
+            )
+            self.df_train, self.df_val = random_split(
+                mnist_full, [45000, 5000]
+            )
 
         # Assign test dataset for use in dataloader(s)
         if stage == "test" or stage is None:
