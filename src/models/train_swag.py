@@ -94,8 +94,7 @@ def train_swag(cfg: DictConfig):
     accuracy_calculator = Accuracy()
     for image, target in data.test_dataloader():
         prediction = posterior_predictive(image)
-        # preds = prediction["obs"].mode(dim=0).values  # MAP prediction
-        logits = prediction["logits"].mode(dim=0).values.squeeze(0)
+        logits = prediction["logits"].mean(dim=0).squeeze(0)
         accuracy_calculator(logits, target)
     accuracy = accuracy_calculator.compute()
     accuracy_calculator.reset()
