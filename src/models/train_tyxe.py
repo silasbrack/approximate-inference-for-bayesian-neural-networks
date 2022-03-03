@@ -77,8 +77,13 @@ def train_model(cfg: DictConfig):
     prior_kwargs = (
         {"expose_all": False, "hide_all": True} if inference is None else {}
     )
-    prior = tyxe.priors.IIDPrior(dist.Normal(torch.tensor(0, device=device, dtype=torch.float),
-                                             torch.tensor(1, device=device, dtype=torch.float)), **prior_kwargs)
+    prior = tyxe.priors.IIDPrior(
+        dist.Normal(
+            torch.tensor(0, device=device, dtype=torch.float),
+            torch.tensor(1, device=device, dtype=torch.float),
+        ),
+        **prior_kwargs
+    )
     bnn = tyxe.VariationalBNN(net, prior, likelihood, inference)
 
     optim = pyro.optim.Adam({"lr": cfg.training.lr})
@@ -94,7 +99,9 @@ def train_model(cfg: DictConfig):
         avg_err, avg_ll = 0.0, 0.0
         for x, y in iter(val_dataloader):
             err, ll = b.evaluate(
-                x.to(device), y.to(device), num_predictions=cfg.training.posterior_samples
+                x.to(device),
+                y.to(device),
+                num_predictions=cfg.training.posterior_samples,
             )
             err, ll = err.detach().cpu(), ll.detach().cpu()
             avg_err += err / len(val_dataloader.sampler)
@@ -153,8 +160,11 @@ def train_model(cfg: DictConfig):
     # torch.save(bnn, "model.pt")
 
 
-def eval_model(bnn, dataset: str, test_dataloader, posterior_samples: int, device) \
-        -> Dict:
+def eval_model(bnn,
+               dataset: str,
+               test_dataloader,
+               posterior_samples: int,
+               device) -> Dict:
     test_targets = []
     test_probs = []
     accuracy = tm.Accuracy()

@@ -63,10 +63,6 @@ def train_swa(cfg: DictConfig):
     state_dicts = {k: torch.stack([sd[k] for sd in state_dicts])
                    for k in state_dicts[0]}
 
-    # # Update bn statistics for the swa_model at the end
-    # torch.optim.swa_utils.update_bn(loader, swa_model)
-    # # Use swa_model to make predictions on test data
-    # preds = swa_model(test_input)
     return state_dicts
 
 

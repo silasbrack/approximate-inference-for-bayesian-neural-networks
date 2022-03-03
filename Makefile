@@ -1,4 +1,4 @@
-.PHONY: clean data lint requirements sync_data_to_s3 sync_data_from_s3
+.PHONY: clean data lint requirements
 
 #################################################################################
 # GLOBALS                                                                       #
@@ -7,12 +7,6 @@
 PROJECT_DIR := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 PROJECT_NAME = special_course
 PYTHON_INTERPRETER = python3
-
-# ifeq (,$(shell which conda))
-# HAS_CONDA=False
-# else
-# HAS_CONDA=True
-# endif
 
 #################################################################################
 # COMMANDS                                                                      #
@@ -25,7 +19,10 @@ requirements: test_environment
 
 ## Make Dataset
 data: # requirements
-	$(PYTHON_INTERPRETER) src/data/make_dataset.py data/raw data/processed
+	$(PYTHON_INTERPRETER) src/data/make_dataset.py
+# 	wget https://cs.stanford.edu/group/mlgroup/MURA-v1.1.zip
+# 	unzip -q MURA-v1.1.zip -d data/raw
+# 	rm -f MURA-v1.1.zip
 
 ## Delete all compiled Python files
 clean:
@@ -35,6 +32,11 @@ clean:
 ## Lint using flake8
 lint:
 	flake8 src
+
+## Load modules
+load_modules:
+	module load python3/3.9.6
+	module load cuda/11.3
 
 ## Set up python interpreter environment
 create_environment:
@@ -47,12 +49,6 @@ test_environment:
 ## Run unit tests
 run_tests:
 	pytest -v tests/
-
-#################################################################################
-# PROJECT RULES                                                                 #
-#################################################################################
-
-
 
 #################################################################################
 # Self Documenting Commands                                                     #

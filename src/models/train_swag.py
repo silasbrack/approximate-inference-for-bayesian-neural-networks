@@ -11,7 +11,6 @@ from torchmetrics import Accuracy
 
 from src import data as d
 
-# from src.models.pyro_nn import BayesianNeuralNetwork
 from src.models.train_swa import train_swa
 
 
@@ -87,8 +86,6 @@ def train_swag(cfg: DictConfig):
     }
 
     swag_model = SwagModel(weight_loc, weight_scale)
-    # posterior = dist.Normal
-    # multi_swag_model = BayesianNeuralNetwork(prior=posterior)
     posterior_predictive = Predictive(swag_model, num_samples=128)
 
     accuracy_calculator = Accuracy()
@@ -100,10 +97,10 @@ def train_swag(cfg: DictConfig):
     accuracy_calculator.reset()
     print(f"Test accuracy for SWAG = {100*accuracy:.2f}")
 
-    return weight_loc, weight_scale
+    return swag_model
 
 
-@hydra.main(config_path="../conf", config_name="swa")
+@hydra.main(config_path="../conf", config_name="swag")
 def run(cfg: DictConfig):
     train_swag(cfg)
 
