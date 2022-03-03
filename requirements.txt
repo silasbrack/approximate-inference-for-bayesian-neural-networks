@@ -16,6 +16,7 @@ hydra-core
 
 # project requirements
 numpy
+scipy
 matplotlib
 pandas
 

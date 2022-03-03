@@ -39,6 +39,8 @@ def train_model(cfg: DictConfig):
     )
     data.setup()
 
+    device = torch.device("cuda" if cfg.hardware.gpus else "cpu")
+
     hidden_size = 32
     channels, width, height = (1, 28, 28)
     net = nn.Sequential(
@@ -50,7 +52,7 @@ def train_model(cfg: DictConfig):
         nn.ReLU(),
         nn.Dropout(0.1),
         nn.Linear(hidden_size, data.n_classes),
-    )
+    ).to(device)
     if cfg.files.pretrained_weights:
         pretrained_weights_path = f"{cfg.paths.project}/" \
                                   f"{cfg.files.pretrained_weights}"
@@ -75,7 +77,8 @@ def train_model(cfg: DictConfig):
     prior_kwargs = (
         {"expose_all": False, "hide_all": True} if inference is None else {}
     )
-    prior = tyxe.priors.IIDPrior(dist.Normal(0, 1), **prior_kwargs)
+    prior = tyxe.priors.IIDPrior(dist.Normal(torch.tensor(0, device=device, dtype=torch.float),
+                                             torch.tensor(1, device=device, dtype=torch.float)), **prior_kwargs)
     bnn = tyxe.VariationalBNN(net, prior, likelihood, inference)
 
     optim = pyro.optim.Adam({"lr": cfg.training.lr})
@@ -91,8 +94,9 @@ def train_model(cfg: DictConfig):
         avg_err, avg_ll = 0.0, 0.0
         for x, y in iter(val_dataloader):
             err, ll = b.evaluate(
-                x, y, num_predictions=cfg.training.posterior_samples
+                x.to(device), y.to(device), num_predictions=cfg.training.posterior_samples
             )
+            err, ll = err.detach().cpu(), ll.detach().cpu()
             avg_err += err / len(val_dataloader.sampler)
             avg_ll += ll / len(val_dataloader.sampler)
         elbos[i] = e
@@ -108,6 +112,7 @@ def train_model(cfg: DictConfig):
         num_epochs=cfg.training.epochs,
         num_particles=cfg.training.num_particles,
         callback=callback,
+        device=device,
     )
     elapsed = time.perf_counter() - t0
     # [print(key, val.shape) for key, val in pyro.get_param_store().items()]
@@ -132,7 +137,8 @@ def train_model(cfg: DictConfig):
         eval_data.setup()
         results[f"eval_{eval_dataset}"] = eval_model(
             bnn, eval_dataset, eval_data.test_dataloader(),
-            cfg.training.posterior_samples
+            cfg.training.posterior_samples,
+            device,
         )
 
     for metric, value in results.items():
@@ -147,7 +153,7 @@ def train_model(cfg: DictConfig):
     # torch.save(bnn, "model.pt")
 
 
-def eval_model(bnn, dataset: str, test_dataloader, posterior_samples: int) \
+def eval_model(bnn, dataset: str, test_dataloader, posterior_samples: int, device) \
         -> Dict:
     test_targets = []
     test_probs = []
@@ -158,12 +164,15 @@ def eval_model(bnn, dataset: str, test_dataloader, posterior_samples: int) \
     confidence_right = tm.MeanMetric()
     nll_sum = 0
     n = 0
-    for batch in test_dataloader:
-        x, y = batch
+    for x, y in test_dataloader:
+        x, y = x.to(device), y.to(device)
         _, log_likelihood = bnn.evaluate(
             x, y, num_predictions=posterior_samples, reduction="sum"
         )
         logits = bnn.predict(x, num_predictions=posterior_samples)
+        log_likelihood = log_likelihood.detach().cpu()
+        logits = logits.detach().cpu()
+        y = y.cpu()
         probs = softmax(logits, dim=-1)
         conf, preds = torch.max(probs, dim=-1)
         preds = preds.detach()
