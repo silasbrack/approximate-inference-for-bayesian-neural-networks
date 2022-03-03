@@ -9,4 +9,4 @@ module load python3/3.9.6
 module load cuda/11.3
 source venv/bin/activate
 
-python src/models/train_deep_ensemble.py --multirun ++params.epochs=10 ++params.num_ensembles=5,10,20
+python src/models/train_deep_ensemble.py --multirun ++training.epochs=10 ++num_ensembles=5,10,20
