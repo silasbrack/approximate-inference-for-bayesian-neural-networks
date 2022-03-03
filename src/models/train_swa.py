@@ -19,22 +19,22 @@ def train_swa(cfg: DictConfig):
         "cifar": d.CIFARData,
         "svhn": d.SVHNData,
     }
-    data = data_dict[cfg.params.data](
-        cfg.paths.data, cfg.params.batch_size, cfg.hardware.num_workers
+    data = data_dict[cfg.training.dataset](
+        cfg.paths.data, cfg.training.batch_size, cfg.hardware.num_workers
     )
     data.setup()
 
-    model = MNISTModel(cfg.params.lr)
+    model = MNISTModel(cfg.training.lr)
     swa_model = AveragedModel(model)
-    optimizer = torch.optim.Adam(model.parameters(), lr=cfg.params.lr)
+    optimizer = torch.optim.Adam(model.parameters(), lr=cfg.training.lr)
     # scheduler = CosineAnnealingLR(optimizer, T_max=100)
     loss_fn = nll_loss
-    swa_start = int(cfg.params.swa_start_thresh * cfg.params.epochs)
+    swa_start = int(cfg.swa_start_thresh * cfg.training.epochs)
     # swa_scheduler = SWALR(optimizer, swa_lr=0.05)
 
     state_dicts = []
 
-    for epoch in range(cfg.params.epochs):
+    for epoch in range(cfg.training.epochs):
         for image, target in data.train_dataloader():
             optimizer.zero_grad()
             loss_fn(model(image), target).backward()
@@ -60,7 +60,8 @@ def train_swa(cfg: DictConfig):
     accuracy = accuracy_calculator.compute()
     print(f"Test accuracy for SWA = {100*accuracy:.2f}")
 
-    state_dicts = {k: torch.stack([sd[k] for sd in state_dicts]) for k in state_dicts[0]}
+    state_dicts = {k: torch.stack([sd[k] for sd in state_dicts])
+                   for k in state_dicts[0]}
 
     # # Update bn statistics for the swa_model at the end
     # torch.optim.swa_utils.update_bn(loader, swa_model)

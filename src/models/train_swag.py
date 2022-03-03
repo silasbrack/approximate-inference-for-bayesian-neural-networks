@@ -10,7 +10,8 @@ from torch.nn import functional as F
 from torchmetrics import Accuracy
 
 from src import data as d
-from src.models.pyro_nn import BayesianNeuralNetwork
+
+# from src.models.pyro_nn import BayesianNeuralNetwork
 from src.models.train_swa import train_swa
 
 
@@ -72,14 +73,18 @@ def train_swag(cfg: DictConfig):
         "cifar": d.CIFARData,
         "svhn": d.SVHNData,
     }
-    data = data_dict[cfg.params.data](
-        cfg.paths.data, cfg.params.batch_size, cfg.hardware.num_workers
+    data = data_dict[cfg.training.dataset](
+        cfg.paths.data, cfg.training.batch_size, cfg.hardware.num_workers
     )
     data.setup()
 
     state_dicts = train_swa(cfg)
-    weight_loc = {key: state_dicts[key].mean(dim=0) for key in state_dicts.keys()}
-    weight_scale = {key: state_dicts[key].std(dim=0) + 0.0001 for key in state_dicts.keys()}
+    weight_loc = {
+        key: state_dicts[key].mean(dim=0) for key in state_dicts.keys()
+    }
+    weight_scale = {
+        key: state_dicts[key].std(dim=0) + 0.0001 for key in state_dicts.keys()
+    }
 
     swag_model = SwagModel(weight_loc, weight_scale)
     # posterior = dist.Normal

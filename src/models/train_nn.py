@@ -20,16 +20,16 @@ def train_model(cfg: DictConfig):
         "cifar": d.CIFARData,
         "svhn": d.SVHNData,
     }
-    data = data_dict[cfg.params.data](
-        cfg.paths.data, cfg.params.batch_size, cfg.hardware.num_workers
+    data = data_dict[cfg.training.dataset](
+        cfg.paths.data, cfg.training.batch_size, cfg.hardware.num_workers
     )
     data.setup()
 
-    model = MNISTModel(cfg.params.lr)
+    model = MNISTModel(cfg.training.lr)
 
     trainer = pl.Trainer(
         gpus=cfg.hardware.gpus,
-        max_epochs=cfg.params.epochs,
+        max_epochs=cfg.training.epochs,
         log_every_n_steps=10,
         logger=TensorBoardLogger(save_dir=cfg.paths.logs, name="mnist_model"),
         callbacks=[

@@ -1,5 +1,3 @@
-from functools import partial
-
 import hydra
 import pyro
 import pyro.distributions as dist
@@ -7,10 +5,8 @@ import torch
 import torch.nn as nn
 from omegaconf import DictConfig
 from pyro.nn import PyroModule, PyroSample
-from torch import distributions, Tensor
 from torch.nn import functional as F
 
-from src.models.pyro_nn import BayesianNeuralNetwork
 from src.models.train_swag import train_swag
 
 
@@ -26,33 +22,45 @@ class MultiSwagModel(PyroModule):
         weight_shape: torch.Size = loc[label].shape
         self.fc1 = PyroModule[nn.Linear](weight_shape[1], weight_shape[0])
         self.fc1.weight = PyroSample(
-            dist.MixtureOfDiagNormals(loc[label], scale[label], component_logits).to_event(2)
+            dist.MixtureOfDiagNormals(
+                loc[label], scale[label], component_logits
+            ).to_event(2)
         )
         label = "model.1.bias"
         self.fc1.bias = PyroSample(
-            dist.MixtureOfDiagNormals(loc[label], scale[label], component_logits).to_event(1)
+            dist.MixtureOfDiagNormals(
+                loc[label], scale[label], component_logits
+            ).to_event(1)
         )
 
         label = "model.4.weight"
         weight_shape: torch.Size = loc[label].shape
         self.fc2 = PyroModule[nn.Linear](weight_shape[1], weight_shape[0])
         self.fc2.weight = PyroSample(
-            dist.MixtureOfDiagNormals(loc[label], scale[label], component_logits).to_event(2)
+            dist.MixtureOfDiagNormals(
+                loc[label], scale[label], component_logits
+            ).to_event(2)
         )
         label = "model.4.bias"
         self.fc2.bias = PyroSample(
-            dist.MixtureOfDiagNormals(loc[label], scale[label], component_logits).to_event(1)
+            dist.MixtureOfDiagNormals(
+                loc[label], scale[label], component_logits
+            ).to_event(1)
         )
 
         label = "model.7.weight"
         weight_shape: torch.Size = loc[label].shape
         self.fc3 = PyroModule[nn.Linear](weight_shape[1], weight_shape[0])
         self.fc3.weight = PyroSample(
-            dist.MixtureOfDiagNormals(loc[label], scale[label], component_logits).to_event(2)
+            dist.MixtureOfDiagNormals(
+                loc[label], scale[label], component_logits
+            ).to_event(2)
         )
         label = "model.7.bias"
         self.fc3.bias = PyroSample(
-            dist.MixtureOfDiagNormals(loc[label], scale[label], component_logits).to_event(1)
+            dist.MixtureOfDiagNormals(
+                loc[label], scale[label], component_logits
+            ).to_event(1)
         )
 
     def forward(self, x, y=None):
@@ -68,7 +76,7 @@ class MultiSwagModel(PyroModule):
         return logits
 
 
-# def get_posterior(ensemble_locs: Tensor, ensemble_scales: Tensor) -> distributions.MixtureSameFamily:
+# def get_posterior(ensemble_locs: Tensor, ensemble_scales: Tensor):
 #     num_ensembles: int = ensemble_locs.shape[0]
 #
 #     # In MultiSWAG we weigh each ensemble equally
@@ -89,8 +97,11 @@ def run(cfg: DictConfig):
     for _ in range(num_ensembles):
         ensemble_state_dicts.append(train_swag(cfg))
 
-    # ensemble_locs = {k: torch.stack([sd[0][k] for sd in ensemble_state_dicts]) for k in ensemble_state_dicts[0][0]}
-    # ensemble_scales = {k: torch.stack([sd[1][k] for sd in ensemble_state_dicts]) for k in ensemble_state_dicts[0][0]}
+    # ensemble_locs={k: torch.stack([sd[0][k] for sd in ensemble_state_dicts])
+    #                  for k in ensemble_state_dicts[0][0]}
+    # ensemble_scales = {k: torch.stack([sd[1][k]
+    #                                    for sd in ensemble_state_dicts])
+    #                    for k in ensemble_state_dicts[0][0]}
     ensemble_locs = {}
     ensemble_scales = {}
     for key in ensemble_state_dicts[0][0].keys():
@@ -102,8 +113,9 @@ def run(cfg: DictConfig):
         ensemble_locs[key] = torch.stack(ensemble_locs[key])
         ensemble_scales[key] = torch.stack(ensemble_scales[key])
 
-    model = MultiSwagModel(num_ensembles, ensemble_locs, ensemble_scales)
-    # posterior = partial(dist.MixtureOfDiagNormals, component_logits=torch.ones((num_ensembles,)))
+    # model = MultiSwagModel(num_ensembles, ensemble_locs, ensemble_scales)
+    # posterior = partial(dist.MixtureOfDiagNormals,
+    #                     component_logits=torch.ones((num_ensembles,)))
     # multi_swag_model = BayesianNeuralNetwork(prior=posterior)
 
 
