@@ -26,7 +26,7 @@ from src.guides import AutoRadial
 from tyxe.guides import AutoNormal
 
 
-@hydra.main(config_path="../conf", config_name="tyxe")
+@hydra.main(config_path="../../conf", config_name="tyxe")
 def train_model(cfg: DictConfig):
     data_dict = {
         "mnist": d.MNISTData,

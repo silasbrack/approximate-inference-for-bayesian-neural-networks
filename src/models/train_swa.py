@@ -66,7 +66,7 @@ def train_swa(cfg: DictConfig):
     return state_dicts
 
 
-@hydra.main(config_path="../conf", config_name="swa")
+@hydra.main(config_path="../../conf", config_name="swa")
 def run(cfg: DictConfig):
     train_swa(cfg)
 

@@ -11,7 +11,7 @@ from src import data as d
 from src.models import MNISTModel
 
 
-@hydra.main(config_path="../conf", config_name="nn")
+@hydra.main(config_path="../../conf", config_name="nn")
 def train_model(cfg: DictConfig):
 
     data_dict = {

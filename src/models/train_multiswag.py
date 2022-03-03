@@ -8,7 +8,7 @@ from src.models.train_swag import train_swag
 
 
 # TODO: Make MultiSWAG work on GPU
-@hydra.main(config_path="../conf", config_name="multiswag")
+@hydra.main(config_path="../../conf", config_name="multiswag")
 def run(cfg: DictConfig):
     num_ensembles = cfg.num_ensembles
 

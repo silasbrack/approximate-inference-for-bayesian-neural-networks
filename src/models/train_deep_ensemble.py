@@ -16,7 +16,7 @@ from src import data as d
 from src.models import MNISTModel
 
 
-@hydra.main(config_path="../conf", config_name="deep_ensemble")
+@hydra.main(config_path="../../conf", config_name="deep_ensemble")
 def train_model(cfg: DictConfig):
     data_dict = {
         "mnist": d.MNISTData,

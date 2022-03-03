@@ -3,6 +3,7 @@ training:
   lr: 1e-3
   batch_size: 128
   dataset: mnist
+  seed: null
 eval:
   datasets: [mnist, svhn]
 hardware:

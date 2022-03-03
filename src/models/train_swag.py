@@ -100,7 +100,7 @@ def train_swag(cfg: DictConfig):
     return swag_model
 
 
-@hydra.main(config_path="../conf", config_name="swag")
+@hydra.main(config_path="../../conf", config_name="swag")
 def run(cfg: DictConfig):
     train_swag(cfg)
 
