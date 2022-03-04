@@ -86,16 +86,16 @@ def train_swag(cfg: DictConfig):
     }
 
     swag_model = SwagModel(weight_loc, weight_scale)
-    posterior_predictive = Predictive(swag_model, num_samples=128)
+    # posterior_predictive = Predictive(swag_model, num_samples=128)
 
-    accuracy_calculator = Accuracy()
-    for image, target in data.test_dataloader():
-        prediction = posterior_predictive(image)
-        logits = prediction["logits"].mean(dim=0).squeeze(0)
-        accuracy_calculator(logits, target)
-    accuracy = accuracy_calculator.compute()
-    accuracy_calculator.reset()
-    print(f"Test accuracy for SWAG = {100*accuracy:.2f}")
+    # accuracy_calculator = Accuracy()
+    # for image, target in data.test_dataloader():
+    #     prediction = posterior_predictive(image)
+    #     logits = prediction["logits"].mean(dim=0).squeeze(0)
+    #     accuracy_calculator(logits, target)
+    # accuracy = accuracy_calculator.compute()
+    # accuracy_calculator.reset()
+    # print(f"Test accuracy for SWAG = {100*accuracy:.2f}")
 
     return swag_model
 

@@ -46,19 +46,19 @@ def train_swa(cfg: DictConfig):
         # else:
         #     scheduler.step()
 
-    accuracy_calculator = Accuracy()
-    for image, target in data.test_dataloader():
-        logits = model(image)
-        accuracy_calculator(logits, target)
-    accuracy = accuracy_calculator.compute()
-    print(f"Test accuracy for normal = {100*accuracy:.2f}")
-
-    accuracy_calculator = Accuracy()
-    for image, target in data.test_dataloader():
-        logits = swa_model(image)
-        accuracy_calculator(logits, target)
-    accuracy = accuracy_calculator.compute()
-    print(f"Test accuracy for SWA = {100*accuracy:.2f}")
+    # accuracy_calculator = Accuracy()
+    # for image, target in data.test_dataloader():
+    #     logits = model(image)
+    #     accuracy_calculator(logits, target)
+    # accuracy = accuracy_calculator.compute()
+    # print(f"Test accuracy for normal = {100*accuracy:.2f}")
+    #
+    # accuracy_calculator = Accuracy()
+    # for image, target in data.test_dataloader():
+    #     logits = swa_model(image)
+    #     accuracy_calculator(logits, target)
+    # accuracy = accuracy_calculator.compute()
+    # print(f"Test accuracy for SWA = {100*accuracy:.2f}")
 
     state_dicts = {k: torch.stack([sd[k] for sd in state_dicts])
                    for k in state_dicts[0]}
