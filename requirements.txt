@@ -13,12 +13,14 @@ python-dotenv>=0.5.1
 tqdm
 pytest
 hydra-core
+fire
 
 # project requirements
 numpy
 scipy
-matplotlib
 pandas
+matplotlib
+seaborn
 
 pyro-ppl==1.4.0
 tensorboard

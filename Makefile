@@ -12,17 +12,12 @@ PYTHON_INTERPRETER = python3
 # COMMANDS                                                                      #
 #################################################################################
 
-## Install Python Dependencies
-requirements: test_environment
-	$(PYTHON_INTERPRETER) -m pip install -U pip setuptools wheel
-	$(PYTHON_INTERPRETER) -m pip install -r requirements.txt
-
 ## Make Dataset
 data: # requirements
 	$(PYTHON_INTERPRETER) src/data/make_dataset.py
-# 	wget https://cs.stanford.edu/group/mlgroup/MURA-v1.1.zip
-# 	unzip -q MURA-v1.1.zip -d data/raw
-# 	rm -f MURA-v1.1.zip
+#	wget https://cs.stanford.edu/group/mlgroup/MURA-v1.1.zip
+#	unzip -q MURA-v1.1.zip -d data/raw
+#	rm -f MURA-v1.1.zip
 
 ## Delete all compiled Python files
 clean:
@@ -41,6 +36,8 @@ load_modules:
 ## Set up python interpreter environment
 create_environment:
 	$(PYTHON_INTERPRETER) -m venv venv/
+	$(PYTHON_INTERPRETER) -m pip install -U pip setuptools wheel
+	$(PYTHON_INTERPRETER) -m pip install -r requirements.txt
 
 ## Test python environment is setup correctly
 test_environment:
