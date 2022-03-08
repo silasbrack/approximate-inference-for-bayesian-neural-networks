@@ -11,7 +11,7 @@ from pyro.infer.autoguide import (
     AutoLaplaceApproximation,
     AutoLowRankMultivariateNormal,
 )
-from src.models.train_mnist_tyxe import eval_model
+from src.models.train_tyxe import eval_model
 from torch import nn
 from tyxe.guides import AutoNormal
 
@@ -51,7 +51,7 @@ def tyxe_model(
     cfg: DictConfig = DictConfig(OmegaConf.load(f"{path}/.hydra/config.yaml"))
 
     data = d.FashionMNISTData(
-        "data/", cfg.params.batch_size, cfg.hardware.num_workers
+        "data/", cfg.training.batch_size, cfg.hardware.num_workers
     )
     data.setup()
 
@@ -68,6 +68,13 @@ def tyxe_model(
         nn.Dropout(0.1),
         nn.Linear(hidden_size, data.n_classes),
     )
+    # print(net.state_dict().keys())
+    # print(net.state_dict()["1.bias"])
+    # sd = torch.load(f"{path}/state_dict.pt")
+    # print(sd.keys())
+    # print(sd["1.bias"])
+    # net.load_state_dict()
+    # print(net.state_dict())
     likelihood = tyxe.likelihoods.Categorical(dataset_size=60000)
     inference_dict = {
         "ml": None,
@@ -77,7 +84,7 @@ def tyxe_model(
         "lowrank": partial(AutoLowRankMultivariateNormal, rank=10),
         "radial": AutoRadial,
     }
-    inference = inference_dict[cfg.params.guide]
+    inference = inference_dict[cfg.training.guide]
     prior_kwargs = (
         {"expose_all": False, "hide_all": True} if inference is None else {}
     )
@@ -86,13 +93,13 @@ def tyxe_model(
     bnn
     # bnn = torch.load(f"{path}/model.pt")
 
-    optim = pyro.optim.Adam({"lr": cfg.params.lr})
+    optim = pyro.optim.Adam({"lr": cfg.training.lr})
 
     bnn.fit(
         data.train_dataloader(),
         optim,
         num_epochs=1,
-        num_particles=cfg.params.num_particles,
+        num_particles=cfg.training.num_particles,
     )
 
     # print(bnn.state_dict())
@@ -102,9 +109,13 @@ def tyxe_model(
     # optim.load(f"{path}/optim.pt")
 
     result = eval_model(
-        bnn, data.test_dataloader(), cfg.params.posterior_samples
+        bnn,
+        "fashionmnist",
+        data.test_dataloader(),
+        cfg.training.posterior_samples,
+        "cpu",
     )
-    print(result)
+    print({key: result[key] for key in ["Accuracy", "AUROC"]})
 
 
 if __name__ == "__main__":

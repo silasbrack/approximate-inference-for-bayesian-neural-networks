@@ -54,8 +54,9 @@ def train_model(cfg: DictConfig):
         nn.Linear(hidden_size, data.n_classes),
     ).to(device)
     if cfg.files.pretrained_weights:
-        pretrained_weights_path = f"{cfg.paths.project}/" \
-                                  f"{cfg.files.pretrained_weights}"
+        pretrained_weights_path = (
+            f"{cfg.paths.project}/" f"{cfg.files.pretrained_weights}"
+        )
         sd = torch.load(pretrained_weights_path)
         print(sd)
         net.load_state_dict(sd)
@@ -82,7 +83,7 @@ def train_model(cfg: DictConfig):
             torch.tensor(0, device=device, dtype=torch.float),
             torch.tensor(1, device=device, dtype=torch.float),
         ),
-        **prior_kwargs
+        **prior_kwargs,
     )
     bnn = tyxe.VariationalBNN(net, prior, likelihood, inference)
 
@@ -143,7 +144,9 @@ def train_model(cfg: DictConfig):
         )
         eval_data.setup()
         results[f"eval_{eval_dataset}"] = eval_model(
-            bnn, eval_dataset, eval_data.test_dataloader(),
+            bnn,
+            eval_dataset,
+            eval_data.test_dataloader(),
             cfg.training.posterior_samples,
             device,
         )
@@ -160,11 +163,9 @@ def train_model(cfg: DictConfig):
     # torch.save(bnn, "model.pt")
 
 
-def eval_model(bnn,
-               dataset: str,
-               test_dataloader,
-               posterior_samples: int,
-               device) -> Dict:
+def eval_model(
+    bnn, dataset: str, test_dataloader, posterior_samples: int, device
+) -> Dict:
     test_targets = []
     test_probs = []
     accuracy = tm.Accuracy()

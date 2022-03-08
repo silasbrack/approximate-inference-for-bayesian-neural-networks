@@ -5,7 +5,6 @@ import torch
 from omegaconf import DictConfig
 from torch.nn.functional import nll_loss
 from torch.optim.swa_utils import AveragedModel
-from torchmetrics import Accuracy
 
 from src import data as d
 from src.models import MNISTModel
@@ -60,8 +59,9 @@ def train_swa(cfg: DictConfig):
     # accuracy = accuracy_calculator.compute()
     # print(f"Test accuracy for SWA = {100*accuracy:.2f}")
 
-    state_dicts = {k: torch.stack([sd[k] for sd in state_dicts])
-                   for k in state_dicts[0]}
+    state_dicts = {
+        k: torch.stack([sd[k] for sd in state_dicts]) for k in state_dicts[0]
+    }
 
     return state_dicts
 

@@ -34,7 +34,8 @@ def run(cfg: DictConfig):
         posterior_predictives.append(posterior_predictive)
 
     params = num_ensembles * sum(
-            p.numel() for p in swag_models[0].parameters())
+        p.numel() for p in swag_models[0].parameters()
+    )
 
     data_dict = {
         "mnist": d.MNISTData,
@@ -59,13 +60,15 @@ def run(cfg: DictConfig):
         )
         eval_data.setup()
         results[f"eval_{eval_dataset}"] = eval_model(
-            posterior_predictives, eval_dataset, eval_data.test_dataloader(),
+            posterior_predictives,
+            eval_dataset,
+            eval_data.test_dataloader(),
             num_ensembles,
         )
 
     for metric, value in results.items():
         print(f"{metric}: {value}")
-    with open(f"multiswag.pkl", "wb") as f:
+    with open("multiswag.pkl", "wb") as f:
         pickle.dump(results, f)
 
     accuracy_calculator = tm.Accuracy()
@@ -87,8 +90,9 @@ def run(cfg: DictConfig):
     print(f"Test accuracy for MultiSWAG = {100 * accuracy:.2f}")
 
 
-def eval_model(models: List, dataset: str, test_dataloader: DataLoader,
-               num_ensembles: int):
+def eval_model(
+    models: List, dataset: str, test_dataloader: DataLoader, num_ensembles: int
+):
     test_targets = []
     test_probs = []
     accuracy = tm.Accuracy()
@@ -103,12 +107,13 @@ def eval_model(models: List, dataset: str, test_dataloader: DataLoader,
         logits = None
         for posterior_predictive in models:
             prediction = posterior_predictive(x)
-            swag_logits = prediction["logits"]  # Do we already take the mean?
+            swag_logits = prediction["logits"]
             if logits is None:
                 logits = swag_logits
             else:
                 logits += swag_logits
         logits /= num_ensembles
+        # logits = torch.flatten(logits, start_dim=1)
         logits = logits.mean(dim=0).squeeze(0)
         probs = softmax(logits, dim=-1)
         conf, preds = torch.max(probs, dim=-1)

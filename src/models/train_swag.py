@@ -4,10 +4,8 @@ import pyro.distributions as dist
 import torch
 import torch.nn as nn
 from omegaconf import DictConfig
-from pyro.infer import Predictive
 from pyro.nn import PyroModule, PyroSample
 from torch.nn import functional as F
-from torchmetrics import Accuracy
 
 from src import data as d
 

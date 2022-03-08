@@ -61,9 +61,7 @@ def train_model(cfg: DictConfig):
         )
         eval_data.setup()
         results[f"eval_{eval_dataset}"] = eval_model(
-            models,
-            eval_dataset,
-            eval_data.test_dataloader()
+            models, eval_dataset, eval_data.test_dataloader()
         )
 
     for metric, value in results.items():
