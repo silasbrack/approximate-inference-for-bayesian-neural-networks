@@ -44,9 +44,9 @@ def calibration_curves(targets, probs, bins=10):
     confidences = np.max(probs, axis=1)
     preds = np.argmax(probs, axis=1)[:, None]
 
-    real_probs = []
-    pred_probs = []
-    n_in_bins = []
+    real_probs = np.zeros((bins,))
+    pred_probs = np.zeros((bins,))
+    bin_sizes = np.zeros((bins,))
 
     _, lims = np.histogram(confidences, range=(0., 1.), bins=bins)
     for i in range(bins):
@@ -55,10 +55,33 @@ def calibration_curves(targets, probs, bins=10):
 
         targets_in_range = targets[mask]
         preds_in_range = preds[mask]
+        probs_in_range = confidences[mask]
         n_in_range = preds_in_range.shape[0]
-        range_acc = np.sum(targets_in_range == preds_in_range) / n_in_range
+        range_acc = np.sum(targets_in_range == preds_in_range) / n_in_range if n_in_range > 0 else 0
+        range_prob = np.sum(probs_in_range) / n_in_range if n_in_range > 0 else 0
 
-        real_probs.append(range_acc)
-        pred_probs.append((lower+upper)/2)
-        n_in_bins.append(n_in_range)
-    return real_probs, pred_probs, n_in_bins
+        real_probs[i] = range_acc
+        pred_probs[i] = range_prob
+        # pred_probs[i] = (lower + upper)/2
+        bin_sizes[i] = n_in_range
+    
+    bin_weights = bin_sizes / np.sum(bin_sizes)
+    ece = np.sum(np.abs(real_probs - pred_probs)*bin_weights)
+
+    return ece, real_probs, pred_probs, bin_sizes
+
+# import torch
+# def calc_ece(probs, labels, num_bins):
+#     maxp, predictions = probs.max(-1, keepdims=True)
+#     boundaries = torch.linspace(0, 1, num_bins+1)
+#     lower_bound, upper_bound = boundaries[:-1], boundaries[1:]
+#     in_bin = maxp.ge(lower_bound).logical_and(maxp.lt(upper_bound)).float()
+#     bin_sizes = in_bin.sum(0)
+#     correct = predictions.eq(labels).float()
+
+#     non_empty = bin_sizes.gt(0)
+#     accs = torch.where(non_empty, correct.mul(in_bin).sum(0) / bin_sizes, torch.zeros_like(bin_sizes))
+#     pred_probs = torch.where(non_empty, maxp.mul(in_bin).sum(0) / bin_sizes, torch.zeros_like(bin_sizes))
+#     bin_weight = bin_sizes / bin_sizes.sum()
+
+#     return accs.sub(pred_probs).abs().mul(bin_weight).sum()
