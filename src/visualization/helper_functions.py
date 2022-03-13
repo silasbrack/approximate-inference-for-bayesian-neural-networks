@@ -73,10 +73,8 @@ def calibration_curves(targets, probs, bins=10, fill_nans=False):
         bin_sizes[i] = n_in_range
 
     bin_weights = bin_sizes / np.sum(bin_sizes)
-
     ece = np.sum(np.abs(real_probs - pred_probs) * bin_weights)
 
     if fill_nans:
         return ece, real_probs, pred_probs, bin_sizes
-
     return ece, real_probs[bin_sizes > 0], pred_probs[bin_sizes > 0], bin_sizes
