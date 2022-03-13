@@ -104,18 +104,17 @@ def eval_model(
     nll_sum = 0
     n = 0
     for x, y in test_dataloader:
-        logits = None
+        probs = None
         for posterior_predictive in models:
             prediction = posterior_predictive(x)
             swag_logits = prediction["logits"]
-            if logits is None:
-                logits = swag_logits
+            swag_probs = softmax(swag_logits, dim=-1)
+            if probs is None:
+                probs = swag_probs
             else:
-                logits += swag_logits
-        logits /= num_ensembles
-        # logits = torch.flatten(logits, start_dim=1)
-        logits = logits.mean(dim=0).squeeze(0)
-        probs = softmax(logits, dim=-1)
+                probs += swag_probs
+        probs /= num_ensembles
+        probs = probs.mean(dim=0).squeeze(0)
         conf, preds = torch.max(probs, dim=-1)
         preds = preds.detach()
         conf = conf.detach()
