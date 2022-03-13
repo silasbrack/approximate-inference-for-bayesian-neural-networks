@@ -2,10 +2,83 @@ import numpy as np
 import pandas as pd
 import torch
 from PIL import Image
+from pytorch_lightning import LightningDataModule
+from torch.utils.data import DataLoader, random_split
+from torchvision import transforms
+
+
+class MuraData(LightningDataModule):
+    def __init__(self, data_dir, batch_size, num_workers):
+        super().__init__()
+
+        self.size = 36808
+        self.data_dir = data_dir
+        self.batch_size = batch_size
+        self.eval_batch_size = 10000
+        self.num_workers = num_workers
+        self.n_classes = 7
+        self.resolution = 28
+        self.channels = 1
+        self.train_val_test = [32000, 4808, 3197]
+
+        self.train_transform = transforms.Compose(
+            [
+                transforms.Resize(224),
+                transforms.RandomCrop(224),
+                transforms.RandomHorizontalFlip(),
+                transforms.RandomRotation(10),
+                transforms.ToTensor(),
+                transforms.Normalize([0.456], [0.224]),
+            ]
+        )
+        self.val_transform = transforms.Compose(
+            [
+                transforms.Resize(224),
+                transforms.RandomCrop(224),
+                transforms.ToTensor(),
+                transforms.Normalize([0.456], [0.224]),
+            ]
+        )
+
+    def prepare_data(self):
+        pass
+
+    def setup(self, stage=None):
+        # Assign train/val datasets for use in dataloaders
+        if stage == "fit" or stage is None:
+            mura_train = MuraDataset(f"{self.data_dir}/MURA-v1.1/train_image_paths.csv", self.data_dir, self.train_transform)
+            self.mura_train, self.mura_val = random_split(
+                mura_train, self.train_val_test[:2]
+            )
+
+        # Assign test dataset for use in dataloader(s)
+        if stage == "test" or stage is None:
+            self.mura_test = MuraDataset(f"{self.data_dir}/MURA-v1.1/valid_image_paths.csv", self.data_dir, self.train_transform)
+
+    def train_dataloader(self):
+        return DataLoader(
+            self.mura_train,
+            num_workers=self.num_workers,
+            batch_size=self.batch_size,
+        )
+
+    def val_dataloader(self):
+        return DataLoader(
+            self.mura_val,
+            num_workers=self.num_workers,
+            batch_size=self.eval_batch_size,
+        )
+
+    def test_dataloader(self):
+        return DataLoader(
+            self.mura_test,
+            num_workers=self.num_workers,
+            batch_size=self.eval_batch_size,
+        )
 
 
 class MuraDataset(torch.utils.data.Dataset):
-    def __init__(self, path: str, data_folder: str, transform=None):
+    def __init__(self, path: str, data_folder: str, transform=None, target="BodyPartIdx"):
         df = pd.read_csv(path, header=None, names=["FilePath"])
         df["Label"] = df.apply(
             lambda x: 1 if "positive" in x.FilePath else 0, axis=1
@@ -19,6 +92,10 @@ class MuraDataset(torch.utils.data.Dataset):
         self.df = df
         self.data_folder = data_folder
         self.transform = transform
+        self.target = target  # [BodyPartIdx, BodyPart, Label]
+        body_parts = ["ELBOW", "FINGER", "FOREARM", "HAND", "HUMERUS", "SHOULDER", "WRIST"]
+        self.body_part_map = dict(zip(body_parts, range(len(body_parts))))
+        self.df["BodyPartIdx"] = self.df["BodyPart"].map(self.body_part_map)
 
     def __len__(self):
         return len(self.df)
@@ -26,7 +103,7 @@ class MuraDataset(torch.utils.data.Dataset):
     def __getitem__(self, idx):
         img_name = self.df.iloc[idx, 0]
         img = Image.open(f"{self.data_folder}/{img_name}").convert("LA")
-        label = self.df.iloc[idx, 1]
+        label = self.df.loc[idx, self.target]
 
         if self.transform:
             img = self.transform(img)
