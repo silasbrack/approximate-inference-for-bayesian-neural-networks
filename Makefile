@@ -16,7 +16,7 @@ PYTHON_INTERPRETER = python3
 data: # requirements
 	$(PYTHON_INTERPRETER) src/data/make_dataset.py
 #	wget https://cs.stanford.edu/group/mlgroup/MURA-v1.1.zip
-#	unzip -q MURA-v1.1.zip -d data/raw
+#	unzip -q MURA-v1.1.zip -d data
 #	rm -f MURA-v1.1.zip
 
 ## Delete all compiled Python files

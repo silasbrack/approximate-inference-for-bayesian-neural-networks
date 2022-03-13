@@ -6,7 +6,7 @@ from torchmetrics import Accuracy
 
 
 class MNISTModel(LightningModule):
-    def __init__(self, lr: float, dims=(1, 28, 28)):
+    def __init__(self, lr: float, dims=(1, 28, 28), num_classes: int = 10):
 
         super().__init__()
         self.save_hyperparameters()
@@ -18,7 +18,7 @@ class MNISTModel(LightningModule):
         self.learning_rate = lr
 
         # Hardcode some dataset specific attributes
-        self.num_classes = 10
+        self.num_classes = num_classes
         # self.dims = (2, 224, 224)
         self.dims = dims
         channels, width, height = self.dims

@@ -23,6 +23,7 @@ def train_model(cfg: DictConfig):
         "fashionmnist": d.FashionMNISTData,
         "cifar": d.CIFARData,
         "svhn": d.SVHNData,
+        "mura": d.MuraData,
     }
     data = data_dict[cfg.training.dataset](
         cfg.paths.data, cfg.training.batch_size, cfg.hardware.num_workers
@@ -34,7 +35,7 @@ def train_model(cfg: DictConfig):
 
     t0 = time.perf_counter()
     for i in range(n_ensembles):
-        model = MNISTModel(cfg.training.lr)
+        model = MNISTModel(cfg.training.lr, num_classes=data.n_classes)
 
         trainer = pl.Trainer(
             gpus=cfg.hardware.gpus,
@@ -61,7 +62,10 @@ def train_model(cfg: DictConfig):
         )
         eval_data.setup()
         results[f"eval_{eval_dataset}"] = eval_model(
-            models, eval_dataset, eval_data.test_dataloader()
+            models,
+            eval_dataset,
+            eval_data.test_dataloader(),
+            eval_data.n_classes,
         )
 
     for metric, value in results.items():
@@ -76,11 +80,13 @@ def train_model(cfg: DictConfig):
         )
 
 
-def eval_model(models: List, dataset: str, test_dataloader: DataLoader):
+def eval_model(
+    models: List, dataset: str, test_dataloader: DataLoader, n_classes: int
+):
     test_targets = []
     test_probs = []
     accuracy = tm.Accuracy()
-    auroc = tm.AUROC(num_classes=10)
+    auroc = tm.AUROC(n_classes)
     confidence = tm.MeanMetric()
     confidence_wrong = tm.MeanMetric()
     confidence_right = tm.MeanMetric()

@@ -42,6 +42,7 @@ def run(cfg: DictConfig):
         "fashionmnist": d.FashionMNISTData,
         "cifar": d.CIFARData,
         "svhn": d.SVHNData,
+        "mura": d.MuraData,
     }
     data = data_dict[cfg.training.dataset](
         cfg.paths.data, cfg.training.batch_size, cfg.hardware.num_workers
@@ -64,6 +65,7 @@ def run(cfg: DictConfig):
             eval_dataset,
             eval_data.test_dataloader(),
             num_ensembles,
+            data.n_classes,
         )
 
     for metric, value in results.items():
@@ -83,7 +85,6 @@ def run(cfg: DictConfig):
                 logits += swag_logits
         logits /= num_ensembles
         logits = logits.mean(dim=0).squeeze(0)
-        print(logits.shape)
         accuracy_calculator(logits, target)
     accuracy = accuracy_calculator.compute()
     accuracy_calculator.reset()
@@ -91,12 +92,16 @@ def run(cfg: DictConfig):
 
 
 def eval_model(
-    models: List, dataset: str, test_dataloader: DataLoader, num_ensembles: int
+    models: List,
+    dataset: str,
+    test_dataloader: DataLoader,
+    num_ensembles: int,
+    n_classes: int,
 ):
     test_targets = []
     test_probs = []
     accuracy = tm.Accuracy()
-    auroc = tm.AUROC(num_classes=10)
+    auroc = tm.AUROC(n_classes)
     confidence = tm.MeanMetric()
     confidence_wrong = tm.MeanMetric()
     confidence_right = tm.MeanMetric()

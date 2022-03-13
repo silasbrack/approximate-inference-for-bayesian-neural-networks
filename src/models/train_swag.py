@@ -69,6 +69,7 @@ def train_swag(cfg: DictConfig):
         "fashionmnist": d.FashionMNISTData,
         "cifar": d.CIFARData,
         "svhn": d.SVHNData,
+        "mura": d.MuraData,
     }
     data = data_dict[cfg.training.dataset](
         cfg.paths.data, cfg.training.batch_size, cfg.hardware.num_workers

@@ -33,6 +33,7 @@ def train_model(cfg: DictConfig):
         "fashionmnist": d.FashionMNISTData,
         "cifar": d.CIFARData,
         "svhn": d.SVHNData,
+        "mura": d.MuraData,
     }
     data = data_dict[cfg.training.dataset](
         cfg.paths.data, cfg.training.batch_size, cfg.hardware.num_workers
@@ -148,6 +149,7 @@ def train_model(cfg: DictConfig):
             eval_dataset,
             eval_data.test_dataloader(),
             cfg.training.posterior_samples,
+            data.n_classes,
             device,
         )
 
@@ -164,12 +166,17 @@ def train_model(cfg: DictConfig):
 
 
 def eval_model(
-    bnn, dataset: str, test_dataloader, posterior_samples: int, device
+    bnn,
+    dataset: str,
+    test_dataloader,
+    posterior_samples: int,
+    n_classes: int,
+    device,
 ) -> Dict:
     test_targets = []
     test_probs = []
     accuracy = tm.Accuracy()
-    auroc = tm.AUROC(num_classes=10)
+    auroc = tm.AUROC(n_classes)
     confidence = tm.MeanMetric()
     confidence_wrong = tm.MeanMetric()
     confidence_right = tm.MeanMetric()

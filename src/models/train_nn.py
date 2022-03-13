@@ -19,13 +19,14 @@ def train_model(cfg: DictConfig):
         "fashionmnist": d.FashionMNISTData,
         "cifar": d.CIFARData,
         "svhn": d.SVHNData,
+        "mura": d.MuraData,
     }
     data = data_dict[cfg.training.dataset](
         cfg.paths.data, cfg.training.batch_size, cfg.hardware.num_workers
     )
     data.setup()
 
-    model = MNISTModel(cfg.training.lr)
+    model = MNISTModel(cfg.training.lr, num_classes=data.n_classes)
 
     trainer = pl.Trainer(
         gpus=cfg.hardware.gpus,
