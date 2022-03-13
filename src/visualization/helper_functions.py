@@ -41,7 +41,7 @@ def hide_right_top_axis(ax):
     ax.spines["top"].set_visible(False)
 
 
-def calibration_curves(targets, probs, bins=10):
+def calibration_curves(targets, probs, bins=10, fill_nans=False):
     confidences = np.max(probs, axis=1)
     preds = np.argmax(probs, axis=1)[:, None]
 
@@ -58,6 +58,7 @@ def calibration_curves(targets, probs, bins=10):
         preds_in_range = preds[mask]
         probs_in_range = confidences[mask]
         n_in_range = preds_in_range.shape[0]
+
         range_acc = (
             np.sum(targets_in_range == preds_in_range) / n_in_range
             if n_in_range > 0
@@ -69,10 +70,13 @@ def calibration_curves(targets, probs, bins=10):
 
         real_probs[i] = range_acc
         pred_probs[i] = range_prob
-        # pred_probs[i] = (lower + upper)/2
         bin_sizes[i] = n_in_range
 
     bin_weights = bin_sizes / np.sum(bin_sizes)
+
     ece = np.sum(np.abs(real_probs - pred_probs) * bin_weights)
 
-    return ece, real_probs, pred_probs, bin_sizes
+    if fill_nans:
+        return ece, real_probs, pred_probs, bin_sizes
+
+    return ece, real_probs[bin_sizes > 0], pred_probs[bin_sizes > 0], bin_sizes
