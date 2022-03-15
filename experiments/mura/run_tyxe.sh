@@ -9,4 +9,9 @@ module load python3/3.9.6
 module load cuda/11.3
 source venv/bin/activate
 
-python src/models/train_tyxe.py --multirun ++training.dataset=mura ++training.epochs=20 ++training.guide=radial,meanfield,laplace,map,ml,lowrank
+python src/models/train_tyxe.py \
+    --multirun \
+    ++training.dataset=mura \
+    ++eval.datasets=[mura] \
+    ++training.epochs=50 \
+    ++training.guide=radial,meanfield,laplace,map,ml,lowrank

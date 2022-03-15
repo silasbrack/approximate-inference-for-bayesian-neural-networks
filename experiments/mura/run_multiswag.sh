@@ -12,5 +12,6 @@ source venv/bin/activate
 python src/models/train_multiswag.py \
     --multirun \
     ++training.dataset=mura \
-    ++training.epochs=10 \
+    ++eval.datasets=[mura] \
+    ++training.epochs=20 \
     ++num_ensembles=5,10

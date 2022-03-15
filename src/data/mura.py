@@ -70,6 +70,7 @@ class MuraData(LightningDataModule):
             self.mura_train,
             num_workers=self.num_workers,
             batch_size=self.batch_size,
+            shuffle=True,
         )
 
     def val_dataloader(self):
