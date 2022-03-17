@@ -1,0 +1,7 @@
+_target_: src.inference.vi.VariationalInference
+defaults:
+  - model: dense.yaml
+num_particles: 32
+posterior_samples: 128
+device: cpu
+guide: meanfield

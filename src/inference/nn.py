@@ -8,7 +8,7 @@ from src.inference.inference import Inference
 
 class NeuralNetwork(Inference):
     def __init__(self, model, device):
-        self.model = model()
+        self.model = model
         self.device = device
 
     def fit(self, train_loader, val_loader, epochs, lr):

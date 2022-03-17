@@ -13,7 +13,7 @@ from src.models import MNISTModel
 
 
 @hydra.main(config_path="../../conf", config_name="nn")
-def train_model(cfg: DictConfig):
+def train_nn(cfg: DictConfig):
     if cfg.training.seed:
         torch.manual_seed(cfg.training.seed)
 
@@ -55,4 +55,4 @@ if __name__ == "__main__":
     logging.captureWarnings(True)
     logging.getLogger().setLevel(logging.INFO)
 
-    train_model()
+    train_nn()

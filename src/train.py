@@ -10,23 +10,23 @@ from src.evaluate import evaluate
 from src.inference import VariationalInference, NeuralNetwork, DeepEnsemble
 
 
-@hydra.main(config_path="../conf", config_name="deep_ensemble")
+@hydra.main(config_path="../conf", config_name="config")
 def train(cfg: DictConfig):
     if cfg.training.seed:
         torch.manual_seed(cfg.training.seed)
+    logging.captureWarnings(True)
+    logging.getLogger().setLevel(cfg.training.logging)
 
-    data = load_and_setup_data(cfg.training.dataset, cfg.paths.data, cfg.training.batch_size, cfg.hardware.num_workers)
-    device = torch.device("cuda" if cfg.hardware.gpus else "cpu")
+    data = hydra.utils.instantiate(cfg.data)
+    data.setup()
 
-    model = DenseNet
-    inference = NeuralNetwork(model, device, cfg.num_ensembles)
-    inference.fit(data.train_dataloader(), data.val_dataloader(), cfg.training.epochs, cfg.training.lr)
-    print(evaluate(inference, data.test_dataloader(), "mnist", 10))
+    inference = hydra.utils.instantiate(cfg.inference)
+    train_result = inference.fit(data.train_dataloader(), data.val_dataloader(), cfg.training.epochs, cfg.training.lr)
+    eval_result = evaluate(inference, data.test_dataloader(), "mnist", 10)
+    print(train_result, eval_result)
     # inference.save(path)
 
 
 if __name__ == "__main__":
-    logging.captureWarnings(True)
-    logging.getLogger().setLevel(logging.INFO)
 
     train()

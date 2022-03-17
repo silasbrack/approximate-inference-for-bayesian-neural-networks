@@ -24,7 +24,6 @@ from tqdm import tqdm
 import tyxe
 from src import data as d
 from src.guides import AutoRadial
-from src.models import ConvNet, DenseNet, DenseNet169, ResNet18
 from tyxe.guides import AutoNormal
 
 
@@ -34,7 +33,7 @@ class VariationalInference(Inference):
         self.num_particles = num_particles
         self.device = device
 
-        net = DenseNet().to(device)
+        net = model.to(device)
         likelihood = tyxe.likelihoods.Categorical(dataset_size=60000)
         inference_dict = {
             "map": AutoDelta,
@@ -44,6 +43,7 @@ class VariationalInference(Inference):
             "radial": AutoRadial,
         }
         inference = inference_dict[guide]
+        print(inference)
         prior = tyxe.priors.IIDPrior(
             dist.Normal(
                 torch.tensor(0, device=device, dtype=torch.float),
@@ -62,15 +62,15 @@ class VariationalInference(Inference):
         pbar = tqdm(total=epochs, unit="Epochs")
         def callback(b: tyxe.VariationalBNN, i: int, e: float):
             avg_err, avg_ll = 0.0, 0.0
-            for x, y in iter(val_dataloader):
+            for x, y in iter(val_loader):
                 err, ll = b.evaluate(
                     x.to(self.device),
                     y.to(self.device),
                     num_predictions=self.posterior_samples,
                 )
                 err, ll = err.detach().cpu(), ll.detach().cpu()
-                avg_err += err / len(val_dataloader.sampler)
-                avg_ll += ll / len(val_dataloader.sampler)
+                avg_err += err / len(val_loader.sampler)
+                avg_ll += ll / len(val_loader.sampler)
             elbos[i] = e
             val_err[i] = avg_err
             val_ll[i] = avg_ll
@@ -78,12 +78,13 @@ class VariationalInference(Inference):
 
         t0 = time.perf_counter()
         # with tyxe.poutine.local_reparameterization():
+        print("training")
         self.bnn.fit(
             train_loader,
             optim,
             num_epochs=epochs,
             num_particles=self.num_particles,
-            # callback=callback,
+            callback=callback,
             device=self.device,
         )
         elapsed = time.perf_counter() - t0
@@ -97,7 +98,8 @@ class VariationalInference(Inference):
 
     def predict(self, x):
         x = x.to(self.device)
-        return self.bnn.predict(x, num_predictions=self.posterior_samples)
+        logits = self.bnn.predict(x, num_predictions=self.posterior_samples)
+        return softmax(logits, dim=-1)
 
     # def save(folder: str):
     #     pyro.get_param_store().save()

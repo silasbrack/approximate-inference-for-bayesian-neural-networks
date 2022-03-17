@@ -14,7 +14,7 @@ from torch.nn import NLLLoss
 from torch.utils.data import DataLoader
 
 from src import data as d
-from src.models.train_nn import train_model
+from src.models.train_nn import train_nn
 from src.models import MNISTModel
 
 
@@ -42,7 +42,7 @@ def train_model(cfg: DictConfig):
 
     t0 = time.perf_counter()
     for i in range(n_ensembles):
-        models.append(train_model(cfg))
+        models.append(train_nn(cfg))
     elapsed = time.perf_counter() - t0
 
     results = {
@@ -50,6 +50,7 @@ def train_model(cfg: DictConfig):
         "Wall clock time": elapsed,
         "Number of parameters": sum(p.numel() for p in models[0].parameters()),
     }
+    print(results)
     for eval_dataset in cfg.eval.datasets:
         eval_data = data_dict[eval_dataset](
             cfg.paths.data, cfg.training.batch_size, cfg.hardware.num_workers
