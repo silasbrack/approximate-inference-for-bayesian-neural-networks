@@ -3,7 +3,6 @@ from functools import partial
 import fire
 import pyro
 import pytorch_lightning as pl
-import tyxe
 from omegaconf import DictConfig, OmegaConf
 from pyro import distributions as dist
 from pyro.infer.autoguide import (
@@ -11,14 +10,15 @@ from pyro.infer.autoguide import (
     AutoLaplaceApproximation,
     AutoLowRankMultivariateNormal,
 )
-from src.models.train_tyxe import eval_model
 from torch import nn
-from tyxe.guides import AutoNormal
 
+import tyxe
 from src import data as d
 from src.data.fashion_mnist import FashionMNISTData
 from src.guides import AutoRadial
 from src.models import MNISTModel
+from src.models.train_tyxe import eval_model
+from tyxe.guides import AutoNormal
 
 
 def mnist(
@@ -85,9 +85,7 @@ def tyxe_model(
         "radial": AutoRadial,
     }
     inference = inference_dict[cfg.training.guide]
-    prior_kwargs = (
-        {"expose_all": False, "hide_all": True} if inference is None else {}
-    )
+    prior_kwargs = {"expose_all": False, "hide_all": True} if inference is None else {}
     prior = tyxe.priors.IIDPrior(dist.Normal(0, 1), **prior_kwargs)
     bnn = tyxe.VariationalBNN(net, prior, likelihood, inference)
     bnn

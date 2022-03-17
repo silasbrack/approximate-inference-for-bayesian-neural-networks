@@ -1,6 +1,7 @@
 import pickle
 import time
 from typing import List
+import logging
 
 import hydra
 import numpy as np
@@ -13,11 +14,17 @@ from torch.nn import NLLLoss
 from torch.utils.data import DataLoader
 
 from src import data as d
+from src.models.train_nn import train_model
 from src.models import MNISTModel
 
 
 @hydra.main(config_path="../../conf", config_name="deep_ensemble")
 def train_model(cfg: DictConfig):
+    if cfg.training.seed:
+        logging.warning(
+            "A seed was set for deep ensembles, meaning all ensembles will be identical."
+        )
+
     data_dict = {
         "mnist": d.MNISTData,
         "fashionmnist": d.FashionMNISTData,
@@ -35,20 +42,7 @@ def train_model(cfg: DictConfig):
 
     t0 = time.perf_counter()
     for i in range(n_ensembles):
-        model = MNISTModel(cfg.training.lr, num_classes=data.n_classes)
-
-        trainer = pl.Trainer(
-            gpus=cfg.hardware.gpus,
-            max_epochs=cfg.training.epochs,
-        )
-
-        trainer.fit(
-            model,
-            train_dataloaders=data.train_dataloader(),
-            val_dataloaders=data.val_dataloader(),
-        )
-        trainer.test(model, dataloaders=data.test_dataloader())
-        models.append(model)
+        models.append(train_model(cfg))
     elapsed = time.perf_counter() - t0
 
     results = {
@@ -80,9 +74,7 @@ def train_model(cfg: DictConfig):
         )
 
 
-def eval_model(
-    models: List, dataset: str, test_dataloader: DataLoader, n_classes: int
-):
+def eval_model(models: List, dataset: str, test_dataloader: DataLoader, n_classes: int):
     test_targets = []
     test_probs = []
     accuracy = tm.Accuracy()
@@ -128,4 +120,7 @@ def eval_model(
 
 
 if __name__ == "__main__":
+    logging.captureWarnings(True)
+    logging.getLogger().setLevel(logging.INFO)
+
     train_model()

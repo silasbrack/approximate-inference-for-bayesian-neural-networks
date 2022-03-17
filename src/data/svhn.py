@@ -39,16 +39,12 @@ class SVHNData(LightningDataModule):
     def setup(self, stage=None):
         # Assign train/val datasets for use in dataloaders
         if stage == "fit" or stage is None:
-            train = d.SVHN(
-                self.data_dir, split="train", transform=self.transform
-            )
+            train = d.SVHN(self.data_dir, split="train", transform=self.transform)
             self.df_train, self.df_val = random_split(train, [70000, 3257])
 
         # Assign test dataset for use in dataloader(s)
         if stage == "test" or stage is None:
-            self.df_test = d.SVHN(
-                self.data_dir, split="test", transform=self.transform
-            )
+            self.df_test = d.SVHN(self.data_dir, split="test", transform=self.transform)
 
     def train_dataloader(self):
         return DataLoader(

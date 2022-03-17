@@ -7,5 +7,3 @@ training:
   num_particles: 32
   posterior_samples: 128
   guide: meanfield
-files:
-  pretrained_weights: null

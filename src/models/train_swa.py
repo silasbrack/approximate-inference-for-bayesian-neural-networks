@@ -1,4 +1,5 @@
 import copy
+import logging
 
 import hydra
 import torch
@@ -9,8 +10,12 @@ from torch.optim.swa_utils import AveragedModel
 from src import data as d
 from src.models import MNISTModel
 
+# from torchmetrics import Accuracy
+
 
 def train_swa(cfg: DictConfig):
+    if cfg.training.seed:
+        torch.manual_seed(cfg.training.seed)
 
     data_dict = {
         "mnist": d.MNISTData,
@@ -73,4 +78,7 @@ def run(cfg: DictConfig):
 
 
 if __name__ == "__main__":
+    logging.captureWarnings(True)
+    logging.getLogger().setLevel(logging.INFO)
+
     run()

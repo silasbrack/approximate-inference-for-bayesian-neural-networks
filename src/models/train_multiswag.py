@@ -1,3 +1,4 @@
+import logging
 import pickle
 import time
 from typing import List
@@ -16,9 +17,14 @@ from src import data as d
 from src.models.train_swag import train_swag
 
 
-# TODO: Make MultiSWAG work on GPU
+# TODO: Try tuning the LR
 @hydra.main(config_path="../../conf", config_name="multiswag")
 def run(cfg: DictConfig):
+    if cfg.training.seed:
+        logging.warning(
+            "A seed was set for MultiSWAG, meaning all ensembles will be identical."
+        )
+
     num_ensembles = cfg.num_ensembles
 
     swag_models = []
@@ -33,9 +39,7 @@ def run(cfg: DictConfig):
         posterior_predictive = Predictive(swag_model, num_samples=128)
         posterior_predictives.append(posterior_predictive)
 
-    params = num_ensembles * sum(
-        p.numel() for p in swag_models[0].parameters()
-    )
+    params = num_ensembles * sum(p.numel() for p in swag_models[0].parameters())
 
     data_dict = {
         "mnist": d.MNISTData,
@@ -151,4 +155,7 @@ def eval_model(
 
 
 if __name__ == "__main__":
+    logging.captureWarnings(True)
+    logging.getLogger().setLevel(logging.INFO)
+
     run()

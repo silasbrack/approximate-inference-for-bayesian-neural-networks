@@ -12,9 +12,7 @@ from torch.distributions.utils import _standard_normal
 class RadialNormal(dist.Normal):
     def rsample(self, sample_shape=torch.Size()):
         shape = self._extended_shape(sample_shape)
-        eps = _standard_normal(
-            shape, dtype=self.loc.dtype, device=self.loc.device
-        )
+        eps = _standard_normal(shape, dtype=self.loc.dtype, device=self.loc.device)
         distance = torch.randn(1, device=self.loc.device)
         normalizing_factor = torch.norm(eps, p=2)
         direction = eps / normalizing_factor

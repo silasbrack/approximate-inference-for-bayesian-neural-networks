@@ -1,3 +1,4 @@
+import logging
 import os
 
 import hydra
@@ -13,6 +14,8 @@ from src.models import MNISTModel
 
 @hydra.main(config_path="../../conf", config_name="nn")
 def train_model(cfg: DictConfig):
+    if cfg.training.seed:
+        torch.manual_seed(cfg.training.seed)
 
     data_dict = {
         "mnist": d.MNISTData,
@@ -31,38 +34,25 @@ def train_model(cfg: DictConfig):
     trainer = pl.Trainer(
         gpus=cfg.hardware.gpus,
         max_epochs=cfg.training.epochs,
-        log_every_n_steps=10,
-        logger=TensorBoardLogger(save_dir=cfg.paths.logs, name="mnist_model"),
-        callbacks=[
-            callbacks.EarlyStopping(
-                monitor="val_loss",
-                min_delta=0.00,
-                patience=5,
-                verbose=False,
-                mode="min",
-            ),
-            callbacks.ModelCheckpoint(
-                dirpath=cfg.paths.checkpoints,
-                verbose=True,
-                monitor="val_loss",
-                mode="min",
-            ),
-        ],
+        progress_bar_refresh_rate=0,
+        weights_summary=None,
     )
-
     trainer.fit(
         model,
         train_dataloaders=data.train_dataloader(),
         val_dataloaders=data.val_dataloader(),
     )
-
-    trainer.test(dataloaders=data.test_dataloader(), ckpt_path="best")
+    trainer.test(dataloaders=data.test_dataloader())
 
     torch.save(
         model.state_dict(),
         os.path.join(cfg.paths.model, cfg.files.state_dict),
     )
+    return model
 
 
 if __name__ == "__main__":
+    logging.captureWarnings(True)
+    logging.getLogger().setLevel(logging.INFO)
+
     train_model()

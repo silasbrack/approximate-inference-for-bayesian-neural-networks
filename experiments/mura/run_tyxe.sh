@@ -1,7 +1,8 @@
 #!/bin/bash
 #BSUB -J tyxe
 #BSUB -o tyxe_%J.out
-#BSUB -q hpc
+#BSUB -q gpuv100
+#BSUB -gpu "num=1:mode=exclusive_process"
 #BSUB -W 24:00
 #BSUB -R "rusage[mem=16GB] span[hosts=1]"
 
@@ -11,7 +12,8 @@ source venv/bin/activate
 
 python src/models/train_tyxe.py \
     --multirun \
+    ++hardware.gpus=1 \
     ++training.dataset=mura \
     ++eval.datasets=[mura] \
     ++training.epochs=50 \
-    ++training.guide=radial,meanfield,laplace,map,ml,lowrank
+    ++training.guide=radial,meanfield,laplace,map,lowrank

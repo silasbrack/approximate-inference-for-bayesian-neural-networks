@@ -22,13 +22,16 @@ from tqdm import tqdm
 
 import tyxe
 from src import data as d
-from src.models import DenseNet, ConvNet, ResNet18, DenseNet169
 from src.guides import AutoRadial
+from src.models import ConvNet, DenseNet, DenseNet169, ResNet18
 from tyxe.guides import AutoNormal
 
 
 @hydra.main(config_path="../../conf", config_name="tyxe")
 def train_model(cfg: DictConfig):
+    if cfg.training.seed:
+        torch.manual_seed(cfg.training.seed)
+
     data_dict = {
         "mnist": d.MNISTData,
         "fashionmnist": d.FashionMNISTData,
@@ -45,20 +48,9 @@ def train_model(cfg: DictConfig):
 
     hidden_size = 32
     channels, width, height = (1, 28, 28)
-    # net = DenseNet169().to(device)
-    net = ResNet18().to(device)
-    # net = DenseNet().to(device)
-    # net = ConvNet().model.to(device)
-    if cfg.files.pretrained_weights:
-        pretrained_weights_path = (
-            f"{cfg.paths.project}/" f"{cfg.files.pretrained_weights}"
-        )
-        sd = torch.load(pretrained_weights_path)
-        print(sd)
-        net.load_state_dict(sd)
+    net = DenseNet().to(device)
     likelihood = tyxe.likelihoods.Categorical(dataset_size=60000)
     inference_dict = {
-        "ml": None,
         "map": AutoDelta,
         "laplace": AutoLaplaceApproximation,
         "meanfield": partial(AutoNormal, init_scale=1e-2),
@@ -66,20 +58,11 @@ def train_model(cfg: DictConfig):
         "radial": AutoRadial,
     }
     inference = inference_dict[cfg.training.guide]
-    if cfg.files.pretrained_weights and inference:
-        inference = partial(
-            inference,
-            init_loc_fn=tyxe.guides.PretrainedInitializer.from_net(net),
-        )
-    prior_kwargs = (
-        {"expose_all": False, "hide_all": True} if inference is None else {}
-    )
     prior = tyxe.priors.IIDPrior(
         dist.Normal(
             torch.tensor(0, device=device, dtype=torch.float),
             torch.tensor(1, device=device, dtype=torch.float),
         ),
-        **prior_kwargs,
     )
     bnn = tyxe.VariationalBNN(net, prior, likelihood, inference)
 
@@ -119,11 +102,8 @@ def train_model(cfg: DictConfig):
         device=device,
     )
     elapsed = time.perf_counter() - t0
-    # [print(key, val.shape) for key, val in pyro.get_param_store().items()]
 
-    guide_params = sum(
-        val.shape.numel() for _, val in pyro.get_param_store().items()
-    )
+    guide_params = sum(val.shape.numel() for _, val in pyro.get_param_store().items())
 
     results = {
         "Inference": cfg.training.guide,
@@ -152,12 +132,6 @@ def train_model(cfg: DictConfig):
         print(f"{metric}: {value}")
     with open(f"{cfg.training.guide}.pkl", "wb") as f:
         pickle.dump(results, f)
-
-    # torch.save(net.state_dict(), "state_dict.pt")
-    torch.save(bnn.state_dict(), "state_dict.pt")
-    # optim.save("optim.pt")
-    pyro.get_param_store().save("param_store.pt")
-    # torch.save(bnn, "model.pt")
 
 
 def eval_model(
@@ -220,6 +194,5 @@ def eval_model(
 if __name__ == "__main__":
     logging.captureWarnings(True)
     logging.getLogger().setLevel(logging.INFO)
-    torch.manual_seed(1234)
 
     train_model()
