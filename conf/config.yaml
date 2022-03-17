@@ -1,0 +1,5 @@
+defaults:
+  - model: dense.yaml
+  - inference: variational.yaml
+  - data: mnist.yaml
+  - training

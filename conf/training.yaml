@@ -1,0 +1,8 @@
+training:
+  epochs: 1
+  seed: 42
+  logging: WARN
+  gpus: 0
+  optimizer:
+    _target_: pyro.optim.Adam
+    optim_args: {"lr": 0.01}
