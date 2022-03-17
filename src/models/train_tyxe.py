@@ -22,6 +22,7 @@ from tqdm import tqdm
 
 import tyxe
 from src import data as d
+from src.models import DenseNet, ConvNet, ResNet18, DenseNet169
 from src.guides import AutoRadial
 from tyxe.guides import AutoNormal
 
@@ -44,16 +45,10 @@ def train_model(cfg: DictConfig):
 
     hidden_size = 32
     channels, width, height = (1, 28, 28)
-    net = nn.Sequential(
-        nn.Flatten(),
-        nn.Linear(channels * width * height, hidden_size),
-        nn.ReLU(),
-        nn.Dropout(0.1),
-        nn.Linear(hidden_size, hidden_size),
-        nn.ReLU(),
-        nn.Dropout(0.1),
-        nn.Linear(hidden_size, data.n_classes),
-    ).to(device)
+    # net = DenseNet169().to(device)
+    net = ResNet18().to(device)
+    # net = DenseNet().to(device)
+    # net = ConvNet().model.to(device)
     if cfg.files.pretrained_weights:
         pretrained_weights_path = (
             f"{cfg.paths.project}/" f"{cfg.files.pretrained_weights}"
