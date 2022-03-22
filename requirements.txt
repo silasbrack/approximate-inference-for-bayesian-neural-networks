@@ -3,19 +3,23 @@ setuptools==59.5.0
 # local package
 -e .
 
-# external requirements
-click
-Sphinx
-coverage
-awscli
+# linters
+pre-commit
+black
+isort
 flake8
-python-dotenv>=0.5.1
-tqdm
+nbstripout
+
+# testing
 pytest
+coverage
+
+# configuration
 hydra-core
-fire
+python-dotenv>=0.5.1
 
 # project requirements
+tqdm
 numpy
 scipy
 pandas

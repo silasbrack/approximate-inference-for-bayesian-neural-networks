@@ -22,6 +22,7 @@ from tqdm import tqdm
 
 import tyxe
 from src import data as d
+from src.data.caching import cache_dataset
 from src.guides import AutoRadial
 from src.models import ConvNet, DenseNet, DenseNet169, ResNet18
 from tyxe.guides import AutoNormal
@@ -46,9 +47,7 @@ def train_model(cfg: DictConfig):
 
     device = torch.device("cuda" if cfg.hardware.gpus else "cpu")
 
-    hidden_size = 32
-    channels, width, height = (1, 28, 28)
-    net = DenseNet().to(device)
+    net = DenseNet(num_classes=data.n_classes).to(device)
     likelihood = tyxe.likelihoods.Categorical(dataset_size=60000)
     inference_dict = {
         "map": AutoDelta,
@@ -67,8 +66,11 @@ def train_model(cfg: DictConfig):
     bnn = tyxe.VariationalBNN(net, prior, likelihood, inference)
 
     optim = pyro.optim.Adam({"lr": cfg.training.lr})
+
     train_dataloader = data.train_dataloader()
     val_dataloader = data.val_dataloader()
+    if cfg.training.cache_data:
+        cache_dataset(train_dataloader.dataset.dataset)
 
     elbos = np.zeros((cfg.training.epochs, 1))
     val_err = np.zeros((cfg.training.epochs, 1))
@@ -93,6 +95,7 @@ def train_model(cfg: DictConfig):
 
     t0 = time.perf_counter()
     # with tyxe.poutine.local_reparameterization():
+    logging.info("Training.")
     bnn.fit(
         train_dataloader,
         optim,

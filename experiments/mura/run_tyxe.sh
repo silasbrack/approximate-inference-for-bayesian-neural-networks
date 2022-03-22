@@ -12,8 +12,9 @@ source venv/bin/activate
 
 python src/models/train_tyxe.py \
     --multirun \
-    ++hardware.gpus=1 \
-    ++training.dataset=mura \
-    ++eval.datasets=[mura] \
-    ++training.epochs=50 \
-    ++training.guide=radial,meanfield,laplace,map,lowrank
+    training.cache_data=true \
+    hardware.gpus=1 \
+    training.dataset=mura \
+    eval.datasets=[mura] \
+    training.epochs=500 \
+    training.guide=radial,meanfield,laplace,map,lowrank
