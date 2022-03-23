@@ -25,23 +25,35 @@ class SwagModel(PyroModule):
         label = "model.1.weight"
         weight_shape: torch.Size = loc[label].shape
         self.fc1 = PyroModule[nn.Linear](weight_shape[1], weight_shape[0])
-        self.fc1.weight = PyroSample(dist.Normal(loc[label], scale[label]).to_event(2))
+        self.fc1.weight = PyroSample(
+            dist.Normal(loc[label], scale[label]).to_event(2)
+        )
         label = "model.1.bias"
-        self.fc1.bias = PyroSample(dist.Normal(loc[label], scale[label]).to_event(1))
+        self.fc1.bias = PyroSample(
+            dist.Normal(loc[label], scale[label]).to_event(1)
+        )
 
         label = "model.4.weight"
         weight_shape: torch.Size = loc[label].shape
         self.fc2 = PyroModule[nn.Linear](weight_shape[1], weight_shape[0])
-        self.fc2.weight = PyroSample(dist.Normal(loc[label], scale[label]).to_event(2))
+        self.fc2.weight = PyroSample(
+            dist.Normal(loc[label], scale[label]).to_event(2)
+        )
         label = "model.4.bias"
-        self.fc2.bias = PyroSample(dist.Normal(loc[label], scale[label]).to_event(1))
+        self.fc2.bias = PyroSample(
+            dist.Normal(loc[label], scale[label]).to_event(1)
+        )
 
         label = "model.7.weight"
         weight_shape: torch.Size = loc[label].shape
         self.fc3 = PyroModule[nn.Linear](weight_shape[1], weight_shape[0])
-        self.fc3.weight = PyroSample(dist.Normal(loc[label], scale[label]).to_event(2))
+        self.fc3.weight = PyroSample(
+            dist.Normal(loc[label], scale[label]).to_event(2)
+        )
         label = "model.7.bias"
-        self.fc3.bias = PyroSample(dist.Normal(loc[label], scale[label]).to_event(1))
+        self.fc3.bias = PyroSample(
+            dist.Normal(loc[label], scale[label]).to_event(1)
+        )
 
     def forward(self, x, y=None):
         x = self.flatten(x)
@@ -70,7 +82,9 @@ def train_swag(cfg: DictConfig):
     data.setup()
 
     state_dicts = train_swa(cfg)
-    weight_loc = {key: state_dicts[key].mean(dim=0) for key in state_dicts.keys()}
+    weight_loc = {
+        key: state_dicts[key].mean(dim=0) for key in state_dicts.keys()
+    }
     weight_scale = {
         key: state_dicts[key].std(dim=0) + 0.0001 for key in state_dicts.keys()
     }
@@ -92,7 +106,7 @@ def train_swag(cfg: DictConfig):
 
 @hydra.main(config_path="../../conf", config_name="swag")
 def run(cfg: DictConfig):
-    swag_model = train_swag(cfg)
+    train_swag(cfg)
 
 
 if __name__ == "__main__":

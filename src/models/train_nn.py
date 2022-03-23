@@ -1,15 +1,11 @@
 import logging
-import os
 
 import hydra
 import pytorch_lightning as pl
 import torch
 from omegaconf import DictConfig
-from pytorch_lightning import callbacks
-from pytorch_lightning.loggers import TensorBoardLogger
 
 from src import data as d
-from src.data.caching import cache_dataset
 from src.models import MNISTModel
 
 

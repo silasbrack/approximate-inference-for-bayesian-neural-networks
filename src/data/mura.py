@@ -7,7 +7,6 @@ from torch.utils.data import DataLoader, random_split
 from torchvision import transforms
 
 
-# TODO: Preload this somehow, right now we're loading from disk and performing transformations every iteration.
 class MuraData(LightningDataModule):
     def __init__(self, data_dir, batch_size, num_workers):
         super().__init__()
@@ -97,9 +96,15 @@ class MuraDataset(torch.utils.data.Dataset):
         self, path: str, data_folder: str, transform=None, target="BodyPartIdx"
     ):
         df = pd.read_csv(path, header=None, names=["FilePath"])
-        df["Label"] = df.apply(lambda x: 1 if "positive" in x.FilePath else 0, axis=1)
-        df["BodyPart"] = df.apply(lambda x: x.FilePath.split("/")[2][3:], axis=1)
-        df["StudyType"] = df.apply(lambda x: x.FilePath.split("/")[4][:6], axis=1)
+        df["Label"] = df.apply(
+            lambda x: 1 if "positive" in x.FilePath else 0, axis=1
+        )
+        df["BodyPart"] = df.apply(
+            lambda x: x.FilePath.split("/")[2][3:], axis=1
+        )
+        df["StudyType"] = df.apply(
+            lambda x: x.FilePath.split("/")[4][:6], axis=1
+        )
         self.df = df
         self.data_folder = data_folder
         self.transform = transform
@@ -133,7 +138,11 @@ class MuraDataset(torch.utils.data.Dataset):
             if self.transform:
                 img = self.transform(img)
             img = img[0, :, :]  # Only if we're not using transforms I guess
-            label = torch.from_numpy(np.asarray(label)).double().type(torch.LongTensor)
+            label = (
+                torch.from_numpy(np.asarray(label))
+                .double()
+                .type(torch.LongTensor)
+            )
 
             self.cached_data.append((img, label))
             self.cached_indices[idx] = self.n_cached
@@ -152,42 +161,3 @@ class MuraDataset(torch.utils.data.Dataset):
         # else:
         #     self.cached_data = []
         self.use_cache = use_cache
-
-
-# class MuraDataset(torch.utils.data.Dataset):
-#     def __init__(
-#         self, path: str, data_folder: str, transform=None, target="BodyPartIdx"
-#     ):
-#         df = pd.read_csv(path, header=None, names=["FilePath"])
-#         df["Label"] = df.apply(lambda x: 1 if "positive" in x.FilePath else 0, axis=1)
-#         df["BodyPart"] = df.apply(lambda x: x.FilePath.split("/")[2][3:], axis=1)
-#         df["StudyType"] = df.apply(lambda x: x.FilePath.split("/")[4][:6], axis=1)
-#         self.df = df
-#         self.data_folder = data_folder
-#         self.transform = transform
-#         self.target = target  # [BodyPartIdx, BodyPart, Label]
-#         body_parts = [
-#             "ELBOW",
-#             "FINGER",
-#             "FOREARM",
-#             "HAND",
-#             "HUMERUS",
-#             "SHOULDER",
-#             "WRIST",
-#         ]
-#         self.body_part_map = dict(zip(body_parts, range(len(body_parts))))
-#         self.df["BodyPartIdx"] = self.df["BodyPart"].map(self.body_part_map)
-#
-#     def __len__(self):
-#         return len(self.df)
-#
-#     def __getitem__(self, idx):
-#         img_name = self.df.iloc[idx, 0]
-#         img = Image.open(f"{self.data_folder}/{img_name}").convert("LA")
-#         label = self.df.loc[idx, self.target]
-#
-#         if self.transform:
-#             img = self.transform(img)
-#         img = img[0, :, :]  # Only if we're not using transforms I guess
-#         label = torch.from_numpy(np.asarray(label)).double().type(torch.LongTensor)
-#         return img, label

@@ -16,7 +16,6 @@ from pyro.infer.autoguide import (
     AutoLaplaceApproximation,
     AutoLowRankMultivariateNormal,
 )
-from torch import nn
 from torch.nn.functional import softmax
 from tqdm import tqdm
 
@@ -24,7 +23,7 @@ import tyxe
 from src import data as d
 from src.data.caching import cache_dataset
 from src.guides import AutoRadial
-from src.models import ConvNet, DenseNet, DenseNet169, ResNet18
+from src.models import DenseNet
 from tyxe.guides import AutoNormal
 
 
@@ -106,7 +105,9 @@ def train_model(cfg: DictConfig):
     )
     elapsed = time.perf_counter() - t0
 
-    guide_params = sum(val.shape.numel() for _, val in pyro.get_param_store().items())
+    guide_params = sum(
+        val.shape.numel() for _, val in pyro.get_param_store().items()
+    )
 
     results = {
         "Inference": cfg.training.guide,

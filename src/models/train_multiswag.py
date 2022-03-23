@@ -22,7 +22,7 @@ from src.models.train_swag import train_swag
 def run(cfg: DictConfig):
     if cfg.training.seed:
         logging.warning(
-            "A seed was set for MultiSWAG, meaning all ensembles will be identical."
+            "A seed was set for MultiSWAG, all ensembles will be identical."
         )
 
     num_ensembles = cfg.num_ensembles
@@ -39,7 +39,9 @@ def run(cfg: DictConfig):
         posterior_predictive = Predictive(swag_model, num_samples=128)
         posterior_predictives.append(posterior_predictive)
 
-    params = num_ensembles * sum(p.numel() for p in swag_models[0].parameters())
+    params = num_ensembles * sum(
+        p.numel() for p in swag_models[0].parameters()
+    )
 
     data_dict = {
         "mnist": d.MNISTData,

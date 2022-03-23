@@ -85,7 +85,9 @@ def tyxe_model(
         "radial": AutoRadial,
     }
     inference = inference_dict[cfg.training.guide]
-    prior_kwargs = {"expose_all": False, "hide_all": True} if inference is None else {}
+    prior_kwargs = (
+        {"expose_all": False, "hide_all": True} if inference is None else {}
+    )
     prior = tyxe.priors.IIDPrior(dist.Normal(0, 1), **prior_kwargs)
     bnn = tyxe.VariationalBNN(net, prior, likelihood, inference)
     bnn

@@ -1,11 +1,10 @@
+import logging
 import pickle
 import time
 from typing import List
-import logging
 
 import hydra
 import numpy as np
-import pytorch_lightning as pl
 import torch
 import torchmetrics as tm
 from omegaconf import DictConfig
@@ -14,15 +13,14 @@ from torch.nn import NLLLoss
 from torch.utils.data import DataLoader
 
 from src import data as d
-from src.models.train_nn import train_model
-from src.models import MNISTModel
+from src.models.train_nn import train_model as train_nn
 
 
 @hydra.main(config_path="../../conf", config_name="deep_ensemble")
 def train_model(cfg: DictConfig):
     if cfg.training.seed:
         logging.warning(
-            "A seed was set for deep ensembles, meaning all ensembles will be identical."
+            "A seed was set for deep ensembles, ensembles will be identical."
         )
 
     data_dict = {
@@ -42,7 +40,7 @@ def train_model(cfg: DictConfig):
 
     t0 = time.perf_counter()
     for i in range(n_ensembles):
-        models.append(train_model(cfg))
+        models.append(train_nn(cfg))
     elapsed = time.perf_counter() - t0
 
     results = {
@@ -74,7 +72,9 @@ def train_model(cfg: DictConfig):
         )
 
 
-def eval_model(models: List, dataset: str, test_dataloader: DataLoader, n_classes: int):
+def eval_model(
+    models: List, dataset: str, test_dataloader: DataLoader, n_classes: int
+):
     test_targets = []
     test_probs = []
     accuracy = tm.Accuracy()

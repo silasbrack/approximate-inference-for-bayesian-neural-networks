@@ -64,7 +64,9 @@ def calibration_curves(targets, probs, bins=10, fill_nans=False):
             if n_in_range > 0
             else 0
         )
-        range_prob = np.sum(probs_in_range) / n_in_range if n_in_range > 0 else 0
+        range_prob = (
+            np.sum(probs_in_range) / n_in_range if n_in_range > 0 else 0
+        )
 
         real_probs[i] = range_acc
         pred_probs[i] = range_prob
