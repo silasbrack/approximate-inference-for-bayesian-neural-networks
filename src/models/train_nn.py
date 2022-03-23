@@ -9,6 +9,7 @@ from pytorch_lightning import callbacks
 from pytorch_lightning.loggers import TensorBoardLogger
 
 from src import data as d
+from src.data.caching import cache_dataset
 from src.models import MNISTModel
 
 
@@ -34,19 +35,21 @@ def train_model(cfg: DictConfig):
     trainer = pl.Trainer(
         gpus=cfg.hardware.gpus,
         max_epochs=cfg.training.epochs,
-        progress_bar_refresh_rate=0,
-        weights_summary=None,
+        # progress_bar_refresh_rate=0,
+        # weights_summary=None,
     )
+    train_dataloader = data.train_dataloader()
+    val_dataloader = data.val_dataloader()
     trainer.fit(
         model,
-        train_dataloaders=data.train_dataloader(),
-        val_dataloaders=data.val_dataloader(),
+        train_dataloaders=train_dataloader,
+        val_dataloaders=val_dataloader,
     )
     trainer.test(dataloaders=data.test_dataloader())
 
     torch.save(
         model.state_dict(),
-        os.path.join(cfg.paths.model, cfg.files.state_dict),
+        f"./{cfg.paths.model}/{cfg.files.state_dict}",
     )
     return model
 

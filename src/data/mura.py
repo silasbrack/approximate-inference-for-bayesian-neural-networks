@@ -49,13 +49,13 @@ class MuraData(LightningDataModule):
     def setup(self, stage=None):
         # Assign train/val datasets for use in dataloaders
         if stage == "fit" or stage is None:
-            mura_train = MuraDataset(
+            self.mura_train = MuraDataset(
                 f"{self.data_dir}/MURA-v1.1/train_image_paths.csv",
                 self.data_dir,
                 self.train_transform,
             )
             self.mura_train, self.mura_val = random_split(
-                mura_train, self.train_val_test[:2]
+                self.mura_train, self.train_val_test[:2]
             )
 
         # Assign test dataset for use in dataloader(s)
@@ -72,6 +72,7 @@ class MuraData(LightningDataModule):
             num_workers=self.num_workers,
             batch_size=self.batch_size,
             shuffle=True,
+            drop_last=True,
         )
 
     def val_dataloader(self):
@@ -79,6 +80,7 @@ class MuraData(LightningDataModule):
             self.mura_val,
             num_workers=self.num_workers,
             batch_size=self.eval_batch_size,
+            drop_last=True,
         )
 
     def test_dataloader(self):
@@ -86,6 +88,7 @@ class MuraData(LightningDataModule):
             self.mura_test,
             num_workers=self.num_workers,
             batch_size=self.eval_batch_size,
+            drop_last=True,
         )
 
 
@@ -113,16 +116,78 @@ class MuraDataset(torch.utils.data.Dataset):
         self.body_part_map = dict(zip(body_parts, range(len(body_parts))))
         self.df["BodyPartIdx"] = self.df["BodyPart"].map(self.body_part_map)
 
+        self.cached_data = []
+        self.cached_indices = {}
+        self.n_cached = 0
+        self.use_cache = False
+
     def __len__(self):
         return len(self.df)
 
     def __getitem__(self, idx):
-        img_name = self.df.iloc[idx, 0]
-        img = Image.open(f"{self.data_folder}/{img_name}").convert("LA")
-        label = self.df.loc[idx, self.target]
+        if not self.use_cache:
+            img_name = self.df.iloc[idx, 0]
+            img = Image.open(f"{self.data_folder}/{img_name}").convert("LA")
+            label = self.df.loc[idx, self.target]
 
-        if self.transform:
-            img = self.transform(img)
-        img = img[0, :, :]  # Only if we're not using transforms I guess
-        label = torch.from_numpy(np.asarray(label)).double().type(torch.LongTensor)
+            if self.transform:
+                img = self.transform(img)
+            img = img[0, :, :]  # Only if we're not using transforms I guess
+            label = torch.from_numpy(np.asarray(label)).double().type(torch.LongTensor)
+
+            self.cached_data.append((img, label))
+            self.cached_indices[idx] = self.n_cached
+            self.n_cached += 1
+        else:
+            # print(idx, self.n_cached)
+            index_in_cache = self.cached_indices[idx]
+            # print(index_in_cache)
+            img, label = self.cached_data[index_in_cache]
+
         return img, label
+
+    def set_use_cache(self, use_cache):
+        # if use_cache:
+        #     self.cached_data = torch.stack(self.cached_data)
+        # else:
+        #     self.cached_data = []
+        self.use_cache = use_cache
+
+
+# class MuraDataset(torch.utils.data.Dataset):
+#     def __init__(
+#         self, path: str, data_folder: str, transform=None, target="BodyPartIdx"
+#     ):
+#         df = pd.read_csv(path, header=None, names=["FilePath"])
+#         df["Label"] = df.apply(lambda x: 1 if "positive" in x.FilePath else 0, axis=1)
+#         df["BodyPart"] = df.apply(lambda x: x.FilePath.split("/")[2][3:], axis=1)
+#         df["StudyType"] = df.apply(lambda x: x.FilePath.split("/")[4][:6], axis=1)
+#         self.df = df
+#         self.data_folder = data_folder
+#         self.transform = transform
+#         self.target = target  # [BodyPartIdx, BodyPart, Label]
+#         body_parts = [
+#             "ELBOW",
+#             "FINGER",
+#             "FOREARM",
+#             "HAND",
+#             "HUMERUS",
+#             "SHOULDER",
+#             "WRIST",
+#         ]
+#         self.body_part_map = dict(zip(body_parts, range(len(body_parts))))
+#         self.df["BodyPartIdx"] = self.df["BodyPart"].map(self.body_part_map)
+#
+#     def __len__(self):
+#         return len(self.df)
+#
+#     def __getitem__(self, idx):
+#         img_name = self.df.iloc[idx, 0]
+#         img = Image.open(f"{self.data_folder}/{img_name}").convert("LA")
+#         label = self.df.loc[idx, self.target]
+#
+#         if self.transform:
+#             img = self.transform(img)
+#         img = img[0, :, :]  # Only if we're not using transforms I guess
+#         label = torch.from_numpy(np.asarray(label)).double().type(torch.LongTensor)
+#         return img, label
