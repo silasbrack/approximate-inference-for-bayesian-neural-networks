@@ -1,4 +1,0 @@
-defaults:
-  - global
-  - _self_
-num_ensembles: 5

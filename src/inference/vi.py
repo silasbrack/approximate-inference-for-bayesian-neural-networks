@@ -1,5 +1,5 @@
-from src.inference.inference import Inference
 import logging
+import os
 import pickle
 import time
 from functools import partial
@@ -12,38 +12,32 @@ import torch
 import torchmetrics as tm
 from omegaconf import DictConfig
 from pyro import distributions as dist
-from pyro.infer.autoguide import (
-    AutoDelta,
-    AutoLaplaceApproximation,
-    AutoLowRankMultivariateNormal,
-)
+from pyro.infer.autoguide import (AutoDelta, AutoLaplaceApproximation,
+                                  AutoLowRankMultivariateNormal)
 from torch import nn
 from torch.nn.functional import softmax
 from tqdm import tqdm
 
 import tyxe
-from src import data as d
-from src.guides import AutoRadial
-from tyxe.guides import AutoNormal
+from src.inference.inference import Inference
 
 
 class VariationalInference(Inference):
-    def __init__(self, model, device, guide, posterior_samples, num_particles):
+    def __init__(
+        self,
+        model,
+        device,
+        variational_family,
+        posterior_samples,
+        num_particles,
+    ):
         self.posterior_samples = posterior_samples
         self.num_particles = num_particles
         self.device = device
 
         net = model.to(device)
         likelihood = tyxe.likelihoods.Categorical(dataset_size=60000)
-        inference_dict = {
-            "map": AutoDelta,
-            "laplace": AutoLaplaceApproximation,
-            "meanfield": partial(AutoNormal, init_scale=1e-2),
-            "lowrank": partial(AutoLowRankMultivariateNormal, rank=10),
-            "radial": AutoRadial,
-        }
-        inference = inference_dict[guide]
-        print(inference)
+        inference = variational_family
         prior = tyxe.priors.IIDPrior(
             dist.Normal(
                 torch.tensor(0, device=device, dtype=torch.float),
@@ -52,7 +46,6 @@ class VariationalInference(Inference):
         )
         self.bnn = tyxe.VariationalBNN(net, prior, likelihood, inference)
 
-
     def fit(self, train_loader, val_loader, epochs, lr):
         optim = pyro.optim.Adam({"lr": lr})
 
@@ -60,6 +53,7 @@ class VariationalInference(Inference):
         val_err = np.zeros((epochs, 1))
         val_ll = np.zeros((epochs, 1))
         pbar = tqdm(total=epochs, unit="Epochs")
+
         def callback(b: tyxe.VariationalBNN, i: int, e: float):
             avg_err, avg_ll = 0.0, 0.0
             for x, y in iter(val_loader):
@@ -78,7 +72,6 @@ class VariationalInference(Inference):
 
         t0 = time.perf_counter()
         # with tyxe.poutine.local_reparameterization():
-        print("training")
         self.bnn.fit(
             train_loader,
             optim,
@@ -101,6 +94,16 @@ class VariationalInference(Inference):
         logits = self.bnn.predict(x, num_predictions=self.posterior_samples)
         return softmax(logits, dim=-1)
 
-    # def save(folder: str):
-    #     pyro.get_param_store().save()
+    def save(self, path: str) -> None:
+        pyro.get_param_store().save(os.path.join(path, "param_store.pt"))
+
+    def load(self, path: str):
+        pyro.get_param_store().load(os.path.join(path, "param_store.pt"))
+
+    @property
+    def num_params(self):
+        return sum(
+            val.shape.numel() for _, val in pyro.get_param_store().items()
+        )
+
 

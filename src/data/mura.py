@@ -94,9 +94,15 @@ class MuraDataset(torch.utils.data.Dataset):
         self, path: str, data_folder: str, transform=None, target="BodyPartIdx"
     ):
         df = pd.read_csv(path, header=None, names=["FilePath"])
-        df["Label"] = df.apply(lambda x: 1 if "positive" in x.FilePath else 0, axis=1)
-        df["BodyPart"] = df.apply(lambda x: x.FilePath.split("/")[2][3:], axis=1)
-        df["StudyType"] = df.apply(lambda x: x.FilePath.split("/")[4][:6], axis=1)
+        df["Label"] = df.apply(
+            lambda x: 1 if "positive" in x.FilePath else 0, axis=1
+        )
+        df["BodyPart"] = df.apply(
+            lambda x: x.FilePath.split("/")[2][3:], axis=1
+        )
+        df["StudyType"] = df.apply(
+            lambda x: x.FilePath.split("/")[4][:6], axis=1
+        )
         self.df = df
         self.data_folder = data_folder
         self.transform = transform
@@ -124,5 +130,7 @@ class MuraDataset(torch.utils.data.Dataset):
         if self.transform:
             img = self.transform(img)
         img = img[0, :, :]  # Only if we're not using transforms I guess
-        label = torch.from_numpy(np.asarray(label)).double().type(torch.LongTensor)
+        label = (
+            torch.from_numpy(np.asarray(label)).double().type(torch.LongTensor)
+        )
         return img, label

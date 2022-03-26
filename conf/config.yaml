@@ -1,4 +1,4 @@
 defaults:
-  - inference: variational.yaml
+  - inference: multi_swag.yaml
   - data: mnist.yaml
   - training

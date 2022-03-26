@@ -5,18 +5,22 @@ import torch
 
 class Inference(ABC):
     @abstractmethod
-    def fit(self, train_loader):
+    def fit(self, train_loader, val_loader, epochs, lr):
         pass
-    
+
     @abstractmethod
     def predict(self, x: torch.Tensor) -> torch.Tensor:
         pass
-    
-    # @abstractmethod
-    # def save():
-    #     pass
 
-    # @property
-    # @abstractmethod
-    # def num_params():
-    #     pass
+    @abstractmethod
+    def save(self, path: str) -> None:
+        pass
+
+    @abstractmethod
+    def load(self, path: str) -> None:
+        pass
+
+    @property
+    @abstractmethod
+    def num_params(self) -> int:
+        pass

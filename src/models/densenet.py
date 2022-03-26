@@ -4,7 +4,7 @@ from torch.nn import functional as F
 
 
 def DenseNet(num_classes: int = 10):
-    dims=(1, 28, 28)
+    dims = (1, 28, 28)
     hidden_size = 64
     channels, width, height = dims
     return nn.Sequential(

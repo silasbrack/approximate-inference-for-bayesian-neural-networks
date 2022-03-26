@@ -1,4 +1,5 @@
 import os
+import time
 
 import torch
 from torch.nn import functional as F
@@ -13,6 +14,7 @@ class NeuralNetwork(Inference):
 
     def fit(self, train_loader, val_loader, epochs, lr):
         optim = torch.optim.Adam(self.model.parameters(), lr)
+        t0 = time.perf_counter()
         for epoch in range(epochs):
             for x, y in train_loader:
                 x, y = x.to(self.device), y.to(self.device)
@@ -21,14 +23,23 @@ class NeuralNetwork(Inference):
                 loss = F.nll_loss(logits, y)
                 loss.backward()
                 optim.step()
-    
+        elapsed = time.perf_counter() - t0
+        return {"Wall clock time": elapsed}
+
     def predict(self, x):
         x = x.to(self.device)
         logits = self.model(x)
         return F.softmax(logits, dim=-1)
-    
-    def save(folder):
+
+    def save(self, path: str) -> None:
         torch.save(
-            model.state_dict(),
-            os.path.join(folder, "state_dict.pt"),
+            self.model.state_dict(),
+            os.path.join(path, "state_dict.pt"),
         )
+
+    def load(self, path: str):
+        self.model.load_state_dict(torch.load(os.path.join(path, "state_dict.pt")))
+
+    @property
+    def num_params(self):
+        return sum(p.numel() for p in self.model.parameters())

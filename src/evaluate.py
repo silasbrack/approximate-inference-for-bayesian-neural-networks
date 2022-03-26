@@ -1,16 +1,21 @@
 from typing import Dict
 
-from torch.nn import functional as F
-from torch.utils.data import DataLoader
-import torchmetrics as tm
 import numpy as np
 import torch
+import torchmetrics as tm
 from omegaconf import DictConfig
+from torch.nn import functional as F
+from torch.utils.data import DataLoader
 
 from src.inference.inference import Inference
 
 
-def evaluate(inference: Inference, test_loader: DataLoader, dataset: str, num_classes: int) -> Dict:
+def evaluate(
+    inference: Inference,
+    test_loader: DataLoader,
+    dataset: str,
+    num_classes: int,
+) -> Dict:
     test_targets = []
     test_probs = []
     accuracy = tm.Accuracy()
@@ -22,7 +27,6 @@ def evaluate(inference: Inference, test_loader: DataLoader, dataset: str, num_cl
 
     for x, y in test_loader:
         probs = inference.predict(x).detach().cpu()
-        
         conf, preds = torch.max(probs, dim=-1)
         right = torch.where(preds == y)
         wrong = torch.where(preds != y)
@@ -34,7 +38,7 @@ def evaluate(inference: Inference, test_loader: DataLoader, dataset: str, num_cl
         accuracy(probs, y)
         auroc(probs, y)
         nll(F.nll_loss(probs, y))
-    
+
     test_targets: np.array = torch.cat(test_targets).numpy()
     test_probs: np.array = torch.cat(test_probs).numpy()
 

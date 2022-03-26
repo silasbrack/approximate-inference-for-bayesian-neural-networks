@@ -8,6 +8,7 @@ class MNISTData(LightningDataModule):
     def __init__(self, data_dir, batch_size, num_workers):
         super().__init__()
 
+        self.name = "MNIST"
         self.size = 60000
         self.data_dir = data_dir
         self.batch_size = batch_size
@@ -33,8 +34,12 @@ class MNISTData(LightningDataModule):
 
         # Assign train/val datasets for use in dataloaders
         if stage == "fit" or stage is None:
-            mnist_full = MNIST(self.data_dir, train=True, transform=self.transform)
-            self.mnist_train, self.mnist_val = random_split(mnist_full, [55000, 5000])
+            mnist_full = MNIST(
+                self.data_dir, train=True, transform=self.transform
+            )
+            self.mnist_train, self.mnist_val = random_split(
+                mnist_full, [55000, 5000]
+            )
 
         # Assign test dataset for use in dataloader(s)
         if stage == "test" or stage is None:
