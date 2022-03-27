@@ -2,6 +2,8 @@ import hydra
 import torch
 from omegaconf import DictConfig
 
+from src.evaluate import evaluate
+
 
 @hydra.main(config_path="../conf", config_name="config")
 def train(cfg: DictConfig):
@@ -18,8 +20,12 @@ def train(cfg: DictConfig):
         cfg.training.epochs,
         cfg.training.lr,
     )
-    print(train_result)
     inference.save(cfg.training.model_path)
+    eval_result = evaluate(inference,
+                           data.test_dataloader(),
+                           data.name,
+                           data.n_classes)
+    print(eval_result)
 
 
 if __name__ == "__main__":

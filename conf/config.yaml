@@ -1,4 +1,4 @@
 defaults:
-  - inference: multi_swag.yaml
+  - inference: laplace.yaml
   - data: mnist.yaml
   - training

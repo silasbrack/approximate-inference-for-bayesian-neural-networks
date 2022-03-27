@@ -20,9 +20,20 @@ def predict(path: str):
 
     data = hydra.utils.instantiate(cfg.data)
     data.setup()
-    eval_result = evaluate(model, data.test_dataloader(), "mnist", 10)
+    eval_result = evaluate(model,
+                           data.test_dataloader(),
+                           data.name,
+                           data.n_classes)
     accuracy = eval_result["Accuracy"]
-    print(f"{accuracy=:.3f}")
+    logging.info(f"{accuracy=:.3f}")
+
+    # ensemble_accuracies = [evaluate(ensemble,
+    #                                 data.test_dataloader(),
+    #                                 data.name,
+    #                                 data.n_classes)["Accuracy"]
+    #                        for ensemble in model.ensembles]
+    # logging.info(ensemble_accuracies)
+
 
 
 if __name__ == "__main__":

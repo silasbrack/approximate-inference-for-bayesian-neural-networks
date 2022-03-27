@@ -12,8 +12,9 @@
 
 python src/train.py \
     --multirun \
-    inference=vi
-    inference/variational_family=radial,meanfield,lowrank
+    inference=vi \
+    inference/variational_family=radial,mean_field,low_rank \
+    data.batch_size=8192
 
 python src/train.py \
     --multirun \
@@ -22,3 +23,7 @@ python src/train.py \
 python src/train.py \
     --multirun \
     inference=nn,deep_ensemble
+
+python src/train.py \
+    --multirun \
+    inference=laplace

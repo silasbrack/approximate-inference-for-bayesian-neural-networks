@@ -1,0 +1,6 @@
+_target_: src.inference.Laplace
+defaults:
+  - model: dense.yaml
+device: cpu
+subset: all
+hessian: diag
