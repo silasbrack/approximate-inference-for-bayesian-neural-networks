@@ -13,6 +13,7 @@ class MuraData(LightningDataModule):
     def __init__(self, data_dir, batch_size, num_workers, cache_data):
         super().__init__()
 
+        self.name = "MURA"
         self.size = 36808
         self.data_dir = data_dir
         self.batch_size = batch_size

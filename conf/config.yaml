@@ -1,4 +1,4 @@
 defaults:
-  - inference: laplace.yaml
-  - data: mnist.yaml
+  - inference: vi
+  - data: mnist
   - training

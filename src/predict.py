@@ -38,5 +38,4 @@ def predict(path: str):
 if __name__ == "__main__":
     logging.captureWarnings(True)
     logging.getLogger().setLevel(logging.INFO)
-    # fire.Fire(predict)
-    predict("outputs/2022-03-27/09-03-51/")
+    fire.Fire(predict)

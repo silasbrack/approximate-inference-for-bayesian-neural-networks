@@ -34,4 +34,6 @@ def train(cfg: DictConfig):
 
 
 if __name__ == "__main__":
+    logging.captureWarnings(True)
+    logging.getLogger().setLevel(logging.INFO)
     train()
