@@ -2,8 +2,6 @@ import hydra
 import torch
 from omegaconf import DictConfig
 
-from src.evaluate import evaluate
-
 
 @hydra.main(config_path="../conf", config_name="config")
 def train(cfg: DictConfig):

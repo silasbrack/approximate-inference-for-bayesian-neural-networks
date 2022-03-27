@@ -35,7 +35,8 @@ class Swa(Inference):
                 state_dicts.append(copy.deepcopy(self.model.state_dict()))
         elapsed = time.perf_counter() - t0
         self.state_dicts = {
-            key: torch.stack([sd[key] for sd in state_dicts]) for key in state_dicts[0]
+            key: torch.stack([sd[key] for sd in state_dicts])
+            for key in state_dicts[0]
         }
         return {"Wall clock time": elapsed}
 
@@ -52,8 +53,11 @@ class Swa(Inference):
 
     def load(self, path: str):
         self.state_dicts = torch.load(os.path.join(path, "state_dict.pt"))
-        n_averaged = torch.tensor(list(self.state_dicts.items())[0][1].shape[0])
-        state_dict = OrderedDict({f"module.{key}": val.mean(dim=0) for key, val in self.state_dicts.items()})
+        n_averaged = torch.tensor(
+            list(self.state_dicts.items())[0][1].shape[0]
+        )
+        state_dict = OrderedDict({f"module.{key}": val.mean(dim=0)
+                                  for key, val in self.state_dicts.items()})
         state_dict["n_averaged"] = n_averaged
         self.swa_model.load_state_dict(state_dict)
 

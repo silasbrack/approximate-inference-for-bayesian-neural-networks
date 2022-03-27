@@ -1,20 +1,10 @@
-import logging
 import os
-import pickle
 import time
-from functools import partial
-from typing import Dict
 
-import hydra
 import numpy as np
 import pyro
 import torch
-import torchmetrics as tm
-from omegaconf import DictConfig
 from pyro import distributions as dist
-from pyro.infer.autoguide import (AutoDelta, AutoLaplaceApproximation,
-                                  AutoLowRankMultivariateNormal)
-from torch import nn
 from torch.nn.functional import softmax
 from tqdm import tqdm
 
@@ -105,5 +95,3 @@ class VariationalInference(Inference):
         return sum(
             val.shape.numel() for _, val in pyro.get_param_store().items()
         )
-
-

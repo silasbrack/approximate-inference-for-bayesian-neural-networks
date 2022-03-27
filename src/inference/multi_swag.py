@@ -10,13 +10,19 @@ from src.inference.swag import Swag, SwagModule
 
 
 class MultiSwag(Inference):
-    def __init__(self, model, device, num_ensembles: int, swa_start_thresh: float, posterior_samples: int):
+    def __init__(self,
+                 model,
+                 device,
+                 num_ensembles: int,
+                 swa_start_thresh: float,
+                 posterior_samples: int):
         self.model = model
         self.num_ensembles = num_ensembles
         self.posterior_samples = posterior_samples
         self.device = device
         self.ensembles = [
-            Swag(model, device, swa_start_thresh, posterior_samples) for _ in range(num_ensembles)
+            Swag(model, device, swa_start_thresh, posterior_samples)
+            for _ in range(num_ensembles)
         ]
 
     def fit(self, train_loader, val_loader, epochs, lr):
@@ -47,13 +53,15 @@ class MultiSwag(Inference):
     def load(self, path: str):
         with open(os.path.join(path, "state_dicts.pkl"), "rb") as f:
             state_dicts = pickle.load(f)
-        for ensemble, state_dict in zip(self.ensembles, state_dicts):
+        for swag, state_dict in zip(self.ensembles, state_dicts):
             weight_loc = state_dict["loc"]
             weight_scale = state_dict["scale"]
-            ensemble.weight_loc = weight_loc
-            ensemble.weight_scale = weight_scale
-            ensemble.swag_model = SwagModule(ensemble.pyro_model, weight_loc, weight_scale)
-            ensemble.predictive = Predictive(ensemble.swag_model,
+            swag.weight_loc = weight_loc
+            swag.weight_scale = weight_scale
+            swag.swag_model = SwagModule(swag.pyro_model,
+                                         weight_loc,
+                                         weight_scale)
+            swag.predictive = Predictive(swag.swag_model,
                                          num_samples=self.posterior_samples)
 
     @property

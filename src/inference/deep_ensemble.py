@@ -35,7 +35,8 @@ class DeepEnsemble(Inference):
         return probs
 
     def save(self, path: str):
-        state_dicts = [ensemble.model.state_dict() for ensemble in self.ensembles]
+        state_dicts = [ensemble.model.state_dict()
+                       for ensemble in self.ensembles]
         with open(os.path.join(path, "state_dicts.pkl"), "wb") as f:
             pickle.dump(state_dicts, f)
 

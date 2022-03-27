@@ -1,6 +1,4 @@
-import torch
 from torch import nn
-from torch.nn import functional as F
 
 
 def DenseNet(num_classes: int = 10):

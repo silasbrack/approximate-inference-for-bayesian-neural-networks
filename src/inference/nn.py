@@ -38,7 +38,8 @@ class NeuralNetwork(Inference):
         )
 
     def load(self, path: str):
-        self.model.load_state_dict(torch.load(os.path.join(path, "state_dict.pt")))
+        state_dict = torch.load(os.path.join(path, "state_dict.pt"))
+        self.model.load_state_dict(state_dict)
 
     @property
     def num_params(self):

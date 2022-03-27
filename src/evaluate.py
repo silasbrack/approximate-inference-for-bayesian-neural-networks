@@ -3,7 +3,6 @@ from typing import Dict
 import numpy as np
 import torch
 import torchmetrics as tm
-from omegaconf import DictConfig
 from torch.nn import functional as F
 from torch.utils.data import DataLoader
 
