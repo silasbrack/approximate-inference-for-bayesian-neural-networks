@@ -1,4 +1,4 @@
-bsub < experiments/mnist/run_vi.sh
-bsub < experiments/mnist/run_deep_ensembles.sh
-bsub < experiments/mnist/run_multiswag.sh
-bsub < experiments/mnist/run_laplace.sh
+bsub < experiments/mura/run_vi.sh
+bsub < experiments/mura/run_deep_ensembles.sh
+bsub < experiments/mura/run_multiswag.sh
+bsub < experiments/mura/run_laplace.sh
