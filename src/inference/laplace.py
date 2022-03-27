@@ -6,8 +6,8 @@ import time
 import laplace
 import torch
 
-from src.inference import NeuralNetwork
 from src.inference.inference import Inference
+from src.inference.nn import NeuralNetwork
 
 
 # TODO: Get Laplace predict.py working correctly with all weights.
