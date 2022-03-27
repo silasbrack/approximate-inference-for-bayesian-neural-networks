@@ -1,4 +1,5 @@
-_target_: src.data.mnist.MNISTData
+_target_: src.data.mura.MuraData
 data_dir: "${hydra:runtime.cwd}/data/"
 batch_size: 128
 num_workers: 4
+cache_data: true

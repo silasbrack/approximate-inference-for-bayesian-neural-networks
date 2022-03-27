@@ -22,6 +22,7 @@ def train(cfg: DictConfig):
         cfg.training.epochs,
         cfg.training.lr,
     )
+    print(train_result)
     inference.save(cfg.training.model_path)
     eval_result = evaluate(inference,
                            data.test_dataloader(),

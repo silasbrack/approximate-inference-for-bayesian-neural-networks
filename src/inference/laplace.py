@@ -53,4 +53,3 @@ class Laplace(Inference):
     @property
     def num_params(self):
         return self.model.num_params
-

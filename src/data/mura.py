@@ -6,9 +6,11 @@ from pytorch_lightning import LightningDataModule
 from torch.utils.data import DataLoader, random_split
 from torchvision import transforms
 
+from src.data.caching import cache_dataset
+
 
 class MuraData(LightningDataModule):
-    def __init__(self, data_dir, batch_size, num_workers):
+    def __init__(self, data_dir, batch_size, num_workers, cache_data):
         super().__init__()
 
         self.size = 36808
@@ -22,6 +24,8 @@ class MuraData(LightningDataModule):
         # self.resolution = 224
         # self.channels = 2
         self.train_val_test = [32000, 4808, 3197]
+
+        self.cache_data = cache_data
 
         self.train_transform = transforms.Compose(
             [
@@ -64,6 +68,9 @@ class MuraData(LightningDataModule):
                 self.data_dir,
                 self.train_transform,
             )
+
+        if self.cache_data:
+            cache_dataset(self.mura_train.dataset)
 
     def train_dataloader(self):
         return DataLoader(
