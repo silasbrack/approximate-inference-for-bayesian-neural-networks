@@ -1,6 +1,6 @@
 #!/bin/bash
-#BSUB -J laplace
-#BSUB -o laplace_%J.out
+#BSUB -J vi
+#BSUB -o vi_%J.out
 #BSUB -q gpuv100
 #BSUB -gpu "num=1:mode=exclusive_process"
 #BSUB -W 24:00
@@ -12,7 +12,9 @@ source venv/bin/activate
 
 python src/train.py \
     --multirun \
-    data=mura \
-    training.epochs=20 \
-    inference=nn,laplace \
+    data=mnist \
+    data.batch_size=8192 \
+    training.epochs=200 \
+    inference=vi \
+    inference/variational_family=radial,mean_field,low_rank \
     inference.device=cuda

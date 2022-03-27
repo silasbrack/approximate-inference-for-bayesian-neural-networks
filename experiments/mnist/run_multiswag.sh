@@ -10,8 +10,11 @@ module load python3/3.9.6
 module load cuda/11.3
 source venv/bin/activate
 
-python src/models/train_multiswag.py \
+python src/train.py \
     --multirun \
-    ++hardware.gpus=1 \
-    ++training.epochs=100 \
-    ++num_ensembles=5,10
+    data=mnist \
+    training.epochs=100 \
+    inference=multi_swag \
+    inference.device=cuda \
+    inference.num_ensembles=5,10 \
+    swa_start_thresh=0.8

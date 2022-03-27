@@ -1,6 +1,6 @@
 #!/bin/bash
-#BSUB -J tyxe
-#BSUB -o tyxe_%J.out
+#BSUB -J laplace
+#BSUB -o laplace_%J.out
 #BSUB -q gpuv100
 #BSUB -gpu "num=1:mode=exclusive_process"
 #BSUB -W 24:00
@@ -10,8 +10,9 @@ module load python3/3.9.6
 module load cuda/11.3
 source venv/bin/activate
 
-python src/models/train_tyxe.py \
+python src/train.py \
     --multirun \
-    ++hardware.gpus=1 \
-    ++training.epochs=200 \
-    ++training.guide=radial,meanfield,laplace,map,lowrank
+    data=mnist \
+    training.epochs=100 \
+    inference=nn,laplace \
+    inference.device=cuda
