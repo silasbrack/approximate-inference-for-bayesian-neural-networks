@@ -1,3 +1,4 @@
+import warnings
 from typing import Dict
 
 import numpy as np
@@ -15,6 +16,12 @@ def evaluate(
     dataset: str,
     num_classes: int,
 ) -> Dict:
+    warnings.filterwarnings("ignore",
+                            message="Metric `AUROC` will save all targets "
+                                    "and predictions in buffer. For large "
+                                    "datasets this may lead to large memory "
+                                    "footprint.")
+
     test_targets = []
     test_probs = []
     accuracy = tm.Accuracy()
@@ -53,3 +60,13 @@ def evaluate(
         "Test targets": test_targets,
         "Test probabilities": test_probs,
     }
+
+
+def print_dict(dictionary: Dict):
+    for key, val in dictionary.items():
+        if type(val) is np.ndarray:
+            print(f"{key}:", val.shape)
+        elif type(val) is float:
+            print(f"{key}: {val:.3f}")
+        else:
+            print(f"{key}:", val)

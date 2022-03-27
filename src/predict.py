@@ -5,7 +5,7 @@ import fire
 import hydra
 from omegaconf import DictConfig, OmegaConf
 
-from src.evaluate import evaluate
+from src.evaluate import evaluate, print_dict
 from src.inference.inference import Inference
 
 
@@ -24,9 +24,7 @@ def predict(path: str):
                            data.test_dataloader(),
                            data.name,
                            data.n_classes)
-    accuracy = eval_result["Accuracy"]
-    logging.info(f"{accuracy=:.3f}")
-
+    print_dict(eval_result)
     # ensemble_accuracies = [evaluate(ensemble,
     #                                 data.test_dataloader(),
     #                                 data.name,

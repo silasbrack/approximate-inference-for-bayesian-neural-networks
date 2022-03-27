@@ -4,6 +4,8 @@ import torch
 
 
 class Inference(ABC):
+    name: str = None
+
     @abstractmethod
     def fit(self, train_loader, val_loader, epochs, lr):
         pass

@@ -4,11 +4,11 @@ import time
 import numpy as np
 import pyro
 import torch
+import tyxe
 from pyro import distributions as dist
 from torch.nn.functional import softmax
 from tqdm import tqdm
 
-import tyxe
 from src.inference.inference import Inference
 
 
@@ -21,7 +21,7 @@ class VariationalInference(Inference):
         posterior_samples,
         num_particles,
     ):
-        self.name = f"VI@{variational_family.name}"
+        self.name = f"{variational_family.name}"
         self.posterior_samples = posterior_samples
         self.num_particles = num_particles
         self.device = device

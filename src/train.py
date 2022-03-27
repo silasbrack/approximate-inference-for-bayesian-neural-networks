@@ -4,7 +4,7 @@ import hydra
 import torch
 from omegaconf import DictConfig
 
-from src.evaluate import evaluate
+from src.evaluate import evaluate, print_dict
 
 
 @hydra.main(config_path="../conf", config_name="config")
@@ -22,15 +22,13 @@ def train(cfg: DictConfig):
         cfg.training.epochs,
         cfg.training.lr,
     )
-    print(train_result)
+    print_dict(train_result)
     inference.save(cfg.training.model_path)
     eval_result = evaluate(inference,
                            data.test_dataloader(),
                            data.name,
                            data.n_classes)
-    accuracy = eval_result["Accuracy"]
-    logging.info(f"{accuracy=:.3f}")
-    print(eval_result)
+    print_dict(eval_result)
 
 
 if __name__ == "__main__":

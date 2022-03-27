@@ -1,5 +1,5 @@
 from torch import nn
-from torchvision.models.resnet import ResNet, BasicBlock
+from torchvision.models.resnet import BasicBlock, ResNet
 
 
 # def ResNet18(num_classes: int = 10):
