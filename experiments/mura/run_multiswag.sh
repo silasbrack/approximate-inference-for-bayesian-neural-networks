@@ -17,4 +17,4 @@ python src/train.py \
     inference=multi_swag \
     inference.device=cuda \
     inference.num_ensembles=5,10 \
-    swa_start_thresh=0.8
+    inference.swa_start_thresh=0.8
