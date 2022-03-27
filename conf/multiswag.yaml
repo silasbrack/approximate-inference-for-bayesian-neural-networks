@@ -1,5 +1,0 @@
-defaults:
-  - global
-  - _self_
-swa_start_thresh: 0.80
-num_ensembles: 5

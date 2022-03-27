@@ -1,0 +1,4 @@
+defaults:
+  - inference: laplace.yaml
+  - data: mnist.yaml
+  - training

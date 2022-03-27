@@ -1,0 +1,6 @@
+_target_: src.inference.swag.Swag
+defaults:
+  - model: dense.yaml
+device: cpu
+swa_start_thresh: 0.
+posterior_samples: 128

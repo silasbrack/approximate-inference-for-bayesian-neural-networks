@@ -1,0 +1,4 @@
+_target_: src.data.mnist.MNISTData
+data_dir: "${hydra:runtime.cwd}/data/"
+batch_size: 128
+num_workers: 4

@@ -8,10 +8,11 @@ class MNISTData(LightningDataModule):
     def __init__(self, data_dir, batch_size, num_workers):
         super().__init__()
 
+        self.name = "MNIST"
         self.size = 60000
         self.data_dir = data_dir
         self.batch_size = batch_size
-        self.eval_batch_size = 10000
+        self.eval_batch_size = batch_size
         self.num_workers = num_workers
         self.n_classes = 10
         self.resolution = 28

@@ -1,0 +1,4 @@
+_target_: src.inference.nn.NeuralNetwork
+defaults:
+  - model: dense.yaml
+device: cpu

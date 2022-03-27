@@ -1,4 +1,0 @@
-defaults:
-  - global
-  - _self_
-swa_start_thresh: 0

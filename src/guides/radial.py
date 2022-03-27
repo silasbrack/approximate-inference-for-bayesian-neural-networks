@@ -9,6 +9,10 @@ from torch.distributions import biject_to
 from torch.distributions.utils import _standard_normal
 
 
+def radial():
+    return AutoRadial
+
+
 class RadialNormal(dist.Normal):
     def rsample(self, sample_shape=torch.Size()):
         shape = self._extended_shape(sample_shape)
