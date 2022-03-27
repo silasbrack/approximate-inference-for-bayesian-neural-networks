@@ -15,12 +15,12 @@ def predict(path: str):
     cfg.data.data_dir = "/home/silas/Documents/university/approximate" \
                         "-inference-for-bayesian-neural-networks/data/"
 
-    model: Inference = hydra.utils.instantiate(cfg.inference)
-    model.load(path)
+    inference: Inference = hydra.utils.instantiate(cfg.inference)
+    inference.load(path)
 
     data = hydra.utils.instantiate(cfg.data)
     data.setup()
-    eval_result = evaluate(model,
+    eval_result = evaluate(inference,
                            data.test_dataloader(),
                            data.name,
                            data.n_classes)
@@ -35,8 +35,8 @@ def predict(path: str):
     # logging.info(ensemble_accuracies)
 
 
-
 if __name__ == "__main__":
     logging.captureWarnings(True)
     logging.getLogger().setLevel(logging.INFO)
-    fire.Fire(predict)
+    # fire.Fire(predict)
+    predict("outputs/2022-03-27/09-03-51/")

@@ -1,3 +1,5 @@
+import logging
+
 import hydra
 import torch
 from omegaconf import DictConfig
@@ -25,6 +27,8 @@ def train(cfg: DictConfig):
                            data.test_dataloader(),
                            data.name,
                            data.n_classes)
+    accuracy = eval_result["Accuracy"]
+    logging.info(f"{accuracy=:.3f}")
     print(eval_result)
 
 

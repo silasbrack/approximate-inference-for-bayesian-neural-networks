@@ -40,14 +40,14 @@ class Laplace(Inference):
         return {"Wall clock time": elapsed}
 
     def predict(self, x: torch.Tensor):
-        return self.la(x, pred_type="glm", link_approx="probit")
+        return self.la(x)
 
     def save(self, path: str):
-        with open(os.path.join(path, "model.pkl"), "wb") as f:
+        with open(os.path.join(path, "la.pkl"), "wb") as f:
             pickle.dump(self.la, f)
 
     def load(self, path: str):
-        with open(os.path.join(path, "model.pkl"), "rb") as f:
+        with open(os.path.join(path, "la.pkl"), "rb") as f:
             self.la = pickle.load(f)
 
     @property
