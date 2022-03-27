@@ -8,6 +8,7 @@ class SVHNData(LightningDataModule):
     def __init__(self, data_dir, batch_size, num_workers):
         super().__init__()
 
+        self.name = "SVHN"
         self.size = 99289
         self.data_dir = data_dir
         self.batch_size = batch_size

@@ -1,0 +1,4 @@
+_target_: src.data.FashionMNISTData
+data_dir: "${hydra:runtime.cwd}/data/"
+batch_size: 128
+num_workers: 4

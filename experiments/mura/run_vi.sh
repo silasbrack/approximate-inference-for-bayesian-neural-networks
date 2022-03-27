@@ -1,6 +1,6 @@
 #!/bin/bash
-#BSUB -J tyxe
-#BSUB -o tyxe_%J.out
+#BSUB -J vi
+#BSUB -o vi_%J.out
 #BSUB -q gpuv100
 #BSUB -gpu "num=1:mode=exclusive_process"
 #BSUB -W 24:00
@@ -10,11 +10,11 @@ module load python3/3.9.6
 module load cuda/11.3
 source venv/bin/activate
 
-python src/models/train_tyxe.py \
+python src/train.py \
     --multirun \
-    training.cache_data=true \
-    hardware.gpus=1 \
-    training.dataset=mura \
-    eval.datasets=[mura] \
+    data=mura \
+    data.batch_size=8192 \
     training.epochs=500 \
-    training.guide=radial,meanfield,laplace,map,lowrank
+    inference=vi \
+    inference/variational_family=radial,mean_field,low_rank \
+    inference.device=cuda

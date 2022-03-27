@@ -21,13 +21,14 @@ class VariationalInference(Inference):
         posterior_samples,
         num_particles,
     ):
+        self.name = f"VI@{variational_family.name}"
         self.posterior_samples = posterior_samples
         self.num_particles = num_particles
         self.device = device
 
         net = model.to(device)
         likelihood = tyxe.likelihoods.Categorical(dataset_size=60000)
-        inference = variational_family
+        inference = variational_family.guide()
         prior = tyxe.priors.IIDPrior(
             dist.Normal(
                 torch.tensor(0, device=device, dtype=torch.float),

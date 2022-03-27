@@ -18,6 +18,7 @@ class Laplace(Inference):
                  device,
                  subset: str,
                  hessian: str):
+        self.name = "Laplace"
         # The Laplace library has a likelihood which takes logits as inputs and
         # can't handle Softmax or LogSoftmax layers.
         self.model = torch.nn.Sequential(*list(model.children())[:-1])

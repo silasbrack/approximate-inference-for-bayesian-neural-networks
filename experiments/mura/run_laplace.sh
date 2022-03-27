@@ -1,6 +1,6 @@
 #!/bin/bash
-#BSUB -J multiswag
-#BSUB -o multiswag_%J.out
+#BSUB -J test
+#BSUB -o test_%J.out
 #BSUB -q gpuv100
 #BSUB -gpu "num=1:mode=exclusive_process"
 #BSUB -W 24:00
@@ -14,8 +14,5 @@ python src/train.py \
     --multirun \
     data=mura \
     training.epochs=20 \
-    inference=multi_swag \
-    inference.device=cuda \
-    inference.num_ensembles=5,10 \
-    swa_start_thresh=0.8
-
+    inference=nn,laplace \
+    inference.device=cuda

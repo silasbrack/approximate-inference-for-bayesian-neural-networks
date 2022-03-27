@@ -1,2 +1,2 @@
-_target_: src.guides.mean_field
+_target_: src.guides.MeanField
 init_scale: 1e-2

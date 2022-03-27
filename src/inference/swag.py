@@ -46,6 +46,7 @@ class SwagModule(PyroModule):
 
 class Swag(Inference):
     def __init__(self, model, device, swa_start_thresh, posterior_samples):
+        self.name = "SWAG"
         self.model = model
         self.device = device
         self.posterior_samples = posterior_samples

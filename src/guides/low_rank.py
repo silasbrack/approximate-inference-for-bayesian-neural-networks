@@ -3,5 +3,10 @@ from functools import partial
 from pyro.infer.autoguide import AutoLowRankMultivariateNormal
 
 
-def low_rank(rank):
-    return partial(AutoLowRankMultivariateNormal, rank=rank)
+class LowRank:
+    def __init__(self, rank):
+        self.name = "Low-rank"
+        self.rank = rank
+
+    def guide(self):
+        return partial(AutoLowRankMultivariateNormal, rank=self.rank)

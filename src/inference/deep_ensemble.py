@@ -10,6 +10,7 @@ from src.inference.nn import NeuralNetwork
 
 class DeepEnsemble(Inference):
     def __init__(self, model, device, num_ensembles: int):
+        self.name = f"Ensemble@{num_ensembles}"
         self.model = model
         self.num_ensembles = num_ensembles
         self.device = device

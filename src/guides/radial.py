@@ -9,8 +9,12 @@ from torch.distributions import biject_to
 from torch.distributions.utils import _standard_normal
 
 
-def radial():
-    return AutoRadial
+class Radial:
+    def __init__(self):
+        self.name = "Radial"
+
+    def guide(self):
+        return AutoRadial
 
 
 class RadialNormal(dist.Normal):

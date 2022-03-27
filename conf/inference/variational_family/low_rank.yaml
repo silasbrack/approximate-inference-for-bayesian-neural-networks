@@ -1,2 +1,2 @@
-_target_: src.guides.low_rank
+_target_: src.guides.LowRank
 rank: 10

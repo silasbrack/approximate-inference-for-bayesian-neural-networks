@@ -42,6 +42,7 @@ def evaluate(
     test_probs: np.array = torch.cat(test_probs).numpy()
 
     return {
+        "Inference": inference.name,
         "Evaluated on": dataset,
         "NLL": nll.compute().item(),
         "Accuracy": accuracy.compute().item(),

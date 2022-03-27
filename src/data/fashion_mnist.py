@@ -8,6 +8,7 @@ class FashionMNISTData(LightningDataModule):
     def __init__(self, data_dir, batch_size, num_workers):
         super().__init__()
 
+        self.name = "FashionMNIST"
         self.size = 60000
         self.data_dir = data_dir
         self.batch_size = batch_size

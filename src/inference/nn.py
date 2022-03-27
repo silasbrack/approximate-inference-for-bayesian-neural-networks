@@ -9,6 +9,7 @@ from src.inference.inference import Inference
 
 class NeuralNetwork(Inference):
     def __init__(self, model, device):
+        self.name = "MAP"
         self.model = model
         self.device = device
 

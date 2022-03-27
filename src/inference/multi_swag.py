@@ -16,6 +16,7 @@ class MultiSwag(Inference):
                  num_ensembles: int,
                  swa_start_thresh: float,
                  posterior_samples: int):
+        self.name = f"MultiSWAG@{num_ensembles}"
         self.model = model
         self.num_ensembles = num_ensembles
         self.posterior_samples = posterior_samples

@@ -12,6 +12,7 @@ from src.inference.inference import Inference
 
 class Swa(Inference):
     def __init__(self, model, device, swa_start_thresh):
+        self.name = "SWA"
         self.model = model
         self.device = device
         self.swa_model = AveragedModel(model)
