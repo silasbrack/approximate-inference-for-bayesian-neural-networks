@@ -34,7 +34,7 @@ def improve_legend(ax=None, *args, **kwargs):
 
 
 def hide_right_top_axis(ax):
-    """Remove the top and right axis"""
+    """Remove the top and right axis."""
     ax.get_xaxis().tick_bottom()
     ax.get_yaxis().tick_left()
     ax.spines["right"].set_visible(False)

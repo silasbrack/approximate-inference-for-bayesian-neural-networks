@@ -3,7 +3,7 @@ dist = pdflatex
 latexmkopts = -$(dist) -shell-escape
 
 all: $(root).pdf
-.PHONY: $(root).pdf 
+.PHONY: $(root).pdf
 
 $(root).pdf: $(root).tex
 	latexmk $(latexmkopts) $(root)

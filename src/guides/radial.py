@@ -47,9 +47,7 @@ class RadialNormal(dist.Normal):
 
 class AutoRadial(autoguide.AutoNormal):
     def forward(self, *args, **kwargs):
-        """
-        An automatic guide with the same ``*args, **kwargs``
-        as the base ``model``.
+        """An automatic guide with the same ``*args, **kwargs`` as the base ``model``.
 
         :return: A dict mapping sample site name to sampled value.
         :rtype: dict

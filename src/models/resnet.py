@@ -1,7 +1,6 @@
 from torch import nn
 from torchvision.models.resnet import BasicBlock, ResNet
 
-
 # def ResNet18(num_classes: int = 10):
 #     model = resnet18(pretrained=False, num_classes=num_classes)
 #     model.conv1 = nn.Conv2d(
@@ -9,6 +8,7 @@ from torchvision.models.resnet import BasicBlock, ResNet
 #     )
 #     model.fc = nn.Linear(512, num_classes)
 #     return model
+
 
 class ResNet18(ResNet):
     def __init__(
@@ -33,8 +33,14 @@ class ResNet18(ResNet):
             replace_stride_with_dilation,
             norm_layer,
         )
-        self.conv1 = nn.Conv2d(1, 64, kernel_size=(7, 7), stride=(2, 2),
-                               padding=(3, 3), bias=False)
+        self.conv1 = nn.Conv2d(
+            1,
+            64,
+            kernel_size=(7, 7),
+            stride=(2, 2),
+            padding=(3, 3),
+            bias=False,
+        )
         self.fc = nn.Linear(512, n_classes)
 
     def forward(self, x):

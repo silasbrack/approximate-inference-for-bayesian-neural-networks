@@ -57,8 +57,12 @@ class Swa(Inference):
         n_averaged = torch.tensor(
             list(self.state_dicts.items())[0][1].shape[0]
         )
-        state_dict = OrderedDict({f"module.{key}": val.mean(dim=0)
-                                  for key, val in self.state_dicts.items()})
+        state_dict = OrderedDict(
+            {
+                f"module.{key}": val.mean(dim=0)
+                for key, val in self.state_dicts.items()
+            }
+        )
         state_dict["n_averaged"] = n_averaged
         self.swa_model.load_state_dict(state_dict)
 

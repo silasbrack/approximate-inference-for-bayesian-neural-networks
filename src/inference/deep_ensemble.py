@@ -15,7 +15,13 @@ class DeepEnsemble(Inference):
         self.num_ensembles = num_ensembles
         self.device = device
         self.ensembles = [
-            NeuralNetwork(model, device) for _ in range(num_ensembles)
+            NeuralNetwork(model, device)
+            .to(device)
+            .to(device)
+            .to(device)
+            .to(device)
+            .to(device)
+            for _ in range(num_ensembles)
         ]
 
     def fit(self, train_loader, val_loader, epochs, lr):
@@ -36,8 +42,9 @@ class DeepEnsemble(Inference):
         return probs
 
     def save(self, path: str):
-        state_dicts = [ensemble.model.state_dict()
-                       for ensemble in self.ensembles]
+        state_dicts = [
+            ensemble.model.state_dict() for ensemble in self.ensembles
+        ]
         with open(os.path.join(path, "state_dicts.pkl"), "wb") as f:
             pickle.dump(state_dicts, f)
 

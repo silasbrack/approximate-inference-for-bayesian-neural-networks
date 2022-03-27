@@ -10,12 +10,14 @@ from src.inference.swag import Swag, SwagModule
 
 
 class MultiSwag(Inference):
-    def __init__(self,
-                 model,
-                 device,
-                 num_ensembles: int,
-                 swa_start_thresh: float,
-                 posterior_samples: int):
+    def __init__(
+        self,
+        model,
+        device,
+        num_ensembles: int,
+        swa_start_thresh: float,
+        posterior_samples: int,
+    ):
         self.name = f"MultiSWAG@{num_ensembles}"
         self.model = model
         self.num_ensembles = num_ensembles
@@ -59,11 +61,12 @@ class MultiSwag(Inference):
             weight_scale = state_dict["scale"]
             swag.weight_loc = weight_loc
             swag.weight_scale = weight_scale
-            swag.swag_model = SwagModule(swag.pyro_model,
-                                         weight_loc,
-                                         weight_scale)
-            swag.predictive = Predictive(swag.swag_model,
-                                         num_samples=self.posterior_samples)
+            swag.swag_model = SwagModule(
+                swag.pyro_model, weight_loc, weight_scale
+            )
+            swag.predictive = Predictive(
+                swag.swag_model, num_samples=self.posterior_samples
+            )
 
     @property
     def num_params(self):

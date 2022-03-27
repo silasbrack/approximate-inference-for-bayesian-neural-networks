@@ -18,4 +18,3 @@ python src/train.py \
     inference.device=cuda \
     inference.num_ensembles=5,10 \
     swa_start_thresh=0.8
-

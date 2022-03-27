@@ -12,18 +12,19 @@ from src.inference.inference import Inference
 def predict(path: str):
     config_path = os.path.join(path, ".hydra", "config.yaml")
     cfg = DictConfig(OmegaConf.load(config_path))
-    cfg.data.data_dir = "/home/silas/Documents/university/approximate" \
-                        "-inference-for-bayesian-neural-networks/data/"
+    cfg.data.data_dir = (
+        "/home/silas/Documents/university/approximate"
+        "-inference-for-bayesian-neural-networks/data/"
+    )
 
     inference: Inference = hydra.utils.instantiate(cfg.inference)
     inference.load(path)
 
     data = hydra.utils.instantiate(cfg.data)
     data.setup()
-    eval_result = evaluate(inference,
-                           data.test_dataloader(),
-                           data.name,
-                           data.n_classes)
+    eval_result = evaluate(
+        inference, data.test_dataloader(), data.name, data.n_classes
+    )
     print_dict(eval_result)
     # ensemble_accuracies = [evaluate(ensemble,
     #                                 data.test_dataloader(),

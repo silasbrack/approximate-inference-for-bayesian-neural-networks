@@ -16,11 +16,13 @@ def evaluate(
     dataset: str,
     num_classes: int,
 ) -> Dict:
-    warnings.filterwarnings("ignore",
-                            message="Metric `AUROC` will save all targets "
-                                    "and predictions in buffer. For large "
-                                    "datasets this may lead to large memory "
-                                    "footprint.")
+    warnings.filterwarnings(
+        "ignore",
+        message="Metric `AUROC` will save all targets "
+        "and predictions in buffer. For large "
+        "datasets this may lead to large memory "
+        "footprint.",
+    )
 
     test_targets = []
     test_probs = []

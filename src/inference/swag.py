@@ -67,14 +67,15 @@ class Swag(Inference):
             key: state_dicts[key].mean(dim=0) for key in state_dicts.keys()
         }
         self.weight_scale = {
-            key: state_dicts[key].std(dim=0) + 1e-4 for key in
-            state_dicts.keys()
+            key: state_dicts[key].std(dim=0) + 1e-4
+            for key in state_dicts.keys()
         }
-        self.swag_model = SwagModule(self.pyro_model,
-                                     self.weight_loc,
-                                     self.weight_scale)
-        self.predictive = Predictive(self.swag_model,
-                                     num_samples=self.posterior_samples)
+        self.swag_model = SwagModule(
+            self.pyro_model, self.weight_loc, self.weight_scale
+        )
+        self.predictive = Predictive(
+            self.swag_model, num_samples=self.posterior_samples
+        )
         return {"Wall clock time": elapsed}
 
     def predict(self, x):
@@ -86,9 +87,7 @@ class Swag(Inference):
     def save(self, path: str):
         with open(os.path.join(path, "state_dicts.pkl"), "wb") as f:
             pickle.dump(
-                {"loc": self.weight_loc,
-                 "scale": self.weight_scale},
-                f
+                {"loc": self.weight_loc, "scale": self.weight_scale}, f
             )
 
     def load(self, path: str):
@@ -96,11 +95,12 @@ class Swag(Inference):
             state_dicts = pickle.load(f)
         self.weight_loc = state_dicts["loc"]
         self.weight_scale = state_dicts["scale"]
-        self.swag_model = SwagModule(self.pyro_model,
-                                     self.weight_loc,
-                                     self.weight_scale)
-        self.predictive = Predictive(self.swag_model,
-                                     num_samples=self.posterior_samples)
+        self.swag_model = SwagModule(
+            self.pyro_model, self.weight_loc, self.weight_scale
+        )
+        self.predictive = Predictive(
+            self.swag_model, num_samples=self.posterior_samples
+        )
 
     @property
     def num_params(self):

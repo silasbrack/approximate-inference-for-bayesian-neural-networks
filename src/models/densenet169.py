@@ -4,13 +4,13 @@ import torch
 from torch.nn import functional as F
 from torchvision.models.densenet import DenseNet
 
-
 # def DenseNet169(num_classes: int = 10):
 #     model = densenet169(pretrained=False, num_classes=10)
 #     model.features.conv0 = nn.Conv2d(
 #         1, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False
 #     )
 #     return model
+
 
 class DenseNet169(DenseNet):
     def __init__(
@@ -21,7 +21,7 @@ class DenseNet169(DenseNet):
         bn_size: int = 4,
         drop_rate: float = 0,
         num_classes: int = 1000,
-        memory_efficient: bool = False
+        memory_efficient: bool = False,
     ) -> None:
         super().__init__(
             growth_rate,
