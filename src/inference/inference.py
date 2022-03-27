@@ -10,6 +10,9 @@ class Inference(ABC):
 
     @abstractmethod
     def predict(self, x: torch.Tensor) -> torch.Tensor:
+        """
+        Returns predicted class probabilities.
+        """
         pass
 
     @abstractmethod

@@ -12,6 +12,7 @@ source venv/bin/activate
 
 python src/models/train_deep_ensemble.py \
     --multirun \
+    ++training.cache_data=true \
     ++hardware.gpus=1 \
     ++training.dataset=mura \
     ++eval.datasets=[mura] \
