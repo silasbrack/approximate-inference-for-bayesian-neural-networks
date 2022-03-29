@@ -20,10 +20,12 @@ class VariationalInference(Inference):
         variational_family,
         posterior_samples,
         num_particles,
+        local_reparameterization,
     ):
         self.name = f"{variational_family.name}"
         self.posterior_samples = posterior_samples
         self.num_particles = num_particles
+        self.local_reparameterization = local_reparameterization
         self.device = device
 
         net = model.to(device)
@@ -38,6 +40,7 @@ class VariationalInference(Inference):
         self.bnn = tyxe.VariationalBNN(net, prior, likelihood, inference)
 
     def fit(self, train_loader, val_loader, epochs, lr):
+        self.bnn.likelihood.dataset_size = len(train_loader.sampler)
         optim = pyro.optim.Adam({"lr": lr})
 
         elbos = np.zeros((epochs, 1))
@@ -62,15 +65,25 @@ class VariationalInference(Inference):
             pbar.update()
 
         t0 = time.perf_counter()
-        # with tyxe.poutine.local_reparameterization():
-        self.bnn.fit(
-            train_loader,
-            optim,
-            num_epochs=epochs,
-            num_particles=self.num_particles,
-            callback=callback,
-            device=self.device,
-        )
+        if self.local_reparameterization:
+            with tyxe.poutine.local_reparameterization():
+                self.bnn.fit(
+                    train_loader,
+                    optim,
+                    num_epochs=epochs,
+                    num_particles=self.num_particles,
+                    callback=callback,
+                    device=self.device,
+                )
+        else:
+            self.bnn.fit(
+                train_loader,
+                optim,
+                num_epochs=epochs,
+                num_particles=self.num_particles,
+                callback=callback,
+                device=self.device,
+            )
         elapsed = time.perf_counter() - t0
 
         return {

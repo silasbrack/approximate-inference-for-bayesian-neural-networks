@@ -4,4 +4,5 @@ defaults:
   - variational_family: mean_field
 num_particles: 32
 posterior_samples: 128
+local_reparameterization: false
 device: cpu
