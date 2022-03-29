@@ -12,10 +12,7 @@ from src.inference.inference import Inference
 def predict(path: str):
     config_path = os.path.join(path, ".hydra", "config.yaml")
     cfg = DictConfig(OmegaConf.load(config_path))
-    cfg.data.data_dir = (
-        "/home/silas/Documents/university/approximate"
-        "-inference-for-bayesian-neural-networks/data/"
-    )
+    cfg.data.data_dir = os.path.join(os.getcwd(), "data/")
 
     inference: Inference = hydra.utils.instantiate(cfg.inference)
     inference.load(path)

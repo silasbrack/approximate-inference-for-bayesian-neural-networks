@@ -16,11 +16,6 @@ class DeepEnsemble(Inference):
         self.device = device
         self.ensembles = [
             NeuralNetwork(model, device)
-            .to(device)
-            .to(device)
-            .to(device)
-            .to(device)
-            .to(device)
             for _ in range(num_ensembles)
         ]
 
