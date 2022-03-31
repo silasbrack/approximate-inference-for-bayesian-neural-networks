@@ -15,8 +15,7 @@ class DeepEnsemble(Inference):
         self.num_ensembles = num_ensembles
         self.device = device
         self.ensembles = [
-            NeuralNetwork(model, device)
-            for _ in range(num_ensembles)
+            NeuralNetwork(model, device) for _ in range(num_ensembles)
         ]
 
     def fit(self, train_loader, val_loader, epochs, lr):
