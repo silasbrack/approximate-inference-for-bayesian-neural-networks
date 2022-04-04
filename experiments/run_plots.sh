@@ -1,8 +1,8 @@
+source venv/bin/activate
 
-SCRIPT_DIR=src/visualization/experiments/
-SAVE_TO=reports/figures/
+SCRIPT_DIR="visualization/experiments/*"
 
-for SCRIPT in "$SCRIPT_DIR"/*
+for SCRIPT in $SCRIPT_DIR
 do
-    python "$SCRIPT" "$SAVE_TO"
+    python "$SCRIPT"
 done

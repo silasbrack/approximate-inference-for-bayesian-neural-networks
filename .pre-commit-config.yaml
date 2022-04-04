@@ -9,12 +9,12 @@ repos:
       - id: debug-statements
       - id: detect-private-key
 
-  # python code formatting
-  - repo: https://github.com/psf/black
-    rev: 22.1.0
-    hooks:
-      - id: black
-        args: ["src/"]
+  #  # python code formatting
+  #  - repo: https://github.com/psf/black
+  #    rev: 22.1.0
+  #    hooks:
+  #      - id: black
+  #        args: ["src/"]
 
   # python import sorting
   - repo: https://github.com/PyCQA/isort
