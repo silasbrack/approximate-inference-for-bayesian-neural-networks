@@ -39,6 +39,7 @@ def run(cfg):
             1,
             cfg.training.lr,
         )
+
         inference.bnn.update_prior(
             tyxe.priors.DictPrior(
                 inference.bnn.net_guide.get_detached_distributions(
@@ -47,6 +48,10 @@ def run(cfg):
             )
         )
 
+        x, y = next(iter(train_loader))
+        probs = inference.predict(x)
+        log_probs = probs.log()
+        entropy = - torch.mul(probs, log_probs).sum(dim=-1)
         eval_result = evaluate(
             inference, data.test_dataloader(), data.name, data.n_classes
         )
