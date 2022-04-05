@@ -1,7 +1,7 @@
 import torch.nn as nn
 
 
-def ConvNet(n_classes: int = 10):
+def ConvNet(num_classes: int = 10):
     return nn.Sequential(
         nn.Conv2d(1, 6, 5),
         nn.ReLU(),
@@ -14,6 +14,6 @@ def ConvNet(n_classes: int = 10):
         nn.ReLU(),
         nn.Linear(120, 84),
         nn.ReLU(),
-        nn.Linear(84, n_classes),
+        nn.Linear(84, num_classes),
         nn.LogSoftmax(-1),
     )
