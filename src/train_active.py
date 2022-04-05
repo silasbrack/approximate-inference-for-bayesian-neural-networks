@@ -46,9 +46,9 @@ def evaluate_information_gain(dataloader, inference):
         predictive_entropy = -torch.mul(probs, log_probs).sum(dim=-1)
         probs = predictive_probs + 1e-45
         log_probs = probs.log()
-        # Sum over posterior predictive samples (dim 0) and classes (dim -1)
+        # Mean over posterior predictive samples (dim 0) and classes (dim -1)
         expected_likelihood_entropy = -torch.mul(probs, log_probs)\
-            .sum(dim=0).sum(dim=-1)
+            .mean(dim=0).sum(dim=-1)
         entropy = predictive_entropy - expected_likelihood_entropy
         entropies.append(entropy)
     entropies = torch.cat(entropies)
