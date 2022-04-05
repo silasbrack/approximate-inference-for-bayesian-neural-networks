@@ -59,7 +59,6 @@ def run(cfg):
 
     inference = hydra.utils.instantiate(cfg.inference)
 
-    epochs = 5
     initial_training_samples = 1000
     active_training_samples = 20
 
@@ -76,7 +75,7 @@ def run(cfg):
                                                      initial_training_samples)
         n_sampled = []
         accuracies = []
-        for _ in range(epochs):
+        for _ in range(cfg.training.epochs):
             currently_training_loader = DataLoader(
                 Subset(train_set, sampled_indices), batch_size=8192)
 
