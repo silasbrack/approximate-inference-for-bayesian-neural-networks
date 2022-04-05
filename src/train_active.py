@@ -2,6 +2,7 @@ import random
 from math import ceil
 
 import hydra
+import pyro
 import torch
 import tyxe
 from torch.utils.data import DataLoader, Subset, random_split
@@ -86,6 +87,7 @@ def run(cfg):
         (max_acquisition(evaluate_entropy), "Max entropy"),
         (max_acquisition(evaluate_information_gain), "BALD"),
     ]:
+        pyro.get_param_store().clear()
         inference = hydra.utils.instantiate(cfg.inference)
 
         train_loader = data.train_dataloader()
