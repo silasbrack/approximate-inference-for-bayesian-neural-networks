@@ -2,7 +2,6 @@ from typing import List
 
 import numpy as np
 import pandas as pd
-import seaborn as sns
 from matplotlib import pyplot as plt
 
 from visualization.helper_functions import (FIGURE_FOLDER, TYPE_DICT,
@@ -80,25 +79,16 @@ def plot_calibration_curves(
             ylim=(0, 1),
         )
         if i == 0:
-            ax_curve.set(
-                ylabel="True probability",
-            )
+            ax_curve.set(ylabel="True probability")
             ax_hist.set(
                 xlabel="Predicted probability",
                 ylabel="Frequency",
             )
         if i == len(eval_datasets) - 1:
-            ax_hist.legend(
-                *ax_curve.get_legend_handles_labels(),
-                frameon=False,
-                fontsize="small",
-            )
-            ax_hist.set(
-                xlabel="Predicted probability",
-            )
+            ax_hist.legend(*ax_curve.get_legend_handles_labels())
+            ax_hist.set(xlabel="Predicted probability")
 
     fig.tight_layout()
-    sns.despine(fig)
 
     fig.savefig(f"{FIGURE_FOLDER}/{file_name}")
 

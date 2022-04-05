@@ -9,6 +9,19 @@ from src.evaluate import evaluate, print_dict
 from src.inference.inference import Inference
 
 
+def load_model(path: str):
+    config_path = os.path.join(path, ".hydra", "config.yaml")
+    cfg = DictConfig(OmegaConf.load(config_path))
+    cfg.data.data_dir = os.path.join(os.getcwd(), "data/")
+
+    inference: Inference = hydra.utils.instantiate(cfg.inference)
+    inference.load(path)
+
+    data = hydra.utils.instantiate(cfg.data)
+    data.setup()
+    return inference, data
+
+
 def predict(path: str):
     config_path = os.path.join(path, ".hydra", "config.yaml")
     cfg = DictConfig(OmegaConf.load(config_path))
@@ -23,12 +36,6 @@ def predict(path: str):
         inference, data.test_dataloader(), data.name, data.n_classes
     )
     print_dict(eval_result)
-    # ensemble_accuracies = [evaluate(ensemble,
-    #                                 data.test_dataloader(),
-    #                                 data.name,
-    #                                 data.n_classes)["Accuracy"]
-    #                        for ensemble in model.ensembles]
-    # logging.info(ensemble_accuracies)
 
 
 if __name__ == "__main__":

@@ -5,7 +5,13 @@ import seaborn as sns
 sns.set_theme(
     context="talk",
     style="ticks",
-    rc={"font.sans-serif": ["Arial", "Fira Sans Condensed"]},
+    rc={
+        "font.sans-serif": ["Arial", "Fira Sans Condensed"],
+        "axes.spines.top": False,
+        "axes.spines.right": False,
+        "legend.frameon": False,
+        "legend.fontsize": "small",
+    },
 )
 
 
