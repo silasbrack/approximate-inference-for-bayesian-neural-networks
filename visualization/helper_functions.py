@@ -1,15 +1,32 @@
-# from pathlib import Path
-
 import matplotlib.pyplot as plt
 import numpy as np
+import seaborn as sns
 
-# plt.rcParams["font.sans-serif"] = ["Fira Sans Condensed"]
+sns.set_theme(
+    context="talk",
+    style="ticks",
+    rc={"font.sans-serif": ["Arial", "Fira Sans Condensed"]},
+)
 
-# FIGURE_PATH = Path("reports/figures/")
 
-# CMAP = plt.get_cmap("tab10")
-# COLOR_SIN = CMAP(0)
-# COLOR_COS = CMAP(1)
+RESULTS_FOLDER = "./results/"
+FIGURE_FOLDER = "./reports/figures"
+TABLE_FOLDER = "./reports/tables"
+
+TYPE_DICT = {
+    "radial": {"color": "#4E79A7", "style": "solid"},
+    "radial_200": {"color": "#4E79A7", "style": "dotted"},
+    "radial_200_lowlr": {"color": "#4E79A7", "style": "dashed"},
+    "meanfield": {"color": "#F28E2B", "style": "dotted"},
+    "laplace": {"color": "#59A14F", "style": "dashed"},
+    "lowrank": {"color": "#B6992D", "style": "dashdot"},
+    "ml": {"color": "#499894", "style": "solid"},
+    "map": {"color": "#E15759", "style": "solid"},
+    "ensemble_5": {"color": "#BAB0AC", "style": "solid"},
+    "ensemble_10": {"color": "#79706E", "style": "solid"},
+    "multiswag_5": {"color": "#D37295", "style": "solid"},
+    "multiswag_10": {"color": "#FABFD2", "style": "solid"},
+}
 
 
 def improve_legend(ax=None, *args, **kwargs):
