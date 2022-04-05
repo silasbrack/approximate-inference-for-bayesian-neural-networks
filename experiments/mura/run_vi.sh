@@ -17,4 +17,5 @@ python src/train.py \
     training.epochs=500 \
     inference=vi \
     inference/variational_family=radial,mean_field,low_rank \
+    inference.model.num_classes=7 \
     inference.device=cuda
