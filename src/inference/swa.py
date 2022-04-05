@@ -13,9 +13,9 @@ from src.inference.inference import Inference
 class Swa(Inference):
     def __init__(self, model, device, swa_start_thresh):
         self.name = "SWA"
-        self.model = model
+        self.model = model.to(device)
         self.device = device
-        self.swa_model = AveragedModel(model)
+        self.swa_model = AveragedModel(model).to(device)
         self.swa_start_thresh = swa_start_thresh
         self.state_dicts = None
 

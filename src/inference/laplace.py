@@ -39,6 +39,7 @@ class Laplace(Inference):
         return {"Wall clock time": elapsed}
 
     def predict(self, x: torch.Tensor):
+        x = x.to(self.device)
         return self.la(x)
 
     def save(self, path: str):

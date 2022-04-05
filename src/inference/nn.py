@@ -10,7 +10,7 @@ from src.inference.inference import Inference
 class NeuralNetwork(Inference):
     def __init__(self, model, device):
         self.name = "MAP"
-        self.model = model
+        self.model = model.to(device)
         self.device = device
 
     def fit(self, train_loader, val_loader, epochs, lr):
