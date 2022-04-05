@@ -11,7 +11,7 @@ class Inference(ABC):
         pass
 
     @abstractmethod
-    def predict(self, x: torch.Tensor) -> torch.Tensor:
+    def predict(self, x: torch.Tensor, aggregate: bool = True) -> torch.Tensor:
         """Returns predicted class probabilities."""
         pass
 

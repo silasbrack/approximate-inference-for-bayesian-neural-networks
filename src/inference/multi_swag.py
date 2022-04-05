@@ -35,15 +35,15 @@ class MultiSwag(Inference):
         elapsed = time.perf_counter() - t0
         return {"Wall clock time": elapsed}
 
-    def predict_ensembles(self, x):
+    def predict_ensembles(self, x, aggregate):
         return torch.stack(
-            [ensemble.predict(x) for ensemble in self.ensembles]
+            [ensemble.predict(x, aggregate) for ensemble in self.ensembles]
         )
 
-    def predict(self, x):
-        ensemble_probs = self.predict_ensembles(x)
-        probs = torch.mean(ensemble_probs, dim=0)
-        return probs
+    def predict(self, x, aggregate=True):
+        probs = self.predict_ensembles(x, aggregate)
+        ensemble_probs = torch.mean(probs, dim=0)
+        return ensemble_probs
 
     def save(self, path: str):
         state_dicts = [

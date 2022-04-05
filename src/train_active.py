@@ -37,16 +37,36 @@ def evaluate_entropy(dataloader, inference):
     return entropies
 
 
-def entropy_acquisition(all_indices, k, inference, train_set, *args, **kwargs):
-    remaining_dataloader = DataLoader(Subset(train_set, all_indices),
-                                      batch_size=8192, shuffle=False)
-    entropies = evaluate_entropy(remaining_dataloader, inference)
-    assert len(all_indices) == len(entropies)
-    top_entropy_indices = torch.topk(entropies, k=k).indices
-    sampled_indices = []
-    for idx in top_entropy_indices.sort(descending=True).values:
-        sampled_indices.append(all_indices.pop(idx))
-    return sampled_indices
+def evaluate_information_gain(dataloader, inference):
+    entropies = []
+    for x, y in iter(dataloader):
+        predictive_probs = inference.predict(x, aggregate=False)
+        probs = predictive_probs.sum(dim=0)
+        log_probs = probs.log()
+        predictive_entropy = -torch.mul(probs, log_probs).sum(dim=-1)
+        probs = predictive_probs + 1e-45
+        log_probs = probs.log()
+        # Sum over posterior predictive samples (dim 0) and classes (dim -1)
+        expected_likelihood_entropy = -torch.mul(probs, log_probs)\
+            .sum(dim=0).sum(dim=-1)
+        entropy = predictive_entropy - expected_likelihood_entropy
+        entropies.append(entropy)
+    entropies = torch.cat(entropies)
+    return entropies
+
+
+def max_acquisition(acquisition_fn):
+    def fn(all_indices, k, inference, train_set, *args, **kwargs):
+        remaining_dataloader = DataLoader(Subset(train_set, all_indices),
+                                          batch_size=8192, shuffle=False)
+        entropies = acquisition_fn(remaining_dataloader, inference)
+        assert len(all_indices) == len(entropies)
+        top_entropy_indices = torch.topk(entropies, k=k).indices
+        sampled_indices = []
+        for idx in top_entropy_indices.sort(descending=True).values:
+            sampled_indices.append(all_indices.pop(idx))
+        return sampled_indices
+    return fn
 
 
 @hydra.main(config_path="../conf", config_name="config")
@@ -57,16 +77,17 @@ def run(cfg):
     data = hydra.utils.instantiate(cfg.data)
     data.setup()
 
-    inference = hydra.utils.instantiate(cfg.inference)
-
     initial_training_samples = 1000
     active_training_samples = 20
 
     results = {}
     for acquisition_function, name in [
-        (sample_without_replacement, "random"),
-        (entropy_acquisition, "entropy")
+        (sample_without_replacement, "Random"),
+        (max_acquisition(evaluate_entropy), "Max entropy"),
+        (max_acquisition(evaluate_information_gain), "BALD"),
     ]:
+        inference = hydra.utils.instantiate(cfg.inference)
+
         train_loader = data.train_dataloader()
         train_set = train_loader.dataset.dataset
         all_indices = train_loader.dataset.indices

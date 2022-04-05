@@ -27,7 +27,8 @@ class NeuralNetwork(Inference):
         elapsed = time.perf_counter() - t0
         return {"Wall clock time": elapsed}
 
-    def predict(self, x):
+    # TODO: How to implement aggregate
+    def predict(self, x, aggregate=True):
         x = x.to(self.device)
         logits = self.model(x)
         return F.softmax(logits, dim=-1)

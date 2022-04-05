@@ -93,9 +93,11 @@ class VariationalInference(Inference):
             "Validation log-likelihood": val_ll,
         }
 
-    def predict(self, x):
+    def predict(self, x, aggregate=True):
         x = x.to(self.device)
-        logits = self.bnn.predict(x, num_predictions=self.posterior_samples)
+        logits = self.bnn.predict(x,
+                                  num_predictions=self.posterior_samples,
+                                  aggregate=aggregate)
         return softmax(logits, dim=-1)
 
     def save(self, path: str) -> None:

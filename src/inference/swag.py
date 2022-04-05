@@ -78,11 +78,13 @@ class Swag(Inference):
         )
         return {"Wall clock time": elapsed}
 
-    def predict(self, x):
+    def predict(self, x, aggregate=True):
         x = x.to(self.device)
         logits = self.predictive(x)["logits"]
         probs = softmax(logits, dim=-1)
-        return probs.mean(dim=0).squeeze()
+        if aggregate:
+            probs = probs.mean(dim=0)
+        return probs.squeeze()
 
     def save(self, path: str):
         with open(os.path.join(path, "state_dicts.pkl"), "wb") as f:

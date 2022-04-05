@@ -41,7 +41,8 @@ class Swa(Inference):
         }
         return {"Wall clock time": elapsed}
 
-    def predict(self, x):
+    # TODO: How to implement aggregate
+    def predict(self, x, aggregate=True):
         x = x.to(self.device)
         logits = self.swa_model(x)
         return softmax(logits, dim=-1)

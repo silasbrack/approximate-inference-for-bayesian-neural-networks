@@ -30,10 +30,11 @@ class DeepEnsemble(Inference):
             [ensemble.predict(x) for ensemble in self.ensembles]
         )
 
-    def predict(self, x):
-        ensemble_probs = self.predict_ensembles(x)
-        probs = torch.mean(ensemble_probs, dim=0)
-        return probs
+    # TODO: How to implement aggregate
+    def predict(self, x, aggregate=True):
+        probs = self.predict_ensembles(x)
+        ensemble_probs = torch.mean(probs, dim=0)
+        return ensemble_probs
 
     def save(self, path: str):
         state_dicts = [
