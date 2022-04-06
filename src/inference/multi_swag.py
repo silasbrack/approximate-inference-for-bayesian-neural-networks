@@ -9,6 +9,7 @@ from src.inference.inference import Inference
 from src.inference.swag import Swag, SwagModule
 
 
+# TODO: Implement efficient SWAG calculations from Algorithm 1 in Maddox 2019
 class MultiSwag(Inference):
     def __init__(
         self,

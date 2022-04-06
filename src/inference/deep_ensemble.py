@@ -1,5 +1,4 @@
 import os
-import pickle
 import time
 
 import torch
@@ -40,12 +39,11 @@ class DeepEnsemble(Inference):
         state_dicts = [
             ensemble.model.state_dict() for ensemble in self.ensembles
         ]
-        with open(os.path.join(path, "state_dicts.pkl"), "wb") as f:
-            pickle.dump(state_dicts, f)
+        torch.save(state_dicts, os.path.join(path, "state_dicts.pt"))
 
     def load(self, path: str):
-        with open(os.path.join(path, "state_dicts.pkl"), "rb") as f:
-            state_dicts = pickle.load(f)
+        state_dicts = torch.load(os.path.join(path, "state_dicts.pt"),
+                                 map_location=self.device)
         for ensemble, state_dict in zip(self.ensembles, state_dicts):
             ensemble.model.load_state_dict(state_dict)
 
