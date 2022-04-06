@@ -126,8 +126,9 @@ def run(cfg):
                            data.test_dataloader(),
                            data.name,
                            data.n_classes)["Accuracy"]
+            print(acc)
             accuracies.append(acc)
-            results[name] = {"accuracy": accuracies, "samples": n_sampled}
+        results[name] = {"accuracy": accuracies, "samples": n_sampled}
 
     print(results)
     # inference.save(cfg.training.model_path)

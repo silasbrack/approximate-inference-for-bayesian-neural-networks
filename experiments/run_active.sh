@@ -13,6 +13,8 @@ source venv/bin/activate
 python src/train_active.py \
     --multirun \
     data=mnist \
-    data.batch_size=8192 \
     training.epochs=100 \
+    data.batch_size=8192 \
+    inference=vi \
+    inference/variational_family=mean_field,radial \
     inference.device=cuda
