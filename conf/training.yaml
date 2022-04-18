@@ -4,7 +4,7 @@ training:
   seed: null
   logging: INFO
   model_path: .
-  # device: cpu
-#  optimizer:
-#    _target_: pyro.optim.Adam
-#    optim_args: {"lr": 0.01}
+  # Active learning
+  active_queries: 50
+  initial_pool: 300
+  query_size: 100

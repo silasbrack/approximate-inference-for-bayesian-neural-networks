@@ -14,7 +14,14 @@ python src/train_active.py \
     --multirun \
     data=mnist \
     training.epochs=100 \
-    data.batch_size=8192 \
-    inference=vi \
-    inference/variational_family=mean_field,radial \
+    inference=nn \
     inference.device=cuda
+
+#python src/train_active.py \
+#    --multirun \
+#    data=mnist \
+#    training.epochs=100 \
+#    data.batch_size=8192 \
+#    inference=vi \
+#    inference/variational_family=mean_field,radial \
+#    inference.device=cuda

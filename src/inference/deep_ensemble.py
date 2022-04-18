@@ -14,7 +14,8 @@ class DeepEnsemble(Inference):
         self.num_ensembles = num_ensembles
         self.device = device
         self.ensembles = [
-            NeuralNetwork(model, device) for _ in range(num_ensembles)
+            NeuralNetwork(model, device, prior=False)
+            for _ in range(num_ensembles)
         ]
 
     def fit(self, train_loader, val_loader, epochs, lr):
@@ -31,6 +32,8 @@ class DeepEnsemble(Inference):
 
     # TODO: How to implement aggregate
     def predict(self, x, aggregate=True):
+        if not aggregate:
+            raise NotImplementedError
         probs = self.predict_ensembles(x)
         ensemble_probs = torch.mean(probs, dim=0)
         return ensemble_probs

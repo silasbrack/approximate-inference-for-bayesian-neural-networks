@@ -38,10 +38,12 @@ class VariationalInference(Inference):
             ),
         )
         self.bnn = tyxe.VariationalBNN(net, prior, likelihood, inference)
+        self.optim = None
 
     def fit(self, train_loader, val_loader, epochs, lr):
         self.bnn.likelihood.dataset_size = len(train_loader.sampler)
-        optim = pyro.optim.Adam({"lr": lr})
+        if self.optim is None:
+            self.optim = pyro.optim.Adam({"lr": lr})
 
         elbos = np.zeros((epochs, 1))
         val_err = np.zeros((epochs, 1))
@@ -69,7 +71,7 @@ class VariationalInference(Inference):
             with tyxe.poutine.local_reparameterization():
                 self.bnn.fit(
                     train_loader,
-                    optim,
+                    self.optim,
                     num_epochs=epochs,
                     num_particles=self.num_particles,
                     callback=callback,
@@ -78,7 +80,7 @@ class VariationalInference(Inference):
         else:
             self.bnn.fit(
                 train_loader,
-                optim,
+                self.optim,
                 num_epochs=epochs,
                 num_particles=self.num_particles,
                 callback=callback,

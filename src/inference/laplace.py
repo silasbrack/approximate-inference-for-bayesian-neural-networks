@@ -13,13 +13,20 @@ from src.inference.nn import NeuralNetwork
 # TODO: Get Laplace predict.py working correctly with all weights.
 # TODO: Get Laplace saving last_layer working.
 class Laplace(Inference):
-    def __init__(self, model, device, posterior_samples: int, subset: str,
-                 hessian: str):
+    def __init__(
+        self,
+        model,
+        device,
+        prior,
+        posterior_samples: int,
+        subset: str,
+        hessian: str,
+    ):
         self.name = "Laplace"
         # The Laplace library has a likelihood which takes logits as inputs and
         # can't handle Softmax or LogSoftmax layers.
         self.model = torch.nn.Sequential(*list(model.children())[:-1])
-        self.nn = NeuralNetwork(model, device)
+        self.nn = NeuralNetwork(model, device, prior)
         self.device = device
         self.posterior_samples = posterior_samples
         self.la = laplace.Laplace(
@@ -45,8 +52,9 @@ class Laplace(Inference):
         if aggregate:
             return self.la(x, n_samples=self.posterior_samples)
         else:
-            return self.la.predictive_samples(x,
-                                              n_samples=self.posterior_samples)
+            return self.la.predictive_samples(
+                x, n_samples=self.posterior_samples
+            )
 
     def save(self, path: str):
         with open(os.path.join(path, "la.pkl"), "wb") as f:

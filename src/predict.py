@@ -9,10 +9,11 @@ from src.evaluate import evaluate, print_dict
 from src.inference.inference import Inference
 
 
-def load_model(path: str):
+def load_model(path: str, device="cpu"):
     config_path = os.path.join(path, ".hydra", "config.yaml")
     cfg = DictConfig(OmegaConf.load(config_path))
     cfg.data.data_dir = os.path.join(os.getcwd(), "data/")
+    cfg.inference.device = device
 
     inference: Inference = hydra.utils.instantiate(cfg.inference)
     inference.load(path)

@@ -8,29 +8,46 @@ from src.inference.inference import Inference
 
 
 class NeuralNetwork(Inference):
-    def __init__(self, model, device):
-        self.name = "MAP"
+    def __init__(self, model, device, prior):
+        if prior:
+            self.name = "MAP"
+            self.weight_decay = 1.
+        else:
+            self.name = "ML"
+            self.weight_decay = 0.
         self.model = model.to(device)
         self.device = device
+        self.optim = None
 
     def fit(self, train_loader, val_loader, epochs, lr):
-        optim = torch.optim.Adam(self.model.parameters(), lr)
+        if self.optim is None:
+            self.optim = torch.optim.Adam(self.model.parameters(),
+                                          lr,
+                                          weight_decay=self.weight_decay)
+        self.model.train()
         t0 = time.perf_counter()
         for epoch in range(epochs):
             for x, y in train_loader:
                 x, y = x.to(self.device), y.to(self.device)
-                optim.zero_grad()
+                self.optim.zero_grad()
                 logits = self.model(x)
                 loss = F.nll_loss(logits, y)
                 loss.backward()
-                optim.step()
+                self.optim.step()
         elapsed = time.perf_counter() - t0
         return {"Wall clock time": elapsed}
 
     # TODO: How to implement aggregate
     def predict(self, x, aggregate=True):
         x = x.to(self.device)
-        logits = self.model(x)
+        if aggregate:
+            self.model.eval()
+            logits = self.model(x)
+        else:
+            raise NotImplementedError
+            # self.model.train()
+            # logits = torch.stack([self.model(x)
+            #                       for _ in range(self.posterior_samples)])
         return F.softmax(logits, dim=-1)
 
     def save(self, path: str) -> None:

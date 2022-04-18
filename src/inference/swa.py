@@ -18,9 +18,11 @@ class Swa(Inference):
         self.swa_model = AveragedModel(model).to(device)
         self.swa_start_thresh = swa_start_thresh
         self.state_dicts = None
+        self.optim = None
 
     def fit(self, train_loader, val_loader, epochs, lr):
-        optimizer = torch.optim.Adam(self.model.parameters(), lr=lr)
+        if self.optim is None:
+            self.optim = torch.optim.Adam(self.model.parameters(), lr)
         loss_fn = nll_loss
         swa_start = int(self.swa_start_thresh * epochs)
 
@@ -28,9 +30,9 @@ class Swa(Inference):
         t0 = time.perf_counter()
         for epoch in range(epochs):
             for image, target in train_loader:
-                optimizer.zero_grad()
+                self.optim.zero_grad()
                 loss_fn(self.model(image), target).backward()
-                optimizer.step()
+                self.optim.step()
             if epoch >= swa_start:
                 self.swa_model.update_parameters(self.model)
                 state_dicts.append(copy.deepcopy(self.model.state_dict()))
@@ -43,6 +45,8 @@ class Swa(Inference):
 
     # TODO: How to implement aggregate
     def predict(self, x, aggregate=True):
+        if not aggregate:
+            raise NotImplementedError
         x = x.to(self.device)
         logits = self.swa_model(x)
         return softmax(logits, dim=-1)

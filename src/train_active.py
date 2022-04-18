@@ -1,26 +1,15 @@
 import pickle
 import random
-from math import ceil
 
 import hydra
 import pyro
 import torch
 import tyxe
-from torch.utils.data import DataLoader, Subset, random_split
+from torch.utils.data import DataLoader, Subset
 
 from src.evaluate import evaluate
-
-
-def split_dataloader(loader, num_loaders):
-    dataset = loader.dataset
-    batch_size = loader.batch_size
-
-    subset_size = ceil(len(dataset) / num_loaders)
-    subset_sizes = [subset_size] * (num_loaders - 1)
-    subset_sizes.append(len(dataset) - sum(subset_sizes))
-
-    subsets = random_split(dataset, subset_sizes)
-    return [DataLoader(subset, batch_size, shuffle=True) for subset in subsets]
+from src.inference import VariationalInference
+from visualization.experiments.plot_active_cuve import plot_ensemble_accuracies
 
 
 def sample_without_replacement(arr, n, *args, **kwargs):
@@ -30,9 +19,9 @@ def sample_without_replacement(arr, n, *args, **kwargs):
 
 def evaluate_entropy(dataloader, inference):
     entropies = []
-    for x, y in iter(dataloader):
+    for x, y in dataloader:
         probs = inference.predict(x)
-        log_probs = probs.log()
+        log_probs = probs.log() + 1e-10
         entropy = -torch.mul(probs, log_probs).sum(dim=-1)
         entropies.append(entropy)
     entropies = torch.cat(entropies)
@@ -44,10 +33,10 @@ def evaluate_information_gain(dataloader, inference):
     for x, y in iter(dataloader):
         predictive_probs = inference.predict(x, aggregate=False)
         probs = predictive_probs.sum(dim=0)
-        log_probs = probs.log()
+        log_probs = probs.log() + 1e-10
         predictive_entropy = -torch.mul(probs, log_probs).sum(dim=-1)
-        probs = predictive_probs + 1e-45
-        log_probs = probs.log()
+        probs = predictive_probs
+        log_probs = probs.log() + 1e-10
         # Mean over posterior predictive samples (dim 0) and classes (dim -1)
         expected_likelihood_entropy = -torch.mul(probs, log_probs)\
             .mean(dim=0).sum(dim=-1)
@@ -59,15 +48,16 @@ def evaluate_information_gain(dataloader, inference):
 
 def max_acquisition(acquisition_fn):
     def fn(all_indices, k, inference, train_set, *args, **kwargs):
-        remaining_dataloader = DataLoader(Subset(train_set, all_indices),
-                                          batch_size=8192, shuffle=False)
-        entropies = acquisition_fn(remaining_dataloader, inference)
-        assert len(all_indices) == len(entropies)
-        top_entropy_indices = torch.topk(entropies, k=k).indices
-        sampled_indices = []
-        for idx in top_entropy_indices.sort(descending=True).values:
-            sampled_indices.append(all_indices.pop(idx))
-        return sampled_indices
+        with torch.no_grad():
+            remaining_dataloader = DataLoader(Subset(train_set, all_indices),
+                                              batch_size=8192, shuffle=False)
+            entropies = acquisition_fn(remaining_dataloader, inference)
+            assert len(all_indices) == len(entropies)
+            top_entropy_indices = torch.topk(entropies, k=k).indices
+            sampled_indices = []
+            for idx in top_entropy_indices.sort(descending=True).values:
+                sampled_indices.append(all_indices.pop(idx))
+            return sampled_indices
     return fn
 
 
@@ -79,49 +69,60 @@ def run(cfg):
     data = hydra.utils.instantiate(cfg.data)
     data.setup()
 
-    initial_training_samples = 1000
-    active_training_samples = 20
-
+    initial_pool = cfg.training.initial_pool
+    query_size = cfg.training.query_size
     results = {}
     for acquisition_function, name in [
         (sample_without_replacement, "Random"),
-        (max_acquisition(evaluate_entropy), "Max entropy"),
-        (max_acquisition(evaluate_information_gain), "BALD"),
+        # (max_acquisition(evaluate_entropy), "Max entropy"),
+        # (max_acquisition(evaluate_information_gain), "BALD"),
     ]:
         pyro.get_param_store().clear()
         inference = hydra.utils.instantiate(cfg.inference)
 
         train_loader = data.train_dataloader()
         train_set = train_loader.dataset.dataset
-        all_indices = train_loader.dataset.indices
+        all_indices = train_loader.dataset.indices.copy()
 
-        sampled_indices = sample_without_replacement(all_indices,
-                                                     initial_training_samples)
+        sampled_indices = torch.tensor(
+            sample_without_replacement(all_indices, initial_pool)
+        )
         n_sampled = []
         accuracies = []
-        for _ in range(cfg.training.epochs):
+        for _ in range(cfg.training.active_queries):
             currently_training_loader = DataLoader(
-                Subset(train_set, sampled_indices), batch_size=8192)
+                Subset(train_set, sampled_indices),
+                batch_size=cfg.data.batch_size
+            )
 
+            # inference = hydra.utils.instantiate(cfg.inference)
             inference.fit(
                 currently_training_loader,
                 data.val_dataloader(),
-                1,
-                cfg.training.lr,
+                epochs=cfg.training.epochs,
+                lr=cfg.training.lr,
             )
-            inference.bnn.update_prior(
-                tyxe.priors.DictPrior(
-                    inference.bnn.net_guide.get_detached_distributions(
-                        tyxe.util.pyro_sample_sites(inference.bnn.net)
+            if inference is VariationalInference:
+                inference.bnn.update_prior(
+                    tyxe.priors.DictPrior(
+                        inference.bnn.net_guide.get_detached_distributions(
+                            tyxe.util.pyro_sample_sites(inference.bnn.net)
+                        )
                     )
                 )
-            )
+            # new_indices = torch.tensor(acquisition_function(all_indices,
+            #                                                 query_size,
+            #                                                 inference,
+            #                                                 train_set))
+            # n_sampled.append(len(new_indices))
+            # sampled_indices = torch.cat((sampled_indices, new_indices))
             n_sampled.append(len(sampled_indices))
-
-            sampled_indices = acquisition_function(all_indices,
-                                                   active_training_samples,
-                                                   inference,
-                                                   train_set)
+            assert 55000 == (len(all_indices) + sum(n_sampled))
+            sampled_indices = torch.tensor(
+                acquisition_function(all_indices,
+                                     query_size,
+                                     inference,
+                                     train_set))
 
             acc = evaluate(inference,
                            data.test_dataloader(),
@@ -130,7 +131,7 @@ def run(cfg):
             accuracies.append(acc)
         results[name] = {"accuracy": accuracies, "samples": n_sampled}
 
-    with open("results.pkl", "wb") as f:
+    with open(f"{cfg.cwd}/results/active/mnist/results.pkl", "wb") as f:
         pickle.dump(results, f)
     print(results)
     # inference.save(cfg.training.model_path)
@@ -138,3 +139,4 @@ def run(cfg):
 
 if __name__ == "__main__":
     run()
+    plot_ensemble_accuracies("results/active/mnist/results.pkl", "active.pdf")

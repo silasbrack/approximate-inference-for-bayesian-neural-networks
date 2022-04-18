@@ -1,4 +1,6 @@
 defaults:
-  - inference: vi
+  - _self_
+  - inference: nn
   - data: mnist
   - training
+cwd: ${hydra:runtime.cwd}
