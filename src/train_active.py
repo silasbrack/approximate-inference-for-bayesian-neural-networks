@@ -81,9 +81,9 @@ def run(cfg):
         (sample_without_replacement, "Random"),
         (max_acquisition(evaluate_entropy), "Max entropy")
     ]
-    if acquisition_funcs not in ["src.inference.DeepEnsemble",
-                                 "src.inference.Swa",
-                                 "src.inference.NeuralNetwork"]:
+    if cfg.inference["_target_"] not in ["src.inference.DeepEnsemble",
+                                         "src.inference.Swa",
+                                         "src.inference.NeuralNetwork"]:
         acquisition_funcs.append((max_acquisition(evaluate_information_gain),
                                   "BALD"))
 
