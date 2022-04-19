@@ -13,6 +13,9 @@ source venv/bin/activate
 python src/train_active.py \
     --multirun \
     data=mnist \
-    training.epochs=100 \
+    training.epochs=50 \
+    training.active_queries=100 \
+    training.initial_pool=50 \
+    training.query_size=10 \
     inference=nn \
     inference.device=cuda

@@ -74,11 +74,11 @@ def run(cfg):
     results = {}
     for acquisition_function, name in [
         (sample_without_replacement, "Random"),
-        # (max_acquisition(evaluate_entropy), "Max entropy"),
+        (max_acquisition(evaluate_entropy), "Max entropy"),
         # (max_acquisition(evaluate_information_gain), "BALD"),
     ]:
         pyro.get_param_store().clear()
-        inference = hydra.utils.instantiate(cfg.inference)
+        # inference = hydra.utils.instantiate(cfg.inference)
 
         train_loader = data.train_dataloader()
         train_set = train_loader.dataset.dataset
@@ -95,7 +95,7 @@ def run(cfg):
                 batch_size=cfg.data.batch_size
             )
 
-            # inference = hydra.utils.instantiate(cfg.inference)
+            inference = hydra.utils.instantiate(cfg.inference)
             inference.fit(
                 currently_training_loader,
                 data.val_dataloader(),
@@ -110,19 +110,19 @@ def run(cfg):
                         )
                     )
                 )
-            # new_indices = torch.tensor(acquisition_function(all_indices,
-            #                                                 query_size,
-            #                                                 inference,
-            #                                                 train_set))
-            # n_sampled.append(len(new_indices))
-            # sampled_indices = torch.cat((sampled_indices, new_indices))
-            n_sampled.append(len(sampled_indices))
-            assert 55000 == (len(all_indices) + sum(n_sampled))
-            sampled_indices = torch.tensor(
-                acquisition_function(all_indices,
-                                     query_size,
-                                     inference,
-                                     train_set))
+            new_indices = torch.tensor(acquisition_function(all_indices,
+                                                            query_size,
+                                                            inference,
+                                                            train_set))
+            n_sampled.append(len(new_indices))
+            sampled_indices = torch.cat((sampled_indices, new_indices))
+            # n_sampled.append(len(sampled_indices))
+            # assert 55000 == (len(all_indices) + sum(n_sampled))
+            # sampled_indices = torch.tensor(
+            #     acquisition_function(all_indices,
+            #                          query_size,
+            #                          inference,
+            #                          train_set))
 
             acc = evaluate(inference,
                            data.test_dataloader(),
