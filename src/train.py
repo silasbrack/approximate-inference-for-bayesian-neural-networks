@@ -1,4 +1,5 @@
 import logging
+import pickle
 
 import hydra
 import torch
@@ -32,6 +33,8 @@ def train(cfg: DictConfig):
         inference, data.test_dataloader(), data.name, data.n_classes
     )
     print_dict(eval_result)
+    with open("results.pkl", "wb") as f:
+        pickle.dump(eval_result, f)
     inference.save(cfg.training.model_path)
 
 

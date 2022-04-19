@@ -144,9 +144,8 @@ def run(cfg):
             accuracies.append(acc)
         results[name] = {"accuracy": accuracies, "samples": n_sampled}
 
-    with open(f"{cfg.cwd}/results/active/mnist/results.pkl", "wb") as f:
+    with open("results.pkl", "wb") as f:
         pickle.dump(results, f)
-    print(results)
     # inference.save(cfg.training.model_path)
 
 
