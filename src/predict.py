@@ -15,7 +15,12 @@ def load_model(path: str, device="cpu"):
     cfg.data.data_dir = os.path.join(os.getcwd(), "data/")
     cfg.inference.device = device
 
-    inference: Inference = hydra.utils.instantiate(cfg.inference)
+    recursive = False \
+        if cfg.inference["_target_"] in ["src.inference.DeepEnsemble",
+                                         "src.inference.MultiSwag"] \
+        else True
+    inference: Inference = hydra.utils.instantiate(cfg.inference,
+                                                   _recursive_=recursive)
     inference.load(path)
 
     data = hydra.utils.instantiate(cfg.data)
