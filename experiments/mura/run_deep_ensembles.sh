@@ -13,8 +13,8 @@ source venv/bin/activate
 python src/train.py \
     --multirun \
     data=mura \
-    training.epochs=20 \
+    training.epochs=100 \
     inference=deep_ensemble \
     inference.device=cuda \
     inference.model.num_classes=7 \
-    inference.num_ensembles=5,10,15,20
+    inference.num_ensembles=5,10

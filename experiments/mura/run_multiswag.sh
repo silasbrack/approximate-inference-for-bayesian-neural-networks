@@ -13,7 +13,7 @@ source venv/bin/activate
 python src/train.py \
     --multirun \
     data=mura \
-    training.epochs=20 \
+    training.epochs=100 \
     inference=multi_swag \
     inference.device=cuda \
     inference.num_ensembles=5,10 \
