@@ -30,6 +30,7 @@ class Swa(Inference):
         t0 = time.perf_counter()
         for epoch in range(epochs):
             for image, target in train_loader:
+                image, target = image.to(self.device), target.to(self.device)
                 self.optim.zero_grad()
                 loss_fn(self.model(image), target).backward()
                 self.optim.step()
