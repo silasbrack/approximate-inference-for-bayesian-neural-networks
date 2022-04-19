@@ -5,6 +5,6 @@ training:
   logging: INFO
   model_path: .
   # Active learning
-  active_queries: 50
-  initial_pool: 300
-  query_size: 100
+  active_queries: 100
+  initial_pool: 50
+  query_size: 10

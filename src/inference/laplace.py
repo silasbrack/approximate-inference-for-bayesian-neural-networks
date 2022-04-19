@@ -26,7 +26,8 @@ class Laplace(Inference):
         # The Laplace library has a likelihood which takes logits as inputs and
         # can't handle Softmax or LogSoftmax layers.
         self.nn = NeuralNetwork(model, device, prior)
-        self.model = torch.nn.Sequential(*list(model.children())[:-1])
+        # self.model = torch.nn.Sequential(*list(model.children())[:-1])
+        self.model = model[:-1]
         self.device = device
         self.posterior_samples = posterior_samples
         self.prior = prior

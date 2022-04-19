@@ -28,11 +28,11 @@ def train(cfg: DictConfig):
         cfg.training.lr,
     )
     print_dict(train_result)
-    inference.save(cfg.training.model_path)
     eval_result = evaluate(
         inference, data.test_dataloader(), data.name, data.n_classes
     )
     print_dict(eval_result)
+    inference.save(cfg.training.model_path)
 
 
 if __name__ == "__main__":

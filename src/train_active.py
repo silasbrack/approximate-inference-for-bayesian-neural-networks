@@ -69,16 +69,28 @@ def run(cfg):
     data = hydra.utils.instantiate(cfg.data)
     data.setup()
 
+    recursive = False \
+        if cfg.inference["_target_"] in ["src.inference.DeepEnsemble",
+                                         "src.inference.MultiSwag"] \
+        else True
+
     initial_pool = cfg.training.initial_pool
     query_size = cfg.training.query_size
     results = {}
-    for acquisition_function, name in [
+    acquisition_funcs = [
         (sample_without_replacement, "Random"),
-        (max_acquisition(evaluate_entropy), "Max entropy"),
-        # (max_acquisition(evaluate_information_gain), "BALD"),
-    ]:
+        (max_acquisition(evaluate_entropy), "Max entropy")
+    ]
+    if acquisition_funcs not in ["src.inference.DeepEnsemble",
+                                 "src.inference.Swa",
+                                 "src.inference.NeuralNetwork"]:
+        acquisition_funcs.append((max_acquisition(evaluate_information_gain),
+                                  "BALD"))
+
+    for acquisition_function, name in acquisition_funcs:
         pyro.get_param_store().clear()
-        # inference = hydra.utils.instantiate(cfg.inference)
+        # inference = hydra.utils.instantiate(cfg.inference,
+        #                                     _recursive_=recursive)
 
         train_loader = data.train_dataloader()
         train_set = train_loader.dataset.dataset
@@ -95,7 +107,8 @@ def run(cfg):
                 batch_size=cfg.data.batch_size
             )
 
-            inference = hydra.utils.instantiate(cfg.inference)
+            inference = hydra.utils.instantiate(cfg.inference,
+                                                _recursive_=recursive)
             inference.fit(
                 currently_training_loader,
                 data.val_dataloader(),
