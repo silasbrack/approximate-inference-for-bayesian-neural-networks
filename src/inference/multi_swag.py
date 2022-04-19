@@ -2,6 +2,7 @@ import os
 import pickle
 import time
 
+import hydra.utils
 import torch
 from pyro.infer import Predictive
 
@@ -25,7 +26,10 @@ class MultiSwag(Inference):
         self.posterior_samples = posterior_samples
         self.device = device
         self.ensembles = [
-            Swag(model, device, swa_start_thresh, posterior_samples)
+            Swag(hydra.utils.instantiate(model),
+                 device,
+                 swa_start_thresh,
+                 posterior_samples)
             for _ in range(num_ensembles)
         ]
 

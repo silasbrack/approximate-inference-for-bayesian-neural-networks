@@ -1,4 +1,4 @@
-_target_: src.inference.deep_ensemble.DeepEnsemble
+_target_: src.inference.DeepEnsemble
 defaults:
   - model: dense.yaml
 num_ensembles: 5

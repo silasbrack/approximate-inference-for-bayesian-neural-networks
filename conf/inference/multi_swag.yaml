@@ -1,6 +1,6 @@
 _target_: src.inference.MultiSwag
 defaults:
-  - model: dense.yaml
+  - model: dense
 device: cpu
 num_ensembles: 5
 swa_start_thresh: 0.

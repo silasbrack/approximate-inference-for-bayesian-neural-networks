@@ -1,4 +1,4 @@
-_target_: src.inference.vi.VariationalInference
+_target_: src.inference.VariationalInference
 defaults:
   - model: dense
   - variational_family: mean_field

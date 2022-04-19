@@ -1,5 +1,5 @@
-_target_: src.inference.swa.Swa
+_target_: src.inference.Swa
 defaults:
-  - model: dense.yaml
+  - model: dense
 device: cpu
 swa_start_thresh: 0.

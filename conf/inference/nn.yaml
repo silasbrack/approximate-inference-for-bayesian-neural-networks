@@ -1,4 +1,4 @@
-_target_: src.inference.nn.NeuralNetwork
+_target_: src.inference.NeuralNetwork
 defaults:
   - model: dense
 device: cpu

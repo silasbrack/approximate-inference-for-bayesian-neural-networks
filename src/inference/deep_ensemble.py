@@ -1,6 +1,7 @@
 import os
 import time
 
+import hydra.utils
 import torch
 
 from src.inference.inference import Inference
@@ -14,7 +15,7 @@ class DeepEnsemble(Inference):
         self.num_ensembles = num_ensembles
         self.device = device
         self.ensembles = [
-            NeuralNetwork(model, device, prior=False)
+            NeuralNetwork(hydra.utils.instantiate(model), device, prior=False)
             for _ in range(num_ensembles)
         ]
 
