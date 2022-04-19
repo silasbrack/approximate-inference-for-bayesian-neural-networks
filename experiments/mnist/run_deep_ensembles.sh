@@ -16,4 +16,4 @@ python src/train.py \
     training.epochs=100 \
     inference=deep_ensemble \
     inference.device=cuda \
-    inference.num_ensembles=5,10,15,20
+    inference.num_ensembles=5,10

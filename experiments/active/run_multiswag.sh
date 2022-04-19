@@ -16,5 +16,7 @@ python src/train_active.py \
     training.active_queries=100 \
     training.initial_pool=50 \
     training.query_size=10 \
-    inference=nn \
-    inference.device=cuda
+    inference=multi_swag \
+    inference.device=cuda \
+    inference.num_ensembles=5 \
+    inference.swa_start_thresh=0.8
