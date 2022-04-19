@@ -25,22 +25,33 @@ class Laplace(Inference):
         self.name = "Laplace"
         # The Laplace library has a likelihood which takes logits as inputs and
         # can't handle Softmax or LogSoftmax layers.
-        self.model = torch.nn.Sequential(*list(model.children())[:-1])
         self.nn = NeuralNetwork(model, device, prior)
+        self.model = torch.nn.Sequential(*list(model.children())[:-1])
         self.device = device
         self.posterior_samples = posterior_samples
-        self.la = laplace.Laplace(
-            self.model,
-            "classification",
-            subset_of_weights=subset,
-            hessian_structure=hessian,
-        )
+        self.prior = prior
+        self.subset = subset
+        self.hessian = hessian
+        self.la = None
+        # self.la = laplace.Laplace(
+        #     self.model,
+        #     "classification",
+        #     subset_of_weights=subset,
+        #     hessian_structure=hessian,
+        # )
 
     def fit(self, train_loader, val_loader, epochs, lr):
         t0 = time.perf_counter()
-        logging.info("Finding MAP solution.")
+        logging.info(f"Finding {'MAP' if self.prior else 'ML'} solution.")
         self.nn.fit(train_loader, val_loader, epochs, lr)
         logging.info("Calculating Hessian.")
+        if self.la is None:
+            self.la = laplace.Laplace(
+                self.model,
+                "classification",
+                subset_of_weights=self.subset,
+                hessian_structure=self.hessian,
+            )
         self.la.fit(train_loader)
         logging.info("Optimizing prior precision.")
         self.la.optimize_prior_precision()

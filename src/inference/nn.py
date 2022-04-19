@@ -11,7 +11,7 @@ class NeuralNetwork(Inference):
     def __init__(self, model, device, prior):
         if prior:
             self.name = "MAP"
-            self.weight_decay = 1.
+            self.weight_decay = 4e-3  # TODO: Technically not N(0,1) prior?
         else:
             self.name = "ML"
             self.weight_decay = 0.
