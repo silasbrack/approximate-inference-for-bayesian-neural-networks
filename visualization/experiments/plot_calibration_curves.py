@@ -28,10 +28,18 @@ def plot_calibration_curves(
         ax_curve = ax[0, i] if len(eval_datasets) > 1 else ax[0]
         ax_hist = ax[1, i] if len(eval_datasets) > 1 else ax[1]
         for type in types:
-            criteria = f"`Evaluated on` == '{dataset}' and Type == '{type}'"
+            criteria = f"`Evaluated on` == '{dataset.upper()}' and Type == '{type}'"
             data = results.query(criteria)
 
-            targets = data["Test targets"].values[0][:, None]
+            try:
+                targets = data["Test targets"].values[0][:, None]
+            except:
+                print(results, criteria)
+                print(data)
+                print(data["Test targets"])
+                print(data["Test targets"].values)
+
+            # targets = data["Test targets"].values[0][:, None]
             probs = data["Test probabilities"].values[0]
             # confidences = np.max(probs, axis=1)
 
@@ -95,11 +103,12 @@ def plot_calibration_curves(
 
 if __name__ == "__main__":
     for train_set, eval_datasets in (
-        ("mnist", ["mnist", "svhn"]),
-        ("mura", ["mura"]),
+        ("mnist", ["mnist"]),  # "svhn"
+        # ("mura", ["mura"]),
     ):
         results = load_results(train_set, eval_datasets)
-        save_results_to_table(results, f"{train_set}_full.tex")
+        print(results)
+        save_results_to_table(results.drop(["Type"], axis=1), f"{train_set}_full.tex")
 
         # pd.set_option('display.max_columns', 500)
         # print(results.drop(["Test targets", "Test probabilities"], axis=1))
@@ -107,20 +116,20 @@ if __name__ == "__main__":
         plot_calibration_curves(
             results,
             eval_datasets,
-            types=["laplace", "meanfield", "radial", "lowrank"],
-            file_name=f"{train_set.capitalize()}VI.pdf",
+            types=["meanfield", "radial", "lowrank"],  # "laplace"
+            file_name=f"{train_set.capitalize()}VI.png",
         )
 
-        plot_calibration_curves(
-            results,
-            eval_datasets,
-            types=["ensemble_5", "ensemble_10"],
-            file_name=f"{train_set.capitalize()}Ensembles.pdf",
-        )
+        # plot_calibration_curves(
+        #     results,
+        #     eval_datasets,
+        #     types=["ensemble_5", "ensemble_10"],
+        #     file_name=f"{train_set.capitalize()}Ensembles.png",
+        # )
 
         plot_calibration_curves(
             results,
             eval_datasets,
             types=["multiswag_5", "multiswag_10"],
-            file_name=f"{train_set.capitalize()}MultiSwag.pdf",
+            file_name=f"{train_set.capitalize()}MultiSwag.png",
         )

@@ -6,7 +6,7 @@ from matplotlib import pyplot as plt
 from visualization.helper_functions import FIGURE_FOLDER
 
 
-def plot_ensemble_accuracies(results_file, file_name):
+def plot_active_curve(results_file, file_name):
     with open(results_file, "rb") as f:
         results = pickle.load(f)
 
@@ -28,4 +28,6 @@ def plot_ensemble_accuracies(results_file, file_name):
 
 
 if __name__ == "__main__":
-    plot_ensemble_accuracies("results/active/mnist/results.pkl", "active.pdf")
+    plot_active_curve("results/active/mnist/nn.pkl", "active_nn.png")
+    plot_active_curve("results/active/mnist/multi_swag.pkl", "active_multi_swag.png")
+    plot_active_curve("results/active/mnist/deep_ensemble.pkl", "active_deep_ensemble.png")

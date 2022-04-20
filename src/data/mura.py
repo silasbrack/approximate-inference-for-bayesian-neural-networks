@@ -146,6 +146,8 @@ class MuraDataset(torch.utils.data.Dataset):
             if self.transform:
                 img = self.transform(img)
             img = img[0, :, :]  # Only if we're not using transforms I guess
+            if len(img.shape) == 2:
+                img = img.unsqueeze(0)
             label = (
                 torch.from_numpy(np.asarray(label))
                 .double()

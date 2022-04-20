@@ -3,7 +3,7 @@ import logging
 from tqdm import tqdm
 
 
-def cache_dataset(dataset, verbose=True):
+def cache_dataset(dataset, verbose=False):
     logging.info("Caching dataset.")
 
     dataset.set_use_cache(False)

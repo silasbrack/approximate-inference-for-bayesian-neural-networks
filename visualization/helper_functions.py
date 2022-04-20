@@ -21,8 +21,6 @@ TABLE_FOLDER = "./reports/tables"
 
 TYPE_DICT = {
     "radial": {"color": "#4E79A7", "style": "solid"},
-    "radial_200": {"color": "#4E79A7", "style": "dotted"},
-    "radial_200_lowlr": {"color": "#4E79A7", "style": "dashed"},
     "meanfield": {"color": "#F28E2B", "style": "dotted"},
     "laplace": {"color": "#59A14F", "style": "dashed"},
     "lowrank": {"color": "#B6992D", "style": "dashdot"},

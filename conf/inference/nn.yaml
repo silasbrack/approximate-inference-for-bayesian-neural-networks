@@ -1,5 +1,5 @@
 _target_: src.inference.NeuralNetwork
 defaults:
-  - model: convnet
+  - model: dense
 device: cpu
 prior: false
