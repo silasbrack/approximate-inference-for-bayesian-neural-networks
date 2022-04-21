@@ -1,0 +1,7 @@
+- data=mura
+- training.epochs=100
+- inference=multi_swag
+- inference.device=cuda
+- inference.num_ensembles=5
+- inference.model.num_classes=7
+- inference.swa_start_thresh=0.8

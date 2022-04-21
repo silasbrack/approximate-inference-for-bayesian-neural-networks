@@ -1,0 +1,6 @@
+- data=mnist
+- data.batch_size=8192
+- training.epochs=200
+- inference=vi
+- inference/variational_family=low_rank
+- inference.device=cuda

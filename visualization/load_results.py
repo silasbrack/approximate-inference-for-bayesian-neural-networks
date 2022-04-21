@@ -12,15 +12,15 @@ def load_results(train_set: str = "mnist", eval_datasets=None, types=None):
         eval_datasets = ["mnist", "svhn"]
     if types is None:
         types = [
-            # "ensemble_5",
-            # "ensemble_10",
+            "ensemble_5",
+            "ensemble_10",
             "multiswag_5",
             "multiswag_10",
             "radial",
             "meanfield",
             "lowrank",
-            # "laplace",
-            # "nn",
+            "laplace",
+            "nn",
         ]
 
     results_folder = f"{RESULTS_FOLDER}/{train_set}"
@@ -49,7 +49,6 @@ def load_results(train_set: str = "mnist", eval_datasets=None, types=None):
     for i, dataset in enumerate(eval_datasets):
         for type in types:
             criteria = f"`Evaluated on` == '{dataset.upper()}' and Type == '{type}'"
-            print(criteria)
             data = results.query(criteria)
             
             targets = data["Test targets"].values[0][:, None]
@@ -68,7 +67,7 @@ def load_results(train_set: str = "mnist", eval_datasets=None, types=None):
 
 def save_results_to_table(results: pd.DataFrame, file_name: str):
     s: Styler = (
-        results.drop(["Test targets", "Test probabilities"], axis=1)
+        results
         .replace(
             {
                 "mnist": "MNIST",

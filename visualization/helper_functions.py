@@ -24,6 +24,7 @@ TYPE_DICT = {
     "meanfield": {"color": "#F28E2B", "style": "dotted"},
     "laplace": {"color": "#59A14F", "style": "dashed"},
     "lowrank": {"color": "#B6992D", "style": "dashdot"},
+    "nn": {"color": "#499894", "style": "solid"},
     "ml": {"color": "#499894", "style": "solid"},
     "map": {"color": "#E15759", "style": "solid"},
     "ensemble_5": {"color": "#BAB0AC", "style": "solid"},

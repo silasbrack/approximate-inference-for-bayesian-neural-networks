@@ -4,8 +4,11 @@ import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
 
-from visualization.helper_functions import (FIGURE_FOLDER, TYPE_DICT,
-                                            calibration_curves)
+from visualization.helper_functions import (
+    FIGURE_FOLDER,
+    TYPE_DICT,
+    calibration_curves,
+)
 from visualization.load_results import load_results, save_results_to_table
 
 
@@ -28,18 +31,12 @@ def plot_calibration_curves(
         ax_curve = ax[0, i] if len(eval_datasets) > 1 else ax[0]
         ax_hist = ax[1, i] if len(eval_datasets) > 1 else ax[1]
         for type in types:
-            criteria = f"`Evaluated on` == '{dataset.upper()}' and Type == '{type}'"
+            criteria = (
+                f"`Evaluated on` == '{dataset.upper()}' and Type == '{type}'"
+            )
             data = results.query(criteria)
 
-            try:
-                targets = data["Test targets"].values[0][:, None]
-            except:
-                print(results, criteria)
-                print(data)
-                print(data["Test targets"])
-                print(data["Test targets"].values)
-
-            # targets = data["Test targets"].values[0][:, None]
+            targets = data["Test targets"].values[0][:, None]
             probs = data["Test probabilities"].values[0]
             # confidences = np.max(probs, axis=1)
 
@@ -104,28 +101,28 @@ def plot_calibration_curves(
 if __name__ == "__main__":
     for train_set, eval_datasets in (
         ("mnist", ["mnist"]),  # "svhn"
-        # ("mura", ["mura"]),
+        ("mura", ["mura"]),
     ):
         results = load_results(train_set, eval_datasets)
-        print(results)
-        save_results_to_table(results.drop(["Type"], axis=1), f"{train_set}_full.tex")
-
-        # pd.set_option('display.max_columns', 500)
-        # print(results.drop(["Test targets", "Test probabilities"], axis=1))
+        to_print = results.drop(
+            ["Type", "Test targets", "Test probabilities"], axis=1
+        )
+        print(to_print)
+        save_results_to_table(to_print, f"{train_set}_full.tex")
 
         plot_calibration_curves(
             results,
             eval_datasets,
-            types=["meanfield", "radial", "lowrank"],  # "laplace"
+            types=["nn", "laplace", "meanfield", "radial", "lowrank"],
             file_name=f"{train_set.capitalize()}VI.png",
         )
 
-        # plot_calibration_curves(
-        #     results,
-        #     eval_datasets,
-        #     types=["ensemble_5", "ensemble_10"],
-        #     file_name=f"{train_set.capitalize()}Ensembles.png",
-        # )
+        plot_calibration_curves(
+            results,
+            eval_datasets,
+            types=["ensemble_5", "ensemble_10"],
+            file_name=f"{train_set.capitalize()}Ensembles.png",
+        )
 
         plot_calibration_curves(
             results,

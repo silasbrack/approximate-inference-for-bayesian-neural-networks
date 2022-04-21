@@ -1,0 +1,28 @@
+cwd: ${hydra:runtime.cwd}
+inference:
+  model:
+    _target_: src.models.densenet.DenseNet
+    num_classes: 7
+  variational_family:
+    _target_: src.guides.MeanField
+    init_scale: 0.01
+  _target_: src.inference.VariationalInference
+  num_particles: 32
+  posterior_samples: 128
+  local_reparameterization: false
+  device: cuda
+data:
+  _target_: src.data.mura.MuraData
+  data_dir: ${hydra:runtime.cwd}/data/
+  batch_size: 8192
+  num_workers: 4
+  cache_data: true
+training:
+  epochs: 500
+  lr: 0.001
+  seed: null
+  logging: INFO
+  model_path: .
+  active_queries: 100
+  initial_pool: 50
+  query_size: 10
