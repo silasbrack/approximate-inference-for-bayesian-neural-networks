@@ -1,5 +1,5 @@
 #!/bin/bash
-#BSUB -J active
+#BSUB -J active_l
 #BSUB -o active_%J.out
 #BSUB -q gpuv100
 #BSUB -gpu "num=1:mode=exclusive_process"
@@ -12,9 +12,10 @@ source venv/bin/activate
 
 python src/train_active.py \
     data=mnist \
-    training.epochs=50 \
-    training.active_queries=100 \
+    training.epochs=10 \
+    training.active_queries=10 \
     training.initial_pool=50 \
     training.query_size=10 \
     inference=laplace \
+    inference/model=convnet \
     inference.device=cuda

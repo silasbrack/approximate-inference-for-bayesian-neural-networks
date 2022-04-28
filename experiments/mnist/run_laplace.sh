@@ -15,4 +15,6 @@ python src/train.py \
     data=mnist \
     training.epochs=100 \
     inference=nn,laplace \
+    inference/model=convnet \
+    inference.posterior_samples=32 \
     inference.device=cuda

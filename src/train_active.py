@@ -9,7 +9,7 @@ from torch.utils.data import DataLoader, Subset
 
 from src.evaluate import evaluate
 from src.inference import VariationalInference
-from visualization.experiments.plot_active_cuve import plot_ensemble_accuracies
+from visualization.experiments.plot_active_cuve import plot_active_curve
 
 
 def sample_without_replacement(arr, n, *args, **kwargs):
@@ -38,8 +38,9 @@ def evaluate_information_gain(dataloader, inference):
         probs = predictive_probs
         log_probs = probs.log() + 1e-10
         # Mean over posterior predictive samples (dim 0) and classes (dim -1)
-        expected_likelihood_entropy = -torch.mul(probs, log_probs)\
-            .mean(dim=0).sum(dim=-1)
+        expected_likelihood_entropy = (
+            -torch.mul(probs, log_probs).mean(dim=0).sum(dim=-1)
+        )
         entropy = predictive_entropy - expected_likelihood_entropy
         entropies.append(entropy)
     entropies = torch.cat(entropies)
@@ -49,8 +50,9 @@ def evaluate_information_gain(dataloader, inference):
 def max_acquisition(acquisition_fn):
     def fn(all_indices, k, inference, train_set, *args, **kwargs):
         with torch.no_grad():
-            remaining_dataloader = DataLoader(Subset(train_set, all_indices),
-                                              batch_size=8192, shuffle=False)
+            remaining_dataloader = DataLoader(
+                Subset(train_set, all_indices), batch_size=8192, shuffle=False
+            )
             entropies = acquisition_fn(remaining_dataloader, inference)
             assert len(all_indices) == len(entropies)
             top_entropy_indices = torch.topk(entropies, k=k).indices
@@ -58,6 +60,7 @@ def max_acquisition(acquisition_fn):
             for idx in top_entropy_indices.sort(descending=True).values:
                 sampled_indices.append(all_indices.pop(idx))
             return sampled_indices
+
     return fn
 
 
@@ -69,23 +72,28 @@ def run(cfg):
     data = hydra.utils.instantiate(cfg.data)
     data.setup()
 
-    recursive = False \
-        if cfg.inference["_target_"] in ["src.inference.DeepEnsemble",
-                                         "src.inference.MultiSwag"] \
+    recursive = (
+        False
+        if cfg.inference["_target_"]
+        in ["src.inference.DeepEnsemble", "src.inference.MultiSwag"]
         else True
+    )
 
     initial_pool = cfg.training.initial_pool
     query_size = cfg.training.query_size
     results = {}
     acquisition_funcs = [
         (sample_without_replacement, "Random"),
-        (max_acquisition(evaluate_entropy), "Max entropy")
+        (max_acquisition(evaluate_entropy), "Max entropy"),
     ]
-    if cfg.inference["_target_"] not in ["src.inference.DeepEnsemble",
-                                         "src.inference.Swa",
-                                         "src.inference.NeuralNetwork"]:
-        acquisition_funcs.append((max_acquisition(evaluate_information_gain),
-                                  "BALD"))
+    if cfg.inference["_target_"] not in [
+        "src.inference.DeepEnsemble",
+        "src.inference.Swa",
+        "src.inference.NeuralNetwork",
+    ]:
+        acquisition_funcs.append(
+            (max_acquisition(evaluate_information_gain), "BALD")
+        )
 
     for acquisition_function, name in acquisition_funcs:
         pyro.get_param_store().clear()
@@ -104,11 +112,12 @@ def run(cfg):
         for _ in range(cfg.training.active_queries):
             currently_training_loader = DataLoader(
                 Subset(train_set, sampled_indices),
-                batch_size=cfg.data.batch_size
+                batch_size=cfg.data.batch_size,
             )
 
-            inference = hydra.utils.instantiate(cfg.inference,
-                                                _recursive_=recursive)
+            inference = hydra.utils.instantiate(
+                cfg.inference, _recursive_=recursive
+            )
             inference.fit(
                 currently_training_loader,
                 data.val_dataloader(),
@@ -123,10 +132,11 @@ def run(cfg):
                         )
                     )
                 )
-            new_indices = torch.tensor(acquisition_function(all_indices,
-                                                            query_size,
-                                                            inference,
-                                                            train_set))
+            new_indices = torch.tensor(
+                acquisition_function(
+                    all_indices, query_size, inference, train_set
+                )
+            )
             n_sampled.append(len(new_indices))
             sampled_indices = torch.cat((sampled_indices, new_indices))
             # n_sampled.append(len(sampled_indices))
@@ -137,18 +147,18 @@ def run(cfg):
             #                          inference,
             #                          train_set))
 
-            acc = evaluate(inference,
-                           data.test_dataloader(),
-                           data.name,
-                           data.n_classes)["Accuracy"]
+            acc = evaluate(
+                inference, data.test_dataloader(), data.name, data.n_classes
+            )["Accuracy"]
             accuracies.append(acc)
         results[name] = {"accuracy": accuracies, "samples": n_sampled}
 
     with open("results.pkl", "wb") as f:
         pickle.dump(results, f)
+
     # inference.save(cfg.training.model_path)
+    plot_active_curve("results.pkl", "active.png")
 
 
 if __name__ == "__main__":
     run()
-    plot_ensemble_accuracies("results/active/mnist/results.pkl", "active.pdf")

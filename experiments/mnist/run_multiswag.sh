@@ -15,6 +15,7 @@ python src/train.py \
     data=mnist \
     training.epochs=100 \
     inference=multi_swag \
+    inference/model=convnet \
     inference.device=cuda \
     inference.num_ensembles=5,10 \
     inference.swa_start_thresh=0.8

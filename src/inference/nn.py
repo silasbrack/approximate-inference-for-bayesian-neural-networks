@@ -2,9 +2,15 @@ import os
 import time
 
 import torch
+from torch import nn
 from torch.nn import functional as F
 
 from src.inference.inference import Inference
+
+
+def weight_reset(m):
+    if isinstance(m, nn.Conv2d) or isinstance(m, nn.Linear):
+        m.reset_parameters()
 
 
 class NeuralNetwork(Inference):
@@ -14,16 +20,17 @@ class NeuralNetwork(Inference):
             self.weight_decay = 4e-3  # TODO: Technically not N(0,1) prior?
         else:
             self.name = "ML"
-            self.weight_decay = 0.
+            self.weight_decay = 0.0
+        model.apply(weight_reset)
         self.model = model.to(device)
         self.device = device
         self.optim = None
 
     def fit(self, train_loader, val_loader, epochs, lr):
         if self.optim is None:
-            self.optim = torch.optim.Adam(self.model.parameters(),
-                                          lr,
-                                          weight_decay=self.weight_decay)
+            self.optim = torch.optim.Adam(
+                self.model.parameters(), lr, weight_decay=self.weight_decay
+            )
         self.model.train()
         t0 = time.perf_counter()
         for epoch in range(epochs):

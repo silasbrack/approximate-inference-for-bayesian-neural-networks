@@ -24,10 +24,14 @@ def plot_active_curve(results_file, file_name):
     )
     ax.legend()
     fig.tight_layout()
-    fig.savefig(f"{FIGURE_FOLDER}/{file_name}")
+    fig.savefig(f"{file_name}")
 
 
 if __name__ == "__main__":
     plot_active_curve("results/active/mnist/nn.pkl", "active_nn.png")
-    plot_active_curve("results/active/mnist/multi_swag.pkl", "active_multi_swag.png")
-    plot_active_curve("results/active/mnist/deep_ensemble.pkl", "active_deep_ensemble.png")
+    plot_active_curve(
+        "results/active/mnist/multi_swag.pkl", "active_multi_swag.png"
+    )
+    plot_active_curve(
+        "results/active/mnist/deep_ensemble.pkl", "active_deep_ensemble.png"
+    )

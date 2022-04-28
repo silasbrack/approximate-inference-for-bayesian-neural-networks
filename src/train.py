@@ -17,10 +17,11 @@ def train(cfg: DictConfig):
     data.setup()
 
     # TODO: Clean this part up, doesn't seem right.
-    recursive = False \
-        if cfg.inference["_target_"] in ["src.inference.DeepEnsemble",
-                                         "src.inference.MultiSwag"] \
-        else True
+    # recursive = False \
+    #     if cfg.inference["_target_"] in ["src.inference.DeepEnsemble",
+    #                                      "src.inference.MultiSwag"] \
+    #     else True
+    recursive = True
     inference = hydra.utils.instantiate(cfg.inference, _recursive_=recursive)
     train_result = inference.fit(
         data.train_dataloader(),

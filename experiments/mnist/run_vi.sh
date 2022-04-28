@@ -16,5 +16,6 @@ python src/train.py \
     data.batch_size=8192 \
     training.epochs=500 \
     inference=vi \
+    inference/model=convnet \
     inference/variational_family=radial,mean_field,low_rank \
     inference.device=cuda

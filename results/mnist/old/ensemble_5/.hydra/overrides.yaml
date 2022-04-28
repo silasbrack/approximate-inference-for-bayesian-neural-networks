@@ -1,0 +1,5 @@
+- data=mnist
+- training.epochs=100
+- inference=deep_ensemble
+- inference.device=cuda
+- inference.num_ensembles=5

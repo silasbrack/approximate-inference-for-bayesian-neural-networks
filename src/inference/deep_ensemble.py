@@ -15,7 +15,7 @@ class DeepEnsemble(Inference):
         self.num_ensembles = num_ensembles
         self.device = device
         self.ensembles = [
-            NeuralNetwork(hydra.utils.instantiate(model), device, prior=False)
+            NeuralNetwork(model, device, prior=False)
             for _ in range(num_ensembles)
         ]
 

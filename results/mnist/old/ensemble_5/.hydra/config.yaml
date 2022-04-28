@@ -1,0 +1,22 @@
+cwd: ${hydra:runtime.cwd}
+inference:
+  model:
+    _target_: src.models.densenet.DenseNet
+    num_classes: 10
+  _target_: src.inference.DeepEnsemble
+  num_ensembles: 5
+  device: cuda
+data:
+  _target_: src.data.mnist.MNISTData
+  data_dir: ${hydra:runtime.cwd}/data/
+  batch_size: 128
+  num_workers: 4
+training:
+  epochs: 100
+  lr: 0.001
+  seed: null
+  logging: INFO
+  model_path: .
+  active_queries: 100
+  initial_pool: 50
+  query_size: 10

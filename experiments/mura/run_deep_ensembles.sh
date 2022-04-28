@@ -15,6 +15,7 @@ python src/train.py \
     data=mura \
     training.epochs=100 \
     inference=deep_ensemble \
+    inference/model=convnet \
     inference.device=cuda \
     inference.model.num_classes=7 \
     inference.num_ensembles=5,10

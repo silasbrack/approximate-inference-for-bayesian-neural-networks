@@ -1,0 +1,6 @@
+- data=mura
+- training.epochs=3
+- inference=nn
+- inference.model.num_classes=7
+- inference.device=cuda
+- inference/model=convnet

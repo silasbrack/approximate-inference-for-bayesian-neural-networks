@@ -1,0 +1,4 @@
+- data=mnist
+- training.epochs=100
+- inference=laplace
+- inference.device=cuda

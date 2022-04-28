@@ -1,0 +1,23 @@
+cwd: ${hydra:runtime.cwd}
+inference:
+  model:
+    _target_: src.models.convnet.ConvNet
+    num_classes: 7
+  _target_: src.inference.NeuralNetwork
+  device: cuda
+  prior: false
+data:
+  _target_: src.data.mura.MuraData
+  data_dir: ${hydra:runtime.cwd}/data/
+  batch_size: 128
+  num_workers: 4
+  cache_data: true
+training:
+  epochs: 3
+  lr: 0.001
+  seed: null
+  logging: INFO
+  model_path: .
+  active_queries: 100
+  initial_pool: 50
+  query_size: 10

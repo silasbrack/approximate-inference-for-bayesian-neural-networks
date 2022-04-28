@@ -1,5 +1,5 @@
 #!/bin/bash
-#BSUB -J active
+#BSUB -J active_vi
 #BSUB -o active_%J.out
 #BSUB -q gpuv100
 #BSUB -gpu "num=1:mode=exclusive_process"
@@ -11,10 +11,13 @@ module load cuda/11.3
 source venv/bin/activate
 
 python src/train_active.py \
-    --multirun \
     data=mnist \
-    training.epochs=100 \
-    data.batch_size=8192 \
+    training.epochs=30 \
+    training.active_queries=100 \
+    training.initial_pool=50 \
+    training.query_size=10 \
     inference=vi \
-    inference/variational_family=mean_field,radial \
+    data.batch_size=8192 \
+    inference/model=convnet \
+    inference/variational_family=radial \
     inference.device=cuda

@@ -1,0 +1,5 @@
+- data=mura
+- training.epochs=20
+- inference=nn
+- inference.model.num_classes=7
+- inference.device=cuda

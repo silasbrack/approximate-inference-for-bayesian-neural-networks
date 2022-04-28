@@ -15,5 +15,6 @@ python src/train.py \
     data=mura \
     training.epochs=20 \
     inference=nn,laplace \
+    inference/model=convnet \
     inference.model.num_classes=7 \
     inference.device=cuda

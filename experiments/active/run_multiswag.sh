@@ -1,5 +1,5 @@
 #!/bin/bash
-#BSUB -J active
+#BSUB -J active_ms
 #BSUB -o active_%J.out
 #BSUB -q gpuv100
 #BSUB -gpu "num=1:mode=exclusive_process"
@@ -17,6 +17,7 @@ python src/train_active.py \
     training.initial_pool=50 \
     training.query_size=10 \
     inference=multi_swag \
+    inference/model=convnet \
     inference.device=cuda \
     inference.num_ensembles=5 \
     inference.swa_start_thresh=0.8

@@ -15,5 +15,6 @@ python src/train.py \
     data=mnist \
     training.epochs=100 \
     inference=deep_ensemble \
+    inference/model=convnet \
     inference.device=cuda \
     inference.num_ensembles=5,10
