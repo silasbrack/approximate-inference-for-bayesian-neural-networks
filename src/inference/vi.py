@@ -113,3 +113,12 @@ class VariationalInference(Inference):
         return sum(
             val.shape.numel() for _, val in pyro.get_param_store().items()
         )
+
+    def update_prior(self) -> None:
+        self.bnn.update_prior(
+            tyxe.priors.DictPrior(
+                self.bnn.net_guide.get_detached_distributions(
+                    tyxe.util.pyro_sample_sites(self.bnn.net)
+                )
+            )
+        )

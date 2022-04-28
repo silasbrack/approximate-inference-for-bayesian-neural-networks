@@ -27,3 +27,6 @@ class Inference(ABC):
     @abstractmethod
     def num_params(self) -> int:
         pass
+
+    def update_prior(self) -> None:
+        pass

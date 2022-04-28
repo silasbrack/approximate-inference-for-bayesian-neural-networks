@@ -46,14 +46,8 @@ def run(cfg):
             epochs=cfg.training.epochs,
             lr=cfg.training.lr,
         )
-        if inference is VariationalInference:
-            inference.bnn.update_prior(
-                tyxe.priors.DictPrior(
-                    inference.bnn.net_guide.get_detached_distributions(
-                        tyxe.util.pyro_sample_sites(inference.bnn.net)
-                    )
-                )
-            )
+        inference.update_prior()
+
         new_indices = acquisition_function.query(
             all_indices,
             query_size,
