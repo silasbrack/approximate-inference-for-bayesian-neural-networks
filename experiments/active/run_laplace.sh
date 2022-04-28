@@ -12,8 +12,8 @@ source venv/bin/activate
 
 python src/train_active.py \
     data=mnist \
-    training.epochs=10 \
-    training.active_queries=10 \
+    training.epochs=3 \
+    training.active_queries=5 \
     training.initial_pool=50 \
     training.query_size=10 \
     inference=laplace \

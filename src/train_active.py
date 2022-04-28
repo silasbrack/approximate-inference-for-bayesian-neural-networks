@@ -54,8 +54,12 @@ def run(cfg):
                     )
                 )
             )
-        new_indices = acquisition_function(
-            all_indices, query_size, inference, train_set
+        new_indices = acquisition_function.query(
+            all_indices,
+            query_size,
+            inference,
+            train_set,
+            batch_size=8192,
         )
         n_sampled.append(len(new_indices))
         sampled_indices = torch.cat((sampled_indices, new_indices))

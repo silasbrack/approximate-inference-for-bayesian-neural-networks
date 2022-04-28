@@ -1,9 +1,10 @@
 import torch
 
+from src.active.acquisition.util import max_acquisition
+
 
 class MaxEntropy:
     def query(self, all_indices, k, inference, train_set, *args, **kwargs):
-        from src.active.acquisition.util import max_acquisition
         query_fn = max_acquisition(self.evaluate_entropy)
         return query_fn(all_indices, k, inference, train_set, *args, **kwargs)
 
