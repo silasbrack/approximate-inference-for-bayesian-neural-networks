@@ -5,6 +5,7 @@ import time
 
 import hydra.utils
 import torch
+from torch import nn
 from pyro.infer import Predictive
 
 from src.inference.inference import Inference
