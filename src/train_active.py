@@ -1,16 +1,11 @@
 import pickle
-import random
 
 import hydra
-import pyro
 import torch
-import tyxe
 from torch.utils.data import DataLoader, Subset
-from src.active.acquisition.random import sample_without_replacement
 
+from src.active.acquisition.random import sample_without_replacement
 from src.evaluate import evaluate
-from src.inference import VariationalInference
-from visualization.experiments.plot_active_cuve import plot_active_curve
 
 
 @hydra.main(config_path="../conf", config_name="config")
@@ -64,8 +59,6 @@ def run(cfg):
 
     with open("results.pkl", "wb") as f:
         pickle.dump({"accuracy": accuracies, "samples": n_sampled}, f)
-
-    plot_active_curve("results.pkl", "active.png")
 
 
 if __name__ == "__main__":

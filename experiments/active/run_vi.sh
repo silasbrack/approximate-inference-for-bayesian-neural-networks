@@ -11,7 +11,7 @@ module load cuda/11.3
 source venv/bin/activate
 
 python src/train_active.py \
-    data=mnist \
+    data=mura \
     training.epochs=30 \
     training.active_queries=100 \
     training.initial_pool=50 \
@@ -19,5 +19,6 @@ python src/train_active.py \
     inference=vi \
     data.batch_size=8192 \
     inference/model=convnet \
+    inference.model.num_classes=7 \
     inference/variational_family=radial \
     inference.device=cuda

@@ -144,6 +144,9 @@ class MuraDataset(torch.utils.data.Dataset):
         return len(self.df)
 
     def __getitem__(self, idx):
+        if isinstance(idx, torch.Tensor):
+            idx = idx.item()
+
         if not self.use_cache:
             img_name = self.df.iloc[idx, 0]
             img = Image.open(f"{self.data_folder}/{img_name}").convert("LA")
@@ -164,16 +167,10 @@ class MuraDataset(torch.utils.data.Dataset):
             self.cached_indices[idx] = self.n_cached
             self.n_cached += 1
         else:
-            # print(idx, self.n_cached)
             index_in_cache = self.cached_indices[idx]
-            # print(index_in_cache)
             img, label = self.cached_data[index_in_cache]
 
         return img, label
 
     def set_use_cache(self, use_cache):
-        # if use_cache:
-        #     self.cached_data = torch.stack(self.cached_data)
-        # else:
-        #     self.cached_data = []
         self.use_cache = use_cache
