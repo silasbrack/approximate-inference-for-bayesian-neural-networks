@@ -21,13 +21,6 @@ def run(cfg):
     data = hydra.utils.instantiate(cfg.data)
     data.setup()
 
-    recursive = (
-        False
-        if cfg.inference["_target_"]
-        in ["src.inference.DeepEnsemble", "src.inference.MultiSwag"]
-        else True
-    )
-
     initial_pool = cfg.training.initial_pool
     query_size = cfg.training.query_size
 
@@ -42,12 +35,11 @@ def run(cfg):
     accuracies = []
     for _ in range(cfg.training.active_queries):
         currently_training_loader = DataLoader(
-            Subset(train_set, sampled_indices), batch_size=cfg.data.batch_size,
+            Subset(train_set, sampled_indices),
+            batch_size=cfg.data.batch_size,
         )
 
-        inference = hydra.utils.instantiate(
-            cfg.inference, _recursive_=recursive
-        )
+        inference = hydra.utils.instantiate(cfg.inference)
         inference.fit(
             currently_training_loader,
             data.val_dataloader(),

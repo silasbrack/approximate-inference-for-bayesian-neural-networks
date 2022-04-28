@@ -1,3 +1,4 @@
+import copy
 import os
 import time
 
@@ -8,11 +9,6 @@ from torch.nn import functional as F
 from src.inference.inference import Inference
 
 
-def weight_reset(m):
-    if isinstance(m, nn.Conv2d) or isinstance(m, nn.Linear):
-        m.reset_parameters()
-
-
 class NeuralNetwork(Inference):
     def __init__(self, model, device, prior):
         if prior:
@@ -21,7 +17,6 @@ class NeuralNetwork(Inference):
         else:
             self.name = "ML"
             self.weight_decay = 0.0
-        model.apply(weight_reset)
         self.model = model.to(device)
         self.device = device
         self.optim = None

@@ -1,3 +1,4 @@
+from os import path
 import numpy as np
 import pandas as pd
 import torch
@@ -6,7 +7,7 @@ from pytorch_lightning import LightningDataModule
 from torch.utils.data import DataLoader, random_split
 from torchvision import transforms
 
-from src.data.caching import cache_dataset
+from src.data.caching import cache_dataset, load_cached, save_cached
 
 
 class MuraData(LightningDataModule):
@@ -71,7 +72,12 @@ class MuraData(LightningDataModule):
             )
 
         if self.cache_data:
-            cache_dataset(self.mura_train.dataset)
+            cache_location = f"{self.data_dir}/mura_cached.pt"
+            if path.exists(cache_location):
+                load_cached(self.mura_train.dataset, cache_location)
+            else:
+                cache_dataset(self.mura_train.dataset)
+                save_cached(self.mura_train.dataset, cache_location)
 
     def train_dataloader(self):
         return DataLoader(

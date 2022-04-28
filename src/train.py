@@ -16,13 +16,7 @@ def train(cfg: DictConfig):
     data = hydra.utils.instantiate(cfg.data)
     data.setup()
 
-    # TODO: Clean this part up, doesn't seem right.
-    # recursive = False \
-    #     if cfg.inference["_target_"] in ["src.inference.DeepEnsemble",
-    #                                      "src.inference.MultiSwag"] \
-    #     else True
-    recursive = True
-    inference = hydra.utils.instantiate(cfg.inference, _recursive_=recursive)
+    inference = hydra.utils.instantiate(cfg.inference)
     train_result = inference.fit(
         data.train_dataloader(),
         data.val_dataloader(),
@@ -30,6 +24,8 @@ def train(cfg: DictConfig):
         cfg.training.lr,
     )
     print_dict(train_result)
+    with open("training.pkl", "wb") as f:
+        pickle.dump(train_result, f)
     eval_result = evaluate(
         inference, data.test_dataloader(), data.name, data.n_classes
     )

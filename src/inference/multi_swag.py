@@ -1,3 +1,4 @@
+import copy
 import os
 import pickle
 import time
@@ -8,6 +9,11 @@ from pyro.infer import Predictive
 
 from src.inference.inference import Inference
 from src.inference.swag import Swag, SwagModule
+
+
+def weight_reset(m):
+    if isinstance(m, nn.Conv2d) or isinstance(m, nn.Linear):
+        m.reset_parameters()
 
 
 # TODO: Implement efficient SWAG calculations from Algorithm 1 in Maddox 2019
@@ -21,17 +27,21 @@ class MultiSwag(Inference):
         posterior_samples: int,
     ):
         self.name = f"MultiSWAG@{num_ensembles}"
-        self.model = model
         self.num_ensembles = num_ensembles
         self.posterior_samples = posterior_samples
         self.device = device
-        self.ensembles = [
-            Swag(hydra.utils.instantiate(model),
-                 device,
-                 swa_start_thresh,
-                 posterior_samples)
-            for _ in range(num_ensembles)
-        ]
+        self.ensembles = []
+        for _ in range(num_ensembles):
+            model_ = copy.deepcopy(model)
+            model_.apply(weight_reset)
+            self.ensembles.append(
+                Swag(
+                    hydra.utils.instantiate(model_),
+                    device,
+                    swa_start_thresh,
+                    posterior_samples,
+                )
+            )
 
     def fit(self, train_loader, val_loader, epochs, lr):
         t0 = time.perf_counter()
@@ -75,4 +85,4 @@ class MultiSwag(Inference):
 
     @property
     def num_params(self):
-        return self.model.num_params * self.num_ensembles
+        return sum(ensemble.num_params for ensemble in self.ensembles)
