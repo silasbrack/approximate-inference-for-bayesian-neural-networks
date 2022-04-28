@@ -77,4 +77,5 @@ def plot_ensemble_accuracies(run_path):
 if __name__ == "__main__":
     # plot_ensemble_accuracies("models/deep_ensemble/mnist_20.pt")
     # plot_ensemble_accuracies("multirun/2022-04-06/18-43-53/0")
-    plot_ensemble_accuracies("outputs/2022-04-19/08-59-11")
+    # plot_ensemble_accuracies("outputs/2022-04-19/08-59-11")
+    plot_ensemble_accuracies("results/mnist/ensemble_20")

@@ -16,3 +16,14 @@ Scripts to run the experiments which generated the results from the paper can be
 while the Python files used to generate the plots from the paper are in the `src/visualization/experiments` folder.
 
 To then make a prediction using a trained model, run...
+
+
+multirun/2022-04-06/18-39-16/
+radial + mean field active learning on mnist
+
+multirun/2022-04-06/18-43-34/
+20 deep ensembles on mura
+
+multirun/2022-04-06/18-43-53/
+20 deep ensembles on mnist
+

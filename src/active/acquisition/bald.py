@@ -1,9 +1,12 @@
 import torch
 
+from src.active.acquisition.util import max_acquisition
+
 
 class Bald:
-    def query(self, ):
-        return max_acquisition(self.evaluate_entropy)()
+    def query(self, all_indices, k, inference, train_set, *args, **kwargs):
+        query_fn = max_acquisition(self.evaluate_information_gain)
+        return query_fn(all_indices, k, inference, train_set, *args, **kwargs)
 
     @staticmethod
     def evaluate_information_gain(dataloader, inference):

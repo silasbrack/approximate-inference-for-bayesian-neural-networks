@@ -97,9 +97,9 @@ class VariationalInference(Inference):
 
     def predict(self, x, aggregate=True):
         x = x.to(self.device)
-        logits = self.bnn.predict(x,
-                                  num_predictions=self.posterior_samples,
-                                  aggregate=aggregate)
+        logits = self.bnn.predict(
+            x, num_predictions=self.posterior_samples, aggregate=aggregate
+        )
         return softmax(logits, dim=-1)
 
     def save(self, path: str) -> None:

@@ -1,5 +1,7 @@
+defaults:
+  - acquisition: max_entropy
 training:
-  epochs: 3
+  epochs: 50
   lr: 1e-3
   seed: null
   logging: INFO

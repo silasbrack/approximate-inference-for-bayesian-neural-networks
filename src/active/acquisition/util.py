@@ -13,5 +13,5 @@ def max_acquisition(acquisition_fn):
             sampled_indices = []
             for idx in top_entropy_indices.sort(descending=True).values:
                 sampled_indices.append(all_indices.pop(idx))
-            return sampled_indices
+            return torch.tensor(sampled_indices)
     return fn
