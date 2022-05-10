@@ -14,11 +14,3 @@ Usually, if the results make sense, I copy them to the `results/` folder and the
 To generate test results again using the trained model, run `src/predict.py` with the path to the appropriate output folder, e.g., `python src/predict.py outputs/2022-05-10/14-12-25/`.
 
 Scripts to run the experiments which generated the results from the paper can be found in the `experiments/` folder, while the Python files used to generate the plots from the paper are in the `src/visualization/experiments` folder.
-
-# Todo
-
-- [ ] Add wandb / tensorboard support.
-- [ ] Configure hydra experiments
-- [ ] Add MC dropout
-- [ ] Use hydra structured configs?
-- [ ] Use docker?
