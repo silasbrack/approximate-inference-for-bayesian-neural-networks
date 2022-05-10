@@ -1,5 +1,7 @@
 \begin{tabular}{llrrrrrrr}
+\toprule
 Inference & Evaluated on & NLL & Accuracy & AUROC & Avg. Conf. & Avg. Conf. - & Avg. Conf. + & ECE \\
+\midrule
 Ensemble@5 & MURA & -0.649 & 0.764 & 0.954 & 0.733 & 0.536 & 0.794 & 0.037 \\
 Ensemble@10 & MURA & -0.646 & 0.756 & 0.952 & 0.733 & 0.537 & 0.796 & 0.027 \\
 MultiSWAG@5 & MURA & -0.642 & 0.772 & 0.955 & 0.723 & 0.528 & 0.780 & 0.050 \\
@@ -9,4 +11,18 @@ Mean-field & MURA & -0.166 & 0.220 & 0.452 & 0.267 & 0.268 & 0.267 & 0.054 \\
 Low-rank & MURA & -0.295 & 0.399 & 0.791 & 0.415 & 0.344 & 0.523 & 0.058 \\
 Laplace & MURA & -0.521 & 0.672 & 0.929 & 0.610 & 0.469 & 0.679 & 0.062 \\
 ML & MURA & -0.573 & 0.701 & 0.926 & 0.683 & 0.535 & 0.746 & 0.021 \\
+\bottomrule
 \end{tabular}
+
+
+% \begin{tabular}{lllrrrrrrr}
+% Inference & Evaluated on & NLL & Accuracy & AUROC & Avg. Conf. & Avg. Conf. - & Avg. Conf. + & ECE \\
+% Ensemble@5 & MURA & -0.649 & 0.764 & 0.954 & 0.733 & 0.536 & 0.794 & 0.037 \\
+% Ensemble@10 & MURA & -0.646 & 0.756 & 0.952 & 0.733 & 0.537 & 0.796 & 0.027 \\
+% MultiSWAG@5 & MURA & -0.642 & 0.772 & 0.955 & 0.723 & 0.528 & 0.780 & 0.050 \\
+% MultiSWAG@10 & MURA & -0.640 & 0.772 & 0.958 & 0.716 & 0.514 & 0.775 & 0.058 \\
+% Radial & MURA & -0.441 & 0.577 & 0.871 & 0.566 & 0.462 & 0.642 & 0.024 \\
+% Mean-field & MURA & -0.166 & 0.220 & 0.452 & 0.267 & 0.268 & 0.267 & 0.054 \\
+% Low-rank & MURA & -0.295 & 0.399 & 0.791 & 0.415 & 0.344 & 0.523 & 0.058 \\
+% Laplace & MURA & -0.533 & 0.701 & 0.930 & 0.612 & 0.456 & 0.678 & 0.090 \\
+% \end{tabular}
