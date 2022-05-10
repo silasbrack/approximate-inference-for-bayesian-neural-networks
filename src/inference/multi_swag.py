@@ -3,8 +3,8 @@ import os
 import pickle
 import time
 
-import hydra.utils
 import torch
+from torch import nn
 from pyro.infer import Predictive
 
 from src.inference.inference import Inference
@@ -36,7 +36,7 @@ class MultiSwag(Inference):
             model_.apply(weight_reset)
             self.ensembles.append(
                 Swag(
-                    hydra.utils.instantiate(model_),
+                    model_,
                     device,
                     swa_start_thresh,
                     posterior_samples,

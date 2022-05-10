@@ -11,7 +11,9 @@ def plot_active_curve(results_file, file_name):
         results = pickle.load(f)
 
     fig, ax = plt.subplots(figsize=(6, 4))
-    for acquisition, rsts in results.items():
+    for i, acquisition in enumerate(["Random", "Max Entropy"]):
+        with open(results_file, "rb") as f:
+            rsts = pickle.load(f)
         accuracy = np.array(rsts["accuracy"])
         samples = np.cumsum(rsts["samples"])
         # queries = np.arange(len(samples))
