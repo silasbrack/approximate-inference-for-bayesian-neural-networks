@@ -11,11 +11,13 @@ module load cuda/11.3
 source venv/bin/activate
 
 python src/train_active.py \
+    --multirun \
     data=mura \
     training.epochs=30 \
     training.active_queries=100 \
     training.initial_pool=50 \
     training.query_size=10 \
+    acquisition=random,max_entropy,bald \
     inference=vi \
     data.batch_size=8192 \
     inference/model=convnet \

@@ -4,6 +4,8 @@ import torch
 
 
 class RandomAcquisition:
+    name = "Random"
+
     @staticmethod
     def query(all_indices, k, inference, train_set, *args, **kwargs):
         return sample_without_replacement(all_indices, k)

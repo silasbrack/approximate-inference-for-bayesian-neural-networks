@@ -4,6 +4,8 @@ from src.active.acquisition.util import max_acquisition
 
 
 class MaxEntropy:
+    name = "Max entropy"
+
     def query(self, all_indices, k, inference, train_set, *args, **kwargs):
         query_fn = max_acquisition(self.evaluate_entropy)
         return query_fn(all_indices, k, inference, train_set, *args, **kwargs)
