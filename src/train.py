@@ -26,7 +26,9 @@ def train(cfg: DictConfig):
     print_dict(train_result)
     with open("training.pkl", "wb") as f:
         pickle.dump(train_result, f)
-    eval_result = evaluate(inference, data.test_dataloader(), data.name, data.n_classes)
+    eval_result = evaluate(
+        inference, data.test_dataloader(), data.name, data.n_classes
+    )
     print_dict(eval_result)
     with open("results.pkl", "wb") as f:
         pickle.dump(eval_result, f)
