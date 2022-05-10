@@ -4,7 +4,7 @@ import torch
 from torch.nn import functional as F
 from torch.nn.modules.dropout import _DropoutNd
 
-from src.inference import NeuralNetwork
+from src.inference.nn import NeuralNetwork
 
 logger = logging.getLogger(__name__)
 
@@ -28,5 +28,5 @@ class McDropout(NeuralNetwork):
             [self.model(x) for _ in range(self.posterior_samples)]
         )
         if aggregate:
-            return logits.mean(dim=0)
+            logits = logits.mean(dim=0)
         return F.softmax(logits, dim=-1)
