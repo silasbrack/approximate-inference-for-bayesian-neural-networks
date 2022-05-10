@@ -39,17 +39,12 @@ class NeuralNetwork(Inference):
         elapsed = time.perf_counter() - t0
         return {"Wall clock time": elapsed}
 
-    # TODO: How to implement aggregate
     def predict(self, x, aggregate=True):
-        x = x.to(self.device)
-        if aggregate:
-            self.model.eval()
-            logits = self.model(x)
-        else:
+        if not aggregate:
             raise NotImplementedError
-            # self.model.train()
-            # logits = torch.stack([self.model(x)
-            #                       for _ in range(self.posterior_samples)])
+        x = x.to(self.device)
+        self.model.eval()
+        logits = self.model(x)
         return F.softmax(logits, dim=-1)
 
     def save(self, path: str) -> None:

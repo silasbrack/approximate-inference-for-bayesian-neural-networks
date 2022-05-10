@@ -1,0 +1,6 @@
+_target_: src.inference.McDropout
+defaults:
+  - model: convnet
+device: cpu
+prior: false
+posterior_samples: 128

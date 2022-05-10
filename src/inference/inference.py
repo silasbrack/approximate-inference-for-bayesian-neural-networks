@@ -1,13 +1,20 @@
 from abc import ABC, abstractmethod
 
 import torch
+from torch.utils.data import DataLoader
 
 
 class Inference(ABC):
     name: str = None
 
     @abstractmethod
-    def fit(self, train_loader, val_loader, epochs, lr):
+    def fit(
+        self,
+        train_loader: DataLoader,
+        val_loader: DataLoader,
+        epochs: int,
+        lr: float,
+    ):
         pass
 
     @abstractmethod

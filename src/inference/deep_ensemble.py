@@ -37,7 +37,6 @@ class DeepEnsemble(Inference):
             [ensemble.predict(x) for ensemble in self.ensembles]
         )
 
-    # TODO: How to implement aggregate
     def predict(self, x, aggregate=True):
         if not aggregate:
             raise NotImplementedError

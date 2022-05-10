@@ -44,7 +44,6 @@ class Swa(Inference):
         }
         return {"Wall clock time": elapsed}
 
-    # TODO: How to implement aggregate
     def predict(self, x, aggregate=True):
         if not aggregate:
             raise NotImplementedError
