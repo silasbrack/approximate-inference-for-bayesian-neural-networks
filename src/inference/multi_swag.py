@@ -4,8 +4,8 @@ import pickle
 import time
 
 import torch
-from torch import nn
 from pyro.infer import Predictive
+from torch import nn
 
 from src.inference.inference import Inference
 from src.inference.swag import Swag, SwagModule
