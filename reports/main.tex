@@ -1,6 +1,6 @@
 \documentclass[10pt,a4paper,twocolumn]{article}
 
-% \usepackage{microtype,nowidow}
+\usepackage{microtype,nowidow}
 \usepackage{fontenc,newtxtext}
 \usepackage[left=1.5cm,right=1.5cm,top=2cm,bottom=2cm]{geometry}
 
@@ -60,16 +60,16 @@ Furthermore, the posterior predictive probability, i.e., the probability of obse
 In variational inference (VI), we minimise the KL divergence between the posterior distribution \(p(\bm \theta \given \bm y)\) and a variational distribution \(q_{\bm \phi}(\bm \theta)\) parameterised by its variational parameters \(\bm \phi\) by optimising with respect to these parameters.
 The KL divergence is defined as
 \begin{align}
-    \kld{q(\bm \theta)}{p(\bm y \given \bm \theta)} \equiv{}& \E{q}{\log \frac{q(\bm \theta)}{p(\bm y \given \bm \theta)}} \label{eq:kld}\\
-    ={}& \E{q}{\log q(\bm \theta)} - \E{q}{\log p(\bm y \given \bm \theta)} \nonumber
+    \kld{q(\bm \theta)}{p(\bm y \given \bm \theta)} \equiv{} & \E{q}{\log \frac{q(\bm \theta)}{p(\bm y \given \bm \theta)}} \label{eq:kld}  \\
+    ={}                                                      & \E{q}{\log q(\bm \theta)} - \E{q}{\log p(\bm y \given \bm \theta)} \nonumber
 \end{align}
 However, the KL divergence contains the evidence term \(\log p(\bm y)\), which is intractable.
 Instead, we define a lower bound on this marginal likelihood term that is surrogate to the KL divergence (known as the ELBO).
 Since they are surrogate, ELBO fulfils the property \(\elbo = \log p(\bm y) - \kld{q(\bm \theta)}{p(\bm y \given \bm \theta)}\), minimising the KL divergence is equivalent to maximising the ELBO, which is defined as
 \begin{align}
-    \elbo \equiv{}& \E{q}{\log p(\bm y, \bm \theta)} - \E{q}{\log q(\bm \theta)} \nonumber\\
-          ={}& \E{q}{\log p(\bm y \given \bm \theta)} + \E{q}{\log p(\bm \theta)} - \E{q}{\log q(\bm \theta)} \nonumber\\
-  ={}& \E{q}{\log p(\bm y \given \bm \theta)} - \underbrace{- \E{q}{\log p(\bm \theta)}}_{\text{Cross-entropy}} + \underbrace{- \E{q}{\log q(\bm \theta)}}_{\text{Entropy}} \label{eq:elbo}
+    \elbo \equiv{} & \E{q}{\log p(\bm y, \bm \theta)} - \E{q}{\log q(\bm \theta)} \nonumber                                                                                                               \\
+    ={}            & \E{q}{\log p(\bm y \given \bm \theta)} + \E{q}{\log p(\bm \theta)} - \E{q}{\log q(\bm \theta)} \nonumber                                                                             \\
+    ={}            & \E{q}{\log p(\bm y \given \bm \theta)} - \underbrace{- \E{q}{\log p(\bm \theta)}}_{\text{Cross-entropy}} + \underbrace{- \E{q}{\log q(\bm \theta)}}_{\text{Entropy}} \label{eq:elbo}
 \end{align}
 where the first term \(\E{q}{\log p(\bm y \given \bm \theta)}\) is the data (or likelihood) term, \(-\E{q}{\log p(\bm \theta)}\) is the cross-entropy of the prior with respect to the variational approximation, and \(-\E{q}{\log q(\bm \theta)}\) is the entropy term of the variational approximation.
 The last two terms can be interpreted as the regularising KL divergence (or relative entropy) from the prior to the variational approximation, \(\kld{q(\bm \theta)}{p(\bm \theta)} = \E{q}{\log q(\bm \theta)} - \E{q}{\log p(\bm \theta)}\).
@@ -88,14 +88,14 @@ These methods will be described in the following sections.
 One common variational family used to approximate the real posterior is a product of independent Gaussian distributions (the mean-field approximation) such that each model parameter is sampled from a normal distribution and is independent of all other model parameters, yielding a Gaussian with a diagonal covariance matrix.
 In mean-field VI, model weights are sampled from an approximate posterior \(q(\bm \theta) \approx p(\bm{\theta} \given \bm y)\) as
 \begin{align}
-    q(\bm \theta) ={}& \normal(\bm \mu, \bm \sigma) \Leftrightarrow \nonumber\\
-    \bm{\theta} ={}& \bm{\mu} + \bm{\sigma} \circ \bm{\epsilon}\label{eq:meanfield}
+    q(\bm \theta) ={} & \normal(\bm \mu, \bm \sigma) \Leftrightarrow \nonumber         \\
+    \bm{\theta} ={}   & \bm{\mu} + \bm{\sigma} \circ \bm{\epsilon}\label{eq:meanfield}
 \end{align}
 where \(\bm{\epsilon} \sim \normal(\bm 0, \identity)\).
 For this type of variational approximation, the entropy term is given by \(\entropy{q(\theta)} = - \sum_i \log \sigma_i\) and the cross-entropy of the prior relative to the variational approximation is calculated via Monte Carlo simulation by taking the prior log probability with respect to mean-field posterior samples as
 \begin{align}
-    \crossentropy{q(\bm\theta)}{p(\bm\theta)} ={}& - \int q(\bm\theta) \log(p(\bm\theta))\,d\bm\theta \nonumber\\
-    \approx{}& \frac{1}{S} \sum^S_{s=1} \log p(\bm{\theta}^{(s)})
+    \crossentropy{q(\bm\theta)}{p(\bm\theta)} ={} & - \int q(\bm\theta) \log(p(\bm\theta))\,d\bm\theta \nonumber \\
+    \approx{}                                     & \frac{1}{S} \sum^S_{s=1} \log p(\bm{\theta}^{(s)})
 \end{align}
 where \(\bm{\theta}^{(s)} \sim \normal(\bm{\mu}, \bm{\sigma})\).
 
@@ -123,12 +123,12 @@ As a compromise between the last two methods, a low-rank variational approximati
 
 \subsubsection{Radial Variational Approximation}
 % Radial BNN
-\textcite{farquhar2020radial} introduces the Radial approximate posterior, 
+\textcite{farquhar2020radial} introduces the Radial approximate posterior,
 For each NN layer, this posterior is sampled similarly to the mean-field (\cref{eq:meanfield}), but by normalising the \(\bm{\epsilon}\) term (projecting it onto a hypersphere) yielding a direction term \(\bm{\epsilon}/\norm{\bm{\epsilon}}\), and scaling it by the distance \(r\).
 Therefore, for each layer, the radial posterior is sampled as
 \begin{align}\label{eq:radial}
-    q(\bm \theta) ={}& \mathrm{Radial}(\bm{\mu}, \bm{\sigma}) \nonumber\\
-    \bm{\theta} ={}& \bm{\mu} + \bm{\sigma} \circ \frac{\bm{\epsilon}}{\norm{\bm{\epsilon}}} r
+    q(\bm \theta) ={} & \mathrm{Radial}(\bm{\mu}, \bm{\sigma}) \nonumber                          \\
+    \bm{\theta} ={}   & \bm{\mu} + \bm{\sigma} \circ \frac{\bm{\epsilon}}{\norm{\bm{\epsilon}}} r
 \end{align}
 where \(\bm{\epsilon} \sim \normal(\bm{0}, \identity)\), \(r \sim \normal(0, 1)\).
 The entropy term of the Radial approximate posterior is given
@@ -138,11 +138,11 @@ The entropy term of the Radial approximate posterior is given
 % MAP
 The \emph{maximum a posteriori} solution finds a point estimate of the posterior given by its maximum.
 \begin{align}
-    \bm \theta_\mathrm{MAP} 
-    ={}& \max_{\bm \theta} p(\bm \theta \given \bm y) \nonumber\\
-    ={}& \max_{\bm \theta} \log p(\bm \theta \given \bm y) \nonumber\\
-    ={}& \max_{\bm \theta} \left[ \log p(\bm y \given \bm \theta) + \log p(\bm \theta) \right] \nonumber\\
-    ={}& \max_{\bm \theta} \left[ \sum_{i=1}^N \log p(y_i \given \bm \theta) + \log p(\bm \theta) \right]
+    \bm \theta_\mathrm{MAP}
+    ={} & \max_{\bm \theta} p(\bm \theta \given \bm y) \nonumber                                           \\
+    ={} & \max_{\bm \theta} \log p(\bm \theta \given \bm y) \nonumber                                      \\
+    ={} & \max_{\bm \theta} \left[ \log p(\bm y \given \bm \theta) + \log p(\bm \theta) \right] \nonumber  \\
+    ={} & \max_{\bm \theta} \left[ \sum_{i=1}^N \log p(y_i \given \bm \theta) + \log p(\bm \theta) \right]
 \end{align}
 \emph{Need more}
 
@@ -162,9 +162,9 @@ where \(\bm\Sigma = -(\left.\nabla^2_{\bm \theta} \mathcal{L}(\bm y; \bm \theta)
 In deep ensembles~\cite{lakshminarayanan2017simple}, \(M\) neural networks are trained with different initialisations.
 To make predictions with a deep ensemble,
 \begin{align}
-    p(\bm y_{\mathrm{new}} \given \bm y) 
-    ={}& \int p(\bm y_{\mathrm{new}} \given \bm \theta) p(\bm \theta \given \bm y)\,d\bm\theta \nonumber\\
-    ={}& \frac{1}{M} \sum_{m=0}^M p(\bm y_{\mathrm{new}} \given \bm\theta^{(m)})
+    p(\bm y_{\mathrm{new}} \given \bm y)
+    ={} & \int p(\bm y_{\mathrm{new}} \given \bm \theta) p(\bm \theta \given \bm y)\,d\bm\theta \nonumber \\
+    ={} & \frac{1}{M} \sum_{m=0}^M p(\bm y_{\mathrm{new}} \given \bm\theta^{(m)})
 \end{align}
 where \(\bm\theta^{(m)}\) are the model parameters for ensemble \(m\), and \(p(\bm y_{\mathrm{new}} \given \bm\theta^{(m)})\) are therefore the normalised logits, or predicted probabilities, from the model.
 
@@ -179,14 +179,14 @@ Stochastic weight averaging estimates the final point estimate of the weights of
 For SWAG~\cite{maddox2019simple}, the standard deviation of the model parameters \(\bm \sigma_\mathrm{SWA}\) is also calculated.
 From the SWA estimates of the model parameter mean and standard deviations, the posterior is then estimated as
 \begin{align}\label{eq:swag}
-    p(\bm \theta \given \bm y) \approx{}& \normal(\bm \theta_\mathrm{SWA}, \bm \sigma_\mathrm{SWA}).
+    p(\bm \theta \given \bm y) \approx{} & \normal(\bm \theta_\mathrm{SWA}, \bm \sigma_\mathrm{SWA}).
 \end{align}
 
 % MultiSWAG
 For MultiSWAG~\cite{wilson2020bayesian}, \(M\) SWAG estimates are obtained from different initialisations, as in deep ensembles.
 Then, a Gaussian mixture model (GMM) is formed as a combination of each Gaussian SWAG posterior estimate \(\normal(\bm \theta_\mathrm{SWA}^{(m)}, \bm \sigma_\mathrm{SWA}^{(m)})\) where each component is equally weighed, as
 \begin{align}\label{eq:multiswag}
-    p(\bm \theta \given \bm y) \approx{}& \sum_{m=1}^M \normal(\bm \theta_\mathrm{SWA}^{(m)}, \bm \sigma_\mathrm{SWA}^{(m)}).
+    p(\bm \theta \given \bm y) \approx{} & \sum_{m=1}^M \normal(\bm \theta_\mathrm{SWA}^{(m)}, \bm \sigma_\mathrm{SWA}^{(m)}).
 \end{align}
 \emph{Need more}
 
@@ -214,7 +214,7 @@ The entropy term is calculated in the same way for continual learning, however t
 % Active learning introduction
 Active learning is...
 
-For active learning 
+For active learning
 
 The \emph{Max Entropy} acquisition function~\cite{gal2017deep,shannon1948mathematical} for selecting images maximises the entropy of the posterior predictive
 \begin{align}
@@ -235,9 +235,9 @@ Tyxe is a BNN library built upon Pyro~\cite{ritter2021tyxe}.
 \subsection{MNIST and SVHN}\label{ssec:exp-mnist}
 
 % Method
-MNIST~\cite{lecun1998gradient} and CIFAR~\cite{krizhevsky2009learning} 
+MNIST~\cite{lecun1998gradient} and CIFAR~\cite{krizhevsky2009learning}
 
-The methods described in \cref{ssec:methods} were trained on 
+The methods described in \cref{ssec:methods} were trained on
 
 To verify the confidence of the model on out-of-distribution (OOD) data, a network was trained on MNIST and tested on CIFAR-10.
 The NN had two fully-connected hidden layers with 64 neurons each, a ReLU non-linearity and a dropout layer after each.
@@ -273,7 +273,7 @@ This may suggest that the problem is with the model being used and not the infer
 \begin{figure}
     \centering
     \includegraphics[width=\linewidth]{figures/ensemble_comparison.pdf}
-    \caption{Ensembles with between one and twenty maximum likelihood NNs, trained on MNIST.}
+    \caption{Ensembles with between one and twenty maximum likelihood NNs, trained on MNIST. We find that two ensembles have an increase of 0.8\% accuracy relative to a single neural network.}
     \label{fig:ensembles}
 \end{figure}
 

@@ -1,5 +1,5 @@
 _target_: src.inference.DeepEnsemble
 defaults:
-  - model: dense.yaml
+  - model: convnet
 num_ensembles: 5
 device: cpu

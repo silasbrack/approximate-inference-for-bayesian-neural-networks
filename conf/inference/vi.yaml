@@ -1,6 +1,6 @@
 _target_: src.inference.VariationalInference
 defaults:
-  - model: dense
+  - model: convnet
   - variational_family: mean_field
 num_particles: 32
 posterior_samples: 128
