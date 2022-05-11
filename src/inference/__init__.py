@@ -1,6 +1,5 @@
 from .deep_ensemble import DeepEnsemble
 from .laplace import Laplace
-from .mc_dropout import McDropout
 from .multi_swag import MultiSwag
 from .nn import NeuralNetwork
 from .swa import Swa
