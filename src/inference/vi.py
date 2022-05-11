@@ -8,6 +8,7 @@ import tyxe
 from pyro import distributions as dist
 from torch.nn.functional import softmax
 from tqdm import tqdm
+import wandb
 
 from src.inference.inference import Inference
 
@@ -64,6 +65,14 @@ class VariationalInference(Inference):
             elbos[i] = e
             val_err[i] = avg_err
             val_ll[i] = avg_ll
+            wandb.log(
+                {
+                    "Epoch": i,
+                    "ELBO": elbos[i],
+                    "Validation error": avg_err,
+                    "Validation LL": avg_ll,
+                }
+            )
             pbar.update()
 
         t0 = time.perf_counter()

@@ -1,4 +1,5 @@
 import logging
+import os
 import pickle
 
 import hydra
@@ -16,6 +17,7 @@ def train(cfg: DictConfig):
     wandb.init(
         project=cfg.project, settings=wandb.Settings(start_method="thread")
     )
+    wandb.config.update({"Experiment directory": os.getcwd()})
     wandb.config.update(
         OmegaConf.to_container(cfg, resolve=True, throw_on_missing=True)
     )
