@@ -1,4 +1,4 @@
-_target_: src.inference.McDropout
+_target_: src.inference.mc_dropout.McDropout
 defaults:
   - model: convnet
 device: cpu

@@ -1,12 +1,26 @@
-import copy
 import os
 import time
 
 import torch
-from torch import nn
-from torch.nn import functional as F
+import torchmetrics as tm
+import torch.nn.functional as F
+import tqdm
+import wandb
 
 from src.inference.inference import Inference
+
+
+def evaluate_accuracy(inference, loader):
+    accuracy = tm.Accuracy()
+    nll = tm.MeanMetric()
+    for x, y in iter(loader):
+        probs = inference.predict(x).detach().cpu()
+        accuracy(probs, y)
+        nll(F.nll_loss(probs, y))
+    return {
+        "Validation accuracy": accuracy.compute().item(),
+        "Validation NLL": nll.compute().item(),
+    }
 
 
 class NeuralNetwork(Inference):
@@ -28,7 +42,7 @@ class NeuralNetwork(Inference):
             )
         self.model.train()
         t0 = time.perf_counter()
-        for epoch in range(epochs):
+        for epoch in tqdm.tqdm(range(epochs)):
             for x, y in train_loader:
                 x, y = x.to(self.device), y.to(self.device)
                 self.optim.zero_grad()
@@ -36,6 +50,11 @@ class NeuralNetwork(Inference):
                 loss = F.nll_loss(logits, y)
                 loss.backward()
                 self.optim.step()
+                wandb.log({"Epoch": epoch, "Training loss": loss.item()})
+
+            result = evaluate_accuracy(self, val_loader)
+            result["Epoch"] = epoch
+            wandb.log(result)
         elapsed = time.perf_counter() - t0
         return {"Wall clock time": elapsed}
 
