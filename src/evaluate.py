@@ -64,6 +64,19 @@ def evaluate(
     }
 
 
+def evaluate_accuracy(inference: Inference, loader: DataLoader) -> Dict:
+    accuracy = tm.Accuracy()
+    nll = tm.MeanMetric()
+    for x, y in iter(loader):
+        probs = inference.predict(x).detach().cpu()
+        accuracy(probs, y)
+        nll(F.nll_loss(probs, y))
+    return {
+        "Validation accuracy": accuracy.compute().item(),
+        "Validation NLL": nll.compute().item(),
+    }
+
+
 def print_dict(dictionary: Dict):
     for key, val in dictionary.items():
         if type(val) is np.ndarray:

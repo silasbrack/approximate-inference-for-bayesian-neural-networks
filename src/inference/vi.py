@@ -4,13 +4,29 @@ import time
 import numpy as np
 import pyro
 import torch
+from torchmetrics import Accuracy, MeanMetric
 import tyxe
 from pyro import distributions as dist
-from torch.nn.functional import softmax
+from torch.nn.functional import softmax, nll_loss
 from tqdm import tqdm
 import wandb
+import torchmetrics as tm
+import torch.nn.functional as F
 
 from src.inference.inference import Inference
+
+
+def evaluate_accuracy(inference, loader):
+    accuracy = tm.Accuracy()
+    nll = tm.MeanMetric()
+    for x, y in iter(loader):
+        probs = inference.predict(x).detach().cpu()
+        accuracy(probs, y)
+        nll(F.nll_loss(probs, y))
+    return {
+        "Validation accuracy": accuracy.compute().item(),
+        "Validation NLL": nll.compute().item(),
+    }
 
 
 class VariationalInference(Inference):
@@ -49,30 +65,14 @@ class VariationalInference(Inference):
         elbos = np.zeros((epochs, 1))
         val_err = np.zeros((epochs, 1))
         val_ll = np.zeros((epochs, 1))
+
         pbar = tqdm(total=epochs, unit="Epochs")
 
         def callback(b: tyxe.VariationalBNN, i: int, e: float):
-            avg_err, avg_ll = 0.0, 0.0
-            for x, y in iter(val_loader):
-                err, ll = b.evaluate(
-                    x.to(self.device),
-                    y.to(self.device),
-                    num_predictions=self.posterior_samples,
-                )
-                err, ll = err.detach().cpu(), ll.detach().cpu()
-                avg_err += err / len(val_loader.sampler)
-                avg_ll += ll / len(val_loader.sampler)
-            elbos[i] = e
-            val_err[i] = avg_err
-            val_ll[i] = avg_ll
-            wandb.log(
-                {
-                    "Epoch": i,
-                    "ELBO": elbos[i],
-                    "Validation error": avg_err,
-                    "Validation LL": avg_ll,
-                }
-            )
+            result = evaluate_accuracy(self, val_loader)
+            result["Epoch"] = i
+            result["ELBO"] = e
+            wandb.log(result)
             pbar.update()
 
         t0 = time.perf_counter()
@@ -96,12 +96,8 @@ class VariationalInference(Inference):
                 device=self.device,
             )
         elapsed = time.perf_counter() - t0
-
         return {
             "Wall clock time": elapsed,
-            "Training ELBO": elbos,
-            "Validation accuracy": 1 - val_err,
-            "Validation log-likelihood": val_ll,
         }
 
     def predict(self, x, aggregate=True):
